@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Store, 
-  Truck, 
-  BadgeIndianRupee, 
-  ArrowRight, 
-  Sparkles, 
-  ShieldCheck, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle2, 
+import {
+  Store,
+  Truck,
+  BadgeIndianRupee,
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
   Navigation,
   Fuel,
   Scale,
   MapPin,
-  Building2
+  Building2,
+  RefreshCw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
@@ -44,7 +45,8 @@ export default function MarketsView() {
     runOptimizer();
   }, []);
 
-  const runOptimizer = async () => {
+  const runOptimizer = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     setLoading(true);
     const params = {
       crop_id: cropId,
