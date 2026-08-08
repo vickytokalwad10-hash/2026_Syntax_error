@@ -31,15 +31,15 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Build production bundle
         working-directory: ./frontend
         run: npm run build
 
-      - name: Add .nojekyll and 404.html for GitHub Pages
+      - name: Prepare static files for GitHub Pages
         run: |
           touch frontend/dist/.nojekyll
           cp frontend/dist/index.html frontend/dist/404.html
