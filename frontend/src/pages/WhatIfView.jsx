@@ -10,8 +10,8 @@ import {
   Zap,
   Bookmark
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { api } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 const CROPS = [
   { id: 'wheat', name: 'Wheat (Sharbati)' },
@@ -26,6 +26,7 @@ const CROPS = [
 ];
 
 export default function WhatIfView() {
+  const { t, language } = useLanguage();
   const [cropId, setCropId] = useState('wheat');
   const [yieldShock, setYieldShock] = useState(-15);
   const [exportDuty, setExportDuty] = useState(20);
@@ -63,7 +64,6 @@ export default function WhatIfView() {
     if (res && res.results) {
       setSimulationResult(res.results);
     } else {
-      // Local fallback calculation
       const baseP = 2840;
       const netPct = (yieldShock * -0.65) + (exportDuty * -0.11) + (freightCost * 0.18);
       const simP = Math.round(baseP * (1 + netPct / 100));
@@ -98,26 +98,17 @@ export default function WhatIfView() {
     setTimeout(runSimulation, 50);
   };
 
-  const triggerConfetti = () => {
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#839958', '#F7F4D5', '#105666', '#D3968C']
-    });
-  };
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Scenario Presets Banner */}
       <div className="agri-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <Bookmark size={18} color="var(--color-moss-green-light)" />
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>
-            Quick Scenario Presets (Climate & Macro Shocks)
+          <Bookmark size={18} color="#FACC15" />
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+            {t('whatifTitle')}
           </h3>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
           {presets.map((p) => (
             <button
               key={p.id}
@@ -127,15 +118,15 @@ export default function WhatIfView() {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'flex-start', 
-                padding: '12px 14px', 
+                padding: '10px 12px', 
                 textAlign: 'left',
-                border: '1px solid rgba(131, 153, 88, 0.25)'
+                border: '1px solid #374151'
               }}
             >
-              <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-beige)', marginBottom: '4px' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#FFFFFF', marginBottom: '3px' }}>
                 {p.title}
               </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
                 {p.description}
               </span>
             </button>
@@ -144,45 +135,46 @@ export default function WhatIfView() {
       </div>
 
       {/* Simulator Core Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '20px' }}>
         {/* Left Parameter Controls */}
-        <div className="agri-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="agri-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <SlidersHorizontal size={18} color="var(--color-moss-green-light)" />
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '700' }}>Shock Parameters</h3>
+              <SlidersHorizontal size={18} color="#FACC15" />
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#FFFFFF' }}>{t('shockParameters')}</h3>
             </div>
             <button 
               onClick={runSimulation}
               className="btn-primary"
-              style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+              style={{ padding: '6px 12px', fontSize: '0.8rem' }}
             >
               <RefreshCw size={13} className={simulating ? 'animate-spin' : ''} />
-              <span>Simulate</span>
+              <span>{t('runSimulationBtn')}</span>
             </button>
           </div>
 
           {/* Commodity Dropdown */}
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Target Crop Commodity
+            <label style={{ fontSize: '0.8rem', fontWeight: '600', color: '#CBD5E1', display: 'block', marginBottom: '4px' }}>
+              {t('cropType')}
             </label>
             <select 
               value={cropId} 
               onChange={(e) => { setCropId(e.target.value); setTimeout(runSimulation, 50); }}
-              className="select-field"
+              className="input-field"
+              style={{ padding: '7px 10px' }}
             >
               {CROPS.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>{t(c.id) || c.name}</option>
               ))}
             </select>
           </div>
 
           {/* Slider 1: Yield Shock */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.8rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Yield Shock (%)</span>
-              <strong style={{ color: yieldShock >= 0 ? 'var(--color-moss-green-light)' : 'var(--color-rosy-brown-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
+              <span style={{ color: '#CBD5E1' }}>{t('yieldShock')}</span>
+              <strong style={{ color: yieldShock >= 0 ? '#FACC15' : '#FCA5A5' }}>
                 {yieldShock >= 0 ? `+${yieldShock}%` : `${yieldShock}%`}
               </strong>
             </div>
@@ -193,17 +185,17 @@ export default function WhatIfView() {
               value={yieldShock} 
               onChange={(e) => setYieldShock(e.target.value)} 
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-              <span>-50% Severe Crop Loss</span>
-              <span>+50% Bumper Harvest</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#94A3B8', marginTop: '2px' }}>
+              <span>-50% Loss</span>
+              <span>+50% Bumper</span>
             </div>
           </div>
 
           {/* Slider 2: Export Duty */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.8rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Export Duty / Tariff (%)</span>
-              <strong style={{ color: 'var(--color-beige)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
+              <span style={{ color: '#CBD5E1' }}>{t('exportDuty')}</span>
+              <strong style={{ color: '#FFFFFF' }}>
                 {exportDuty >= 0 ? `+${exportDuty}%` : `${exportDuty}%`}
               </strong>
             </div>
@@ -214,17 +206,13 @@ export default function WhatIfView() {
               value={exportDuty} 
               onChange={(e) => setExportDuty(e.target.value)} 
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-              <span>-50% Subsidy Incentive</span>
-              <span>+50% Restrictive Ban</span>
-            </div>
           </div>
 
           {/* Slider 3: Freight Transport Cost */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.8rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Diesel Freight Rate (%)</span>
-              <strong style={{ color: freightCost >= 0 ? 'var(--color-rosy-brown-light)' : 'var(--color-moss-green-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
+              <span style={{ color: '#CBD5E1' }}>{t('freightRate')}</span>
+              <strong style={{ color: freightCost >= 0 ? '#FCA5A5' : '#FACC15' }}>
                 {freightCost >= 0 ? `+${freightCost}%` : `${freightCost}%`}
               </strong>
             </div>
@@ -239,9 +227,9 @@ export default function WhatIfView() {
 
           {/* Slider 4: Monsoon Rainfall Anomaly */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.8rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Monsoon Rainfall Anomaly (%)</span>
-              <strong style={{ color: rainfallAnomaly >= 0 ? 'var(--color-moss-green-light)' : 'var(--color-rosy-brown-light)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
+              <span style={{ color: '#CBD5E1' }}>{t('rainfallAnomaly')}</span>
+              <strong style={{ color: rainfallAnomaly >= 0 ? '#FACC15' : '#FCA5A5' }}>
                 {rainfallAnomaly >= 0 ? `+${rainfallAnomaly}%` : `${rainfallAnomaly}%`}
               </strong>
             </div>
@@ -252,17 +240,13 @@ export default function WhatIfView() {
               value={rainfallAnomaly} 
               onChange={(e) => setRainfallAnomaly(e.target.value)} 
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-              <span>-40% Drought Deficit</span>
-              <span>+40% Excess Flooding</span>
-            </div>
           </div>
 
           {/* Slider 5: Fertilizer Subsidy */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.8rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Fertilizer Subsidy Delta (%)</span>
-              <strong style={{ color: 'var(--color-beige)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
+              <span style={{ color: '#CBD5E1' }}>{t('fertilizerSubsidy')}</span>
+              <strong style={{ color: '#FFFFFF' }}>
                 {fertilizerSubsidy >= 0 ? `+${fertilizerSubsidy}%` : `${fertilizerSubsidy}%`}
               </strong>
             </div>
@@ -278,19 +262,19 @@ export default function WhatIfView() {
 
         {/* Right Simulation Outcome Analytics */}
         {simulationResult ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* Equilibrium Price Impact Card */}
-            <div className="agri-card-solid" style={{ borderLeft: '5px solid var(--color-moss-green-light)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div className="agri-card" style={{ borderLeft: '4px solid #FACC15' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Simulated Spot Price Reaction
+                  <span style={{ fontSize: '0.75rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {t('simulatedSpotPrice')}
                   </span>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginTop: '4px' }}>
-                    <h2 style={{ fontSize: '2.4rem', fontWeight: '800', color: 'var(--color-beige)' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginTop: '2px' }}>
+                    <h2 style={{ fontSize: '2.2rem', fontWeight: '800', color: '#FFFFFF' }}>
                       ₹{simulationResult.simulated_price.toLocaleString()}
                     </h2>
-                    <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>
+                    <span style={{ fontSize: '0.9rem', color: '#94A3B8' }}>
                       Base: ₹{simulationResult.base_price.toLocaleString()}/Q
                     </span>
                   </div>
@@ -300,87 +284,87 @@ export default function WhatIfView() {
                   display: 'flex', 
                   alignItems: 'center', 
                   gap: '6px', 
-                  padding: '10px 16px', 
-                  borderRadius: 'var(--radius-md)', 
-                  background: simulationResult.price_delta_pct >= 0 ? 'rgba(131, 153, 88, 0.25)' : 'rgba(211, 150, 140, 0.25)',
-                  border: `1px solid ${simulationResult.price_delta_pct >= 0 ? 'var(--color-moss-green)' : 'var(--color-rosy-brown)'}`
+                  padding: '8px 14px', 
+                  borderRadius: '4px', 
+                  background: '#1E293B',
+                  border: `1px solid ${simulationResult.price_delta_pct >= 0 ? '#FACC15' : '#EF4444'}`
                 }}>
-                  {simulationResult.price_delta_pct >= 0 ? <TrendingUp size={22} color="var(--color-moss-green-light)" /> : <TrendingDown size={22} color="var(--color-rosy-brown-light)" />}
-                  <span style={{ fontSize: '1.25rem', fontWeight: '800', color: simulationResult.price_delta_pct >= 0 ? 'var(--color-moss-green-light)' : 'var(--color-rosy-brown-light)' }}>
+                  {simulationResult.price_delta_pct >= 0 ? <TrendingUp size={20} color="#FACC15" /> : <TrendingDown size={20} color="#FCA5A5" />}
+                  <span style={{ fontSize: '1.15rem', fontWeight: '800', color: simulationResult.price_delta_pct >= 0 ? '#FACC15' : '#FCA5A5' }}>
                     {simulationResult.price_delta_pct >= 0 ? `+${simulationResult.price_delta_pct}%` : `${simulationResult.price_delta_pct}%`}
                   </span>
                 </div>
               </div>
 
               {/* Economic Metrics Breakdown */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginTop: '16px' }}>
-                <div style={{ padding: '12px', background: 'rgba(5, 28, 19, 0.7)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(131, 153, 88, 0.2)' }}>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>FARMER NET MARGIN / ACRE</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--color-beige)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '12px' }}>
+                <div style={{ padding: '10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{t('farmerNetMargin')}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#FFFFFF' }}>
                     ₹{simulationResult.simulated_net_margin_per_acre.toLocaleString()}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: simulationResult.margin_delta_pct >= 0 ? 'var(--color-moss-green-light)' : 'var(--color-rosy-brown-light)' }}>
+                  <div style={{ fontSize: '0.75rem', color: simulationResult.margin_delta_pct >= 0 ? '#FACC15' : '#FCA5A5' }}>
                     {simulationResult.margin_delta_pct >= 0 ? `+${simulationResult.margin_delta_pct}% Gain` : `${simulationResult.margin_delta_pct}% Squeeze`}
                   </div>
                 </div>
 
-                <div style={{ padding: '12px', background: 'rgba(5, 28, 19, 0.7)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(131, 153, 88, 0.2)' }}>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>MANDI ARRIVAL PRESSURE</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--color-beige)' }}>
+                <div style={{ padding: '10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{t('mandiPressure')}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#FFFFFF' }}>
                     {simulationResult.mandi_arrival_pressure}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Wholesale Liquidity</div>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Wholesale Liquidity</div>
                 </div>
 
-                <div style={{ padding: '12px', background: 'rgba(5, 28, 19, 0.7)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(131, 153, 88, 0.2)' }}>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>CPI FOOD INFLATION PTS</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--color-beige)' }}>
+                <div style={{ padding: '10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{t('cpiImpact')}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#FFFFFF' }}>
                     {simulationResult.cpi_food_inflation_impact_pts >= 0 ? `+${simulationResult.cpi_food_inflation_impact_pts}` : `${simulationResult.cpi_food_inflation_impact_pts}`}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Headline CPI Impact</div>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Headline CPI</div>
                 </div>
               </div>
             </div>
 
             {/* Strategic Recommendations Card */}
             <div className="agri-card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <Zap size={18} color="var(--color-moss-green-light)" />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: '700' }}>
-                  AI Prescriptive Response & Farm Hedging Strategy
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <Zap size={18} color="#FACC15" />
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#FFFFFF' }}>
+                  {t('strategicRecommendations')}
                 </h4>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {simulationResult.strategic_recommendations.map((rec, idx) => (
                   <div 
                     key={idx}
                     style={{ 
                       display: 'flex', 
                       alignItems: 'flex-start', 
-                      gap: '12px', 
-                      padding: '12px 16px', 
-                      background: 'rgba(10, 51, 35, 0.5)', 
-                      borderRadius: 'var(--radius-sm)',
-                      border: '1px solid rgba(131, 153, 88, 0.2)'
+                      gap: '10px', 
+                      padding: '10px 12px', 
+                      background: '#1E293B', 
+                      borderRadius: '4px',
+                      border: '1px solid #374151'
                     }}
                   >
                     <div style={{ 
-                      width: '24px', 
-                      height: '24px', 
-                      borderRadius: '50%', 
-                      background: 'var(--color-moss-green)', 
-                      color: 'var(--color-beige)', 
+                      width: '22px', 
+                      height: '22px', 
+                      borderRadius: '4px', 
+                      background: '#FACC15', 
+                      color: '#000000', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      fontWeight: '700',
-                      fontSize: '0.8rem',
+                      fontWeight: '800',
+                      fontSize: '0.75rem',
                       flexShrink: 0
                     }}>
                       {idx + 1}
                     </div>
-                    <span style={{ fontSize: '0.9rem', color: 'var(--color-beige)', lineHeight: '1.4' }}>
+                    <span style={{ fontSize: '0.88rem', color: '#FFFFFF', lineHeight: '1.4' }}>
                       {rec}
                     </span>
                   </div>

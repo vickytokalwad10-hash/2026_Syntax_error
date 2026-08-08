@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
 
+AGRI_HUBS = {
     "ludhiana": {
         "name": "Ludhiana (Punjab)",
         "lat": 30.9010,

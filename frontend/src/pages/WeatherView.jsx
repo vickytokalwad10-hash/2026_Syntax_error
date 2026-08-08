@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CloudSun, 
   Droplets, 
@@ -66,7 +66,6 @@ export default function WeatherView() {
     if (forecastRes) {
       setWeatherData(forecastRes);
     } else {
-      // Offline fallback profile for static deployment
       const dates = Array.from({ length: forecastDays }, (_, i) => {
         const d = new Date();
         d.setDate(d.getDate() + i);
@@ -175,36 +174,35 @@ export default function WeatherView() {
 
   const dailyForecast = weatherData?.daily_forecast || [];
 
-  // Chart Data preparation
   const chartData = {
     labels: dailyForecast.map(f => f.display_date),
     datasets: [
       {
         type: 'line',
-        label: language === 'mr' ? 'कमाल तापमान (°C)' : (language === 'hi' ? 'अधिकतम तापमान (°C)' : 'Max Temp (°C)'),
+        label: t('maxTemp'),
         data: dailyForecast.map(f => f.temp_max),
-        borderColor: '#D3968C',
-        backgroundColor: 'rgba(211, 150, 140, 0.15)',
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: '#D3968C',
+        borderColor: '#FACC15',
+        backgroundColor: 'rgba(250, 204, 21, 0.1)',
+        tension: 0.2,
+        fill: false,
+        pointBackgroundColor: '#FACC15',
         yAxisID: 'y'
       },
       {
         type: 'line',
-        label: language === 'mr' ? 'किमान तापमान (°C)' : (language === 'hi' ? 'न्यूनतम तापमान (°C)' : 'Min Temp (°C)'),
+        label: t('minTemp'),
         data: dailyForecast.map(f => f.temp_min),
-        borderColor: '#839958',
-        tension: 0.4,
-        pointBackgroundColor: '#839958',
+        borderColor: '#FFFFFF',
+        tension: 0.2,
+        pointBackgroundColor: '#FFFFFF',
         yAxisID: 'y'
       },
       {
         type: 'bar',
-        label: language === 'mr' ? 'पावसाची शक्यता (%)' : (language === 'hi' ? 'बारिश की संभावना (%)' : 'Rain Prob (%)'),
+        label: t('rainProbability'),
         data: dailyForecast.map(f => f.rain_prob),
-        backgroundColor: 'rgba(16, 86, 102, 0.65)',
-        borderRadius: 4,
+        backgroundColor: '#374151',
+        borderRadius: 2,
         yAxisID: 'y1'
       }
     ]
@@ -216,7 +214,7 @@ export default function WeatherView() {
     plugins: {
       legend: {
         position: 'top',
-        labels: { color: '#F7F4D5', font: { size: 12 } }
+        labels: { color: '#FFFFFF', font: { size: 12 } }
       },
       tooltip: {
         mode: 'index',
@@ -225,56 +223,55 @@ export default function WeatherView() {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(131, 153, 88, 0.1)' },
-        ticks: { color: '#A0B298' }
+        grid: { color: '#1E293B' },
+        ticks: { color: '#94A3B8' }
       },
       y: {
         type: 'linear',
         display: true,
         position: 'left',
-        title: { display: true, text: 'Temperature (°C)', color: '#D3968C' },
-        grid: { color: 'rgba(131, 153, 88, 0.15)' },
-        ticks: { color: '#F7F4D5' }
+        title: { display: true, text: 'Temperature (°C)', color: '#FACC15' },
+        grid: { color: '#1E293B' },
+        ticks: { color: '#FFFFFF' }
       },
       y1: {
         type: 'linear',
         display: true,
         position: 'right',
-        title: { display: true, text: 'Rain Prob (%)', color: '#105666' },
+        title: { display: true, text: 'Rain Prob (%)', color: '#94A3B8' },
         grid: { drawOnChartArea: false },
-        ticks: { color: '#A0B298', min: 0, max: 100 }
+        ticks: { color: '#94A3B8', min: 0, max: 100 }
       }
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
       {/* Header & Hub Selection Bar */}
       <div className="agri-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ 
-            width: '44px', 
-            height: '44px', 
-            borderRadius: '12px', 
-            background: 'linear-gradient(135deg, #105666 0%, #839958 100%)', 
+            width: '40px', 
+            height: '40px', 
+            borderRadius: '6px', 
+            background: '#FACC15', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(16, 86, 102, 0.4)'
           }}>
-            <CloudSun size={24} color="#F7F4D5" />
+            <CloudSun size={22} color="#000000" />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-beige)' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#FFFFFF' }}>
                 {t('weatherTitle')}
               </h2>
-              <span className="badge badge-moss" style={{ fontSize: '0.72rem' }}>
+              <span className="badge badge-yellow" style={{ fontSize: '0.7rem' }}>
                 Open-Meteo Synced
               </span>
             </div>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+            <p style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
               {t('weatherSubtitle')}
             </p>
           </div>
@@ -283,12 +280,12 @@ export default function WeatherView() {
         {/* Filters: Hub and Forecast Duration */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <MapPin size={16} color="var(--color-moss-green-light)" />
+            <MapPin size={16} color="#FACC15" />
             <select 
-              className="select-custom"
+              className="input-field"
               value={selectedHub}
               onChange={(e) => setSelectedHub(e.target.value)}
-              style={{ minWidth: '190px' }}
+              style={{ minWidth: '190px', padding: '6px 10px' }}
             >
               {HUBS.map(h => (
                 <option key={h.id} value={h.id}>
@@ -298,16 +295,16 @@ export default function WeatherView() {
             </select>
           </div>
 
-          <div style={{ display: 'flex', background: 'rgba(5, 28, 19, 0.8)', padding: '3px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-card)' }}>
+          <div style={{ display: 'flex', background: '#111827', padding: '2px', borderRadius: '4px', border: '1px solid #374151' }}>
             <button
               onClick={() => setForecastDays(7)}
               style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
+                padding: '5px 10px',
+                borderRadius: '3px',
                 border: 'none',
-                background: forecastDays === 7 ? 'var(--color-moss-green)' : 'transparent',
-                color: forecastDays === 7 ? '#F7F4D5' : 'var(--text-secondary)',
-                fontWeight: '600',
+                background: forecastDays === 7 ? '#FACC15' : 'transparent',
+                color: forecastDays === 7 ? '#000000' : '#FFFFFF',
+                fontWeight: '700',
                 fontSize: '0.8rem',
                 cursor: 'pointer'
               }}
@@ -317,12 +314,12 @@ export default function WeatherView() {
             <button
               onClick={() => setForecastDays(14)}
               style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
+                padding: '5px 10px',
+                borderRadius: '3px',
                 border: 'none',
-                background: forecastDays === 14 ? 'var(--color-moss-green)' : 'transparent',
-                color: forecastDays === 14 ? '#F7F4D5' : 'var(--text-secondary)',
-                fontWeight: '600',
+                background: forecastDays === 14 ? '#FACC15' : 'transparent',
+                color: forecastDays === 14 ? '#000000' : '#FFFFFF',
+                fontWeight: '700',
                 fontSize: '0.8rem',
                 cursor: 'pointer'
               }}
@@ -336,40 +333,39 @@ export default function WeatherView() {
       {/* Voice Agrometeorology Advisory Banner */}
       {advisory && (
         <div className="agri-card" style={{ 
-          background: 'linear-gradient(135deg, rgba(16, 86, 102, 0.25) 0%, rgba(5, 28, 19, 0.9) 100%)',
-          border: '1px solid var(--color-sea-green)',
+          borderLeft: '4px solid #FACC15',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '16px 20px',
+          padding: '14px 18px',
           flexWrap: 'wrap',
           gap: '14px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', flex: 1, minWidth: '280px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', flex: 1, minWidth: '280px' }}>
             <div style={{ 
-              width: '38px', 
-              height: '38px', 
-              borderRadius: '50%', 
-              background: 'rgba(131, 153, 88, 0.25)', 
-              border: '1px solid var(--color-moss-green)',
+              width: '34px', 
+              height: '34px', 
+              borderRadius: '4px', 
+              background: '#1E293B', 
+              border: '1px solid #374151',
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
               flexShrink: 0,
               marginTop: '2px'
             }}>
-              <Sparkles size={18} color="var(--color-moss-green-light)" />
+              <Sparkles size={16} color="#FACC15" />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--color-beige)' }}>
-                  {language === 'mr' ? 'दैनिक कृषी हवामान सल्ला व कृती योजना' : (language === 'hi' ? 'दैनिक कृषि मौसम परामर्श एवं कार्य योजना' : 'Daily Agrometeorology Advisory & Action Plan')}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                <h3 style={{ fontSize: '0.92rem', fontWeight: '700', color: '#FFFFFF' }}>
+                  {t('advisoryTitle')}
                 </h3>
-                <span className="badge badge-moss" style={{ fontSize: '0.68rem' }}>
+                <span className="badge badge-yellow" style={{ fontSize: '0.65rem' }}>
                   {currentLanguageObj.native}
                 </span>
               </div>
-              <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: '1.45', margin: 0 }}>
+              <p style={{ fontSize: '0.85rem', color: '#E2E8F0', lineHeight: '1.4', margin: 0 }}>
                 {language === 'mr' && advisory.advisory_mr ? advisory.advisory_mr : (language === 'hi' && advisory.advisory_hi ? advisory.advisory_hi : advisory.advisory_en)}
               </p>
             </div>
@@ -383,11 +379,11 @@ export default function WeatherView() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                fontSize: '0.85rem',
-                padding: '8px 16px'
+                fontSize: '0.82rem',
+                padding: '7px 14px'
               }}
             >
-              {isSpeaking ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              {isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}
               <span>{isSpeaking ? t('stopVoice') : t('listenVoice')}</span>
             </button>
           </div>
@@ -395,169 +391,167 @@ export default function WeatherView() {
       )}
 
       {/* Real-time Agricultural Weather Matrix (4 KPI Cards) */}
-      <div className="grid-cards-4">
+      <div className="grid-4">
         {/* Card 1: Ambient Temp & Condition */}
         <div className="agri-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('ambientTemp')}</span>
-            <Thermometer size={18} color="var(--color-rosy-brown-light)" />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>{t('ambientTemp')}</span>
+            <Thermometer size={16} color="#FACC15" />
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-beige)', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#FFFFFF', lineHeight: 1.1 }}>
             {curr.temperature}°C
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--color-moss-green-light)', marginTop: '6px' }}>
+          <div style={{ fontSize: '0.78rem', color: '#FACC15', marginTop: '4px' }}>
             {curr.condition} • Humidity: {curr.humidity}%
           </div>
         </div>
 
         {/* Card 2: Soil Moisture & Temp */}
         <div className="agri-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('soilMoisture')}</span>
-            <Droplets size={18} color="var(--color-sea-green-light)" />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>{t('soilMoisture')}</span>
+            <Droplets size={16} color="#FFFFFF" />
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-sea-green-light)', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#FFFFFF', lineHeight: 1.1 }}>
             {curr.soil_moisture_pct}%
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+          <div style={{ fontSize: '0.78rem', color: '#94A3B8', marginTop: '4px' }}>
             Soil Temp: {curr.soil_temperature}°C (Optimal)
           </div>
         </div>
 
         {/* Card 3: Evapotranspiration (ET0) */}
         <div className="agri-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('et0Rate')}</span>
-            <Sun size={18} color="var(--color-moss-green-light)" />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>{t('et0Rate')}</span>
+            <Sun size={16} color="#FACC15" />
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--color-moss-green-light)', lineHeight: 1.1 }}>
-            {curr.evapotranspiration_et0} <span style={{ fontSize: '1rem', fontWeight: '500' }}>mm/day</span>
+          <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#FACC15', lineHeight: 1.1 }}>
+            {curr.evapotranspiration_et0} <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>mm/day</span>
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-            UV Index: {curr.uv_index} • Moderate Crop Water Loss
+          <div style={{ fontSize: '0.78rem', color: '#94A3B8', marginTop: '4px' }}>
+            UV Index: {curr.uv_index} • Moderate Loss
           </div>
         </div>
 
         {/* Card 4: Wind & Spraying Suitability */}
         <div className="agri-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('sprayingWindow')}</span>
-            <Wind size={18} color="var(--color-moss-green-light)" />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>{t('sprayingWindow')}</span>
+            <Wind size={16} color="#FFFFFF" />
           </div>
-          <div style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--color-moss-green-light)', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '1.3rem', fontWeight: '800', color: '#FFFFFF', lineHeight: 1.1 }}>
             {indices.spraying_suitability}
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-            Wind: {curr.wind_speed_kmh} km/h • Low Drift Risk
+          <div style={{ fontSize: '0.78rem', color: '#94A3B8', marginTop: '4px' }}>
+            Wind: {curr.wind_speed_kmh} km/h • Low Drift
           </div>
         </div>
       </div>
 
       {/* Forecast Trend Chart & Agronomy Indices */}
-      <div className="grid-split-2-1">
-        
+      <div className="grid-2">
         {/* Main Forecast Chart */}
         <div className="agri-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
             <div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: 'var(--color-beige)' }}>
-                {forecastDays}-Day Temperature & Precipitation Radar
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#FFFFFF' }}>
+                {forecastDays}-Day Weather Radar
               </h3>
-              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+              <p style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
                 Dual-axis diurnal temperature cycle vs precipitation probabilities
               </p>
             </div>
-            <span className="badge badge-accent">
+            <span className="badge badge-yellow">
               Hourly Interpolated
             </span>
           </div>
-          <div style={{ height: '300px' }}>
+          <div style={{ height: '280px' }}>
             <Bar data={chartData} options={chartOptions} />
           </div>
         </div>
 
         {/* Agronomy Decision Badges Matrix */}
-        <div className="agri-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: 'var(--color-beige)' }}>
+        <div className="agri-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#FFFFFF' }}>
             Field Agronomy Readiness
           </h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {/* Heat Stress */}
-            <div style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)', background: 'rgba(5, 28, 19, 0.7)', border: '1px solid var(--border-card)' }}>
+            <div style={{ padding: '10px 12px', borderRadius: '4px', background: '#1E293B', border: '1px solid #374151' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{t('heatStress')}</span>
-                <span className="badge badge-moss" style={{ fontSize: '0.72rem' }}>{indices.heat_stress}</span>
+                <span style={{ fontSize: '0.82rem', color: '#E2E8F0' }}>{t('heatStress')}</span>
+                <span className="badge badge-yellow" style={{ fontSize: '0.7rem' }}>{indices.heat_stress}</span>
               </div>
             </div>
 
             {/* Irrigation Schedule */}
-            <div style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)', background: 'rgba(5, 28, 19, 0.7)', border: '1px solid var(--border-card)' }}>
+            <div style={{ padding: '10px 12px', borderRadius: '4px', background: '#1E293B', border: '1px solid #374151' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{t('irrigationSchedule')}</span>
-                <span className="badge badge-sea" style={{ fontSize: '0.72rem' }}>{indices.irrigation_recommendation}</span>
+                <span style={{ fontSize: '0.82rem', color: '#E2E8F0' }}>{t('irrigationSchedule')}</span>
+                <span className="badge badge-white" style={{ fontSize: '0.7rem' }}>{indices.irrigation_recommendation}</span>
               </div>
             </div>
 
             {/* Harvest Window */}
-            <div style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)', background: 'rgba(5, 28, 19, 0.7)', border: '1px solid var(--border-card)' }}>
+            <div style={{ padding: '10px 12px', borderRadius: '4px', background: '#1E293B', border: '1px solid #374151' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{t('harvestWindow')}</span>
-                <span className="badge badge-moss" style={{ fontSize: '0.72rem' }}>{indices.harvesting_window}</span>
+                <span style={{ fontSize: '0.82rem', color: '#E2E8F0' }}>{t('harvestWindow')}</span>
+                <span className="badge badge-yellow" style={{ fontSize: '0.7rem' }}>{indices.harvesting_window}</span>
               </div>
             </div>
 
             {/* Canopy Dew Point */}
-            <div style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)', background: 'rgba(5, 28, 19, 0.7)', border: '1px solid var(--border-card)' }}>
+            <div style={{ padding: '10px 12px', borderRadius: '4px', background: '#1E293B', border: '1px solid #374151' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Canopy Dew Point</span>
-                <span style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--color-beige)' }}>{indices.canopy_dew_point || '21.0'}°C</span>
+                <span style={{ fontSize: '0.82rem', color: '#E2E8F0' }}>Canopy Dew Point</span>
+                <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#FACC15' }}>{indices.canopy_dew_point || '21.0'}°C</span>
               </div>
             </div>
           </div>
         </div>
-
       </div>
 
       {/* Regional Agrarian Hubs Grid */}
       <div className="agri-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
           <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: 'var(--color-beige)' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#FFFFFF' }}>
               {t('regionalWeatherHubs')}
             </h3>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+            <p style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
               Real-time agro-climatic conditions across key mandis
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
           {regionalHubs.map((hub) => (
             <div 
               key={hub.hub_id}
               onClick={() => setSelectedHub(hub.hub_id)}
               style={{
-                padding: '12px 14px',
-                borderRadius: 'var(--radius-sm)',
-                background: selectedHub === hub.hub_id ? 'rgba(131, 153, 88, 0.25)' : 'rgba(5, 28, 19, 0.6)',
-                border: selectedHub === hub.hub_id ? '1px solid var(--color-moss-green)' : '1px solid var(--border-card)',
+                padding: '10px 12px',
+                borderRadius: '4px',
+                background: selectedHub === hub.hub_id ? '#1E293B' : '#111827',
+                border: selectedHub === hub.hub_id ? '1px solid #FACC15' : '1px solid #2D3A4F',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                transition: 'background-color 0.15s ease'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <span style={{ fontWeight: '700', fontSize: '0.88rem', color: 'var(--color-beige)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                <span style={{ fontWeight: '700', fontSize: '0.85rem', color: '#FFFFFF' }}>
                   {hub.hub_name}
                 </span>
-                <ArrowUpRight size={14} color="var(--color-moss-green-light)" />
+                <ArrowUpRight size={13} color="#FACC15" />
               </div>
-              <div style={{ fontSize: '0.74rem', color: 'var(--color-moss-green-light)', marginBottom: '8px' }}>
+              <div style={{ fontSize: '0.74rem', color: '#FACC15', marginBottom: '6px' }}>
                 {Array.isArray(hub.primary_crops) ? hub.primary_crops.join(', ') : hub.primary_crops}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                <span>Temp: <strong style={{ color: 'var(--color-beige)' }}>{hub.temp}°C</strong></span>
-                <span>Moisture: <strong style={{ color: 'var(--color-sea-green-light)' }}>{hub.soil_moisture}%</strong></span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', color: '#94A3B8' }}>
+                <span>Temp: <strong style={{ color: '#FFFFFF' }}>{hub.temp}°C</strong></span>
+                <span>Moisture: <strong style={{ color: '#FACC15' }}>{hub.soil_moisture}%</strong></span>
               </div>
             </div>
           ))}

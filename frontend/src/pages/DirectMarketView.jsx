@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 const FARMER_PROFILES = [
   { id: 'f-1', name: 'Sardar Harpreet Singh', location: 'Ludhiana, Punjab', kyc: 'Verified Farmer ID', crops: 'Wheat, Rice' },
@@ -38,6 +39,7 @@ const BUYER_PROFILES = [
 ];
 
 export default function DirectMarketView() {
+  const { t, language } = useLanguage();
   const [role, setRole] = useState('farmer'); // 'farmer' or 'buyer'
   const [activeFarmer, setActiveFarmer] = useState(FARMER_PROFILES[0]);
   const [activeBuyer, setActiveBuyer] = useState(BUYER_PROFILES[0]);
@@ -106,92 +108,93 @@ export default function DirectMarketView() {
     if (res && res.listing) {
       setListings([res.listing, ...listings]);
       setShowListModal(false);
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#839958', '#F7F4D5', '#105666']
-      });
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
     }
   };
 
-  const initiateDeal = async (target, type) => {
+  const initiateDeal = async (item, originType) => {
+    const isFromBuyer = originType === 'from_buyer_rfq';
     const payload = {
-      farmer_name: type === 'from_buyer_rfq' ? activeFarmer.name : target.farmer_name,
-      buyer_company: type === 'from_buyer_rfq' ? target.buyer_company : activeBuyer.company,
-      crop_name: target.crop_name,
-      agreed_price_per_q: type === 'from_buyer_rfq' ? target.max_bid_price_per_q : target.asking_price_per_q,
-      quantity_quintals: type === 'from_buyer_rfq' ? 100 : target.lot_size_quintals,
-      farmgate_address: type === 'from_buyer_rfq' ? 'Village Farmgate, Karnal Highway' : target.farmgate_address,
-      payment_terms: '100% Escrow Bank Guaranteed'
+      farmer_id: activeFarmer.id,
+      farmer_name: activeFarmer.name,
+      buyer_id: isFromBuyer ? item.id : 'b-1',
+      buyer_company: isFromBuyer ? item.buyer_company : 'ITC Choupal Sourcing Ltd',
+      crop_id: item.crop_id || 'wheat',
+      crop_name: item.crop_name,
+      quantity_quintals: item.target_volume_mt ? item.target_volume_mt * 10 : (item.lot_size_quintals || 100),
+      agreed_price_per_q: isFromBuyer ? item.max_bid_price_per_q : (item.highest_bid || item.asking_price_per_q),
+      farmgate_location: activeFarmer.location,
+      buyer_delivery_hub: isFromBuyer ? item.buyer_location : 'Delhi NCR Sourcing Hub'
     };
 
-    const res = await api.createDealContract(payload);
-    if (res) {
-      setContractModal(res);
-      confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+    const res = await api.createDirectDeal(payload);
+    if (res && res.contract) {
+      setContractModal(res.contract);
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
     }
   };
 
   const filteredListings = listings.filter((l) => {
-    const matchCrop = filterCrop === 'ALL' || l.crop_id === filterCrop;
-    const matchSearch = l.crop_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        l.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        l.farmer_name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCrop && matchSearch;
+    const matchesCrop = filterCrop === 'ALL' || l.crop_id === filterCrop;
+    const matchesSearch = searchQuery === '' || 
+      l.crop_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.farmer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.state.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCrop && matchesSearch;
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '26px' }}>
-      {/* Role Switcher & Profile Header */}
-      <div className="agri-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', background: 'linear-gradient(135deg, rgba(10, 51, 35, 0.9) 0%, rgba(16, 86, 102, 0.75) 100%)', border: '1px solid var(--color-moss-green)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Top Banner Header & Persona Switch */}
+      <div className="agri-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ 
-            width: '48px', 
-            height: '48px', 
-            borderRadius: '50%', 
-            background: role === 'farmer' ? 'linear-gradient(135deg, #839958, #0A3323)' : 'linear-gradient(135deg, #105666, #D3968C)', 
+            width: '42px', 
+            height: '42px', 
+            borderRadius: '4px', 
+            background: '#FACC15', 
+            color: '#000000',
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            boxShadow: '0 0 15px rgba(131, 153, 88, 0.4)'
+            fontWeight: 'bold'
           }}>
-            {role === 'farmer' ? <Wheat size={24} color="#F7F4D5" /> : <Building2 size={24} color="#F7F4D5" />}
+            {role === 'farmer' ? <Wheat size={22} color="#000000" /> : <Building2 size={22} color="#000000" />}
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h2 style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--color-beige)' }}>
-                {role === 'farmer' ? 'Farmer Direct-Sell Portal (Kisan Mandi)' : 'Institutional Buyer Sourcing Portal'}
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#FFFFFF' }}>
+                {role === 'farmer' ? t('farmerPortal') : t('buyerPortal')}
               </h2>
-              <span className="badge badge-moss" style={{ fontSize: '0.72rem' }}>
+              <span className="badge badge-yellow" style={{ fontSize: '0.7rem' }}>
                 <ShieldCheck size={12} /> {role === 'farmer' ? activeFarmer.kyc : activeBuyer.badge}
               </span>
             </div>
-            <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+            <div style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '2px' }}>
               {role === 'farmer' 
-                ? `Logged in as: ${activeFarmer.name} (${activeFarmer.location}) • 0% Commission Fee` 
-                : `Logged in as: ${activeBuyer.company} • ${activeBuyer.role}`}
+                ? `${activeFarmer.name} (${activeFarmer.location}) • ${t('zeroMandiFee')}` 
+                : `${activeBuyer.company} • ${activeBuyer.role}`}
             </div>
           </div>
         </div>
 
         {/* Portal Role Switch Tabs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(5, 28, 19, 0.7)', padding: '6px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(131, 153, 88, 0.3)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#111827', padding: '2px', borderRadius: '4px', border: '1px solid #374151' }}>
           <button
             onClick={() => setRole('farmer')}
             className={role === 'farmer' ? 'btn-primary' : 'btn-secondary'}
-            style={{ padding: '8px 16px', fontSize: '0.85rem', border: 'none' }}
+            style={{ padding: '6px 14px', fontSize: '0.8rem' }}
           >
-            <Wheat size={16} />
-            <span>I am a Farmer</span>
+            <Wheat size={14} />
+            <span>{t('farmerMode')}</span>
           </button>
           <button
             onClick={() => setRole('buyer')}
             className={role === 'buyer' ? 'btn-primary' : 'btn-secondary'}
-            style={{ padding: '8px 16px', fontSize: '0.85rem', border: 'none' }}
+            style={{ padding: '6px 14px', fontSize: '0.8rem' }}
           >
-            <Building2 size={16} />
-            <span>I am a Buyer / Mill</span>
+            <Building2 size={14} />
+            <span>{t('buyerMode')}</span>
           </button>
         </div>
       </div>
@@ -201,37 +204,37 @@ export default function DirectMarketView() {
         <>
           {/* Middleman Savings Hero Banner */}
           {marginData && (
-            <div className="agri-card-solid" style={{ borderLeft: '6px solid var(--color-moss-green-light)', padding: '24px 28px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            <div className="agri-card" style={{ borderLeft: '5px solid #FACC15', padding: '20px 24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                    <Sparkles size={18} color="var(--color-moss-green-light)" />
-                    <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-moss-green-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Middleman Elimination Advantage (Farmgate Direct)
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <Sparkles size={16} color="#FACC15" />
+                    <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#FACC15', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      {t('directGain')}
                     </span>
                   </div>
-                  <h3 style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--color-beige)' }}>
-                    Earn +₹{marginData.extra_profit_earned.toLocaleString()} Extra on 100 Quintals Lot
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#FFFFFF' }}>
+                    +₹{marginData.extra_profit_earned.toLocaleString()} Net Extra Gain on 100 Quintals
                   </h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                    Bypass 2.5% Arthiya commission, 2% Mandi Cess, and ₹45/Q transport. Institutional buyers pick up directly from your farmgate.
+                  <p style={{ fontSize: '0.82rem', color: '#94A3B8', marginTop: '2px' }}>
+                    {t('zeroMandiFee')}
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                  <div style={{ textAlign: 'right', padding: '10px 18px', background: 'rgba(5, 28, 19, 0.7)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(131, 153, 88, 0.3)' }}>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>NET GAIN PERCENTAGE</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-moss-green-light)' }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <div style={{ textAlign: 'right', padding: '8px 14px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>{t('directGain')}</div>
+                    <div style={{ fontSize: '1.3rem', fontWeight: '800', color: '#FACC15' }}>
                       +{marginData.extra_profit_percentage}%
                     </div>
                   </div>
                   <button 
                     onClick={() => setShowListModal(true)} 
                     className="btn-primary"
-                    style={{ height: '48px', padding: '0 24px', fontSize: '0.92rem' }}
+                    style={{ height: '40px', padding: '0 18px', fontSize: '0.85rem' }}
                   >
-                    <PlusCircle size={18} />
-                    <span>List My Harvest Now</span>
+                    <PlusCircle size={16} />
+                    <span>{t('createNewListing')}</span>
                   </button>
                 </div>
               </div>
@@ -239,65 +242,65 @@ export default function DirectMarketView() {
           )}
 
           {/* Farmer Sections: Live Buyer Demands & My Listings */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
             {/* Live Verified Buyer Demands (RFQs) */}
             <div className="agri-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: '700' }}>
-                    Institutional Buyers Seeking Produce Right Now
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+                    {t('corporateDemands')}
                   </h3>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    Verified mills, exporters, and supermarket chains ready to buy at agreed prices
+                  <p style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                    {t('zeroMandiFee')}
                   </p>
                 </div>
-                <span className="badge badge-moss">Escrow Protected</span>
+                <span className="badge badge-yellow">Escrow Protected</span>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {buyers.map((b) => (
                   <div 
                     key={b.id}
                     style={{ 
-                      padding: '16px 20px', 
-                      background: 'rgba(10, 51, 35, 0.65)', 
-                      borderRadius: 'var(--radius-sm)',
-                      border: '1px solid rgba(131, 153, 88, 0.25)',
+                      padding: '12px 14px', 
+                      background: '#1E293B', 
+                      borderRadius: '4px',
+                      border: '1px solid #374151',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '10px'
+                      gap: '8px'
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <strong style={{ fontSize: '1rem', color: 'var(--color-beige)' }}>{b.buyer_company}</strong>
-                          {b.urgent && <span className="badge badge-rose" style={{ fontSize: '0.65rem' }}>Urgent Demand</span>}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <strong style={{ fontSize: '0.92rem', color: '#FFFFFF' }}>{b.buyer_company}</strong>
+                          {b.urgent && <span className="badge badge-rose" style={{ fontSize: '0.62rem' }}>Urgent</span>}
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '2px' }}>
                           {b.buyer_type} • {b.buyer_location}
                         </div>
                       </div>
 
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--color-moss-green-light)' }}>
+                        <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#FACC15' }}>
                           ₹{b.max_bid_price_per_q.toLocaleString()}
                         </div>
-                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>/ Quintal Max Bid</span>
+                        <span style={{ fontSize: '0.7rem', color: '#94A3B8' }}>/ Quintal Max</span>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(131, 153, 88, 0.15)', paddingTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #374151', paddingTop: '8px', fontSize: '0.78rem', color: '#CBD5E1' }}>
                       <div>
-                        Looking for: <strong style={{ color: 'var(--color-beige)' }}>{b.crop_name}</strong> ({b.target_volume_mt} MT)
+                        {t('cropType')}: <strong style={{ color: '#FFFFFF' }}>{b.crop_name}</strong> ({b.target_volume_mt} MT)
                       </div>
                       <button 
                         onClick={() => initiateDeal(b, 'from_buyer_rfq')}
                         className="btn-primary"
-                        style={{ padding: '5px 14px', fontSize: '0.75rem' }}
+                        style={{ padding: '4px 12px', fontSize: '0.72rem' }}
                       >
-                        <span>Sell to Buyer</span>
-                        <ArrowRight size={13} />
+                        <span>{t('tradeProduce')}</span>
+                        <ArrowRight size={12} />
                       </button>
                     </div>
                   </div>
@@ -307,56 +310,56 @@ export default function DirectMarketView() {
 
             {/* My Active Harvest Listings */}
             <div className="agri-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: '700' }}>
-                    My Active Harvest Listings
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+                    {t('activeFarmerLots')}
                   </h3>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    Lots visible to 140+ institutional buyers across India
+                  <p style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                    {t('zeroMandiFee')}
                   </p>
                 </div>
                 <button 
                   onClick={() => setShowListModal(true)}
                   className="btn-secondary"
-                  style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                  style={{ padding: '5px 10px', fontSize: '0.72rem' }}
                 >
-                  <PlusCircle size={14} />
-                  <span>New Lot</span>
+                  <PlusCircle size={13} />
+                  <span>{t('createNewListing')}</span>
                 </button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {listings.filter(l => l.farmer_name === activeFarmer.name || l.farmer_name.includes('Harpreet')).map((l) => (
                   <div 
                     key={l.id}
                     style={{ 
-                      padding: '16px 18px', 
-                      background: 'rgba(16, 86, 102, 0.25)', 
-                      borderRadius: 'var(--radius-sm)',
-                      border: '1px solid var(--color-midnight-green-glow)'
+                      padding: '12px 14px', 
+                      background: '#1E293B', 
+                      borderRadius: '4px',
+                      border: '1px solid #374151'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                       <div>
-                        <strong style={{ fontSize: '1rem', color: 'var(--color-beige)' }}>{l.crop_name}</strong>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        <strong style={{ fontSize: '0.92rem', color: '#FFFFFF' }}>{l.crop_name}</strong>
+                        <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
                           Lot #{l.id} • {l.variety} • {l.lot_size_quintals} Q
                         </div>
                       </div>
-                      <span className="badge badge-moss" style={{ fontSize: '0.72rem' }}>
+                      <span className="badge badge-yellow" style={{ fontSize: '0.7rem' }}>
                         ₹{l.asking_price_per_q}/Q
                       </span>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '8px', background: 'rgba(5, 28, 19, 0.5)', padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}>
-                      <span>Bids: <strong style={{ color: 'var(--color-moss-green-light)' }}>{l.active_bids_count} offers</strong> (Top: ₹{l.highest_bid}/Q)</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#CBD5E1', marginTop: '6px', background: '#111827', padding: '6px 10px', borderRadius: '4px' }}>
+                      <span>Bids: <strong style={{ color: '#FACC15' }}>{l.active_bids_count} offers</strong> (Top: ₹{l.highest_bid}/Q)</span>
                       <button 
                         onClick={() => initiateDeal(l, 'from_farmer_lot')}
                         className="btn-primary"
-                        style={{ padding: '4px 10px', fontSize: '0.72rem' }}
+                        style={{ padding: '3px 8px', fontSize: '0.7rem' }}
                       >
-                        <span>Accept Top Bid</span>
+                        <span>{t('negotiateDeal')}</span>
                       </button>
                     </div>
                   </div>
@@ -371,36 +374,36 @@ export default function DirectMarketView() {
       {role === 'buyer' && (
         <>
           {/* Buyer Search & Filter Bar */}
-          <div className="agri-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 300px' }}>
-              <Search size={18} color="var(--text-muted)" />
+          <div className="agri-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 260px' }}>
+              <Search size={16} color="#94A3B8" />
               <input
                 type="text"
-                placeholder="Search by crop, farmer, or state (e.g., Sharbati Wheat, Nashik, Punjab)..."
+                placeholder="Search by crop, farmer, or state..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="input-field"
-                style={{ border: 'none', background: 'transparent' }}
+                style={{ padding: '6px 10px' }}
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>CROP:</span>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>{t('commodity')}:</span>
               {['ALL', 'wheat', 'rice', 'onion', 'soybean'].map((c) => (
                 <button
                   key={c}
                   onClick={() => setFilterCrop(c)}
                   className={filterCrop === c ? 'btn-primary' : 'btn-secondary'}
-                  style={{ padding: '5px 12px', fontSize: '0.75rem' }}
+                  style={{ padding: '4px 10px', fontSize: '0.72rem' }}
                 >
-                  {c.toUpperCase()}
+                  {c === 'ALL' ? t('allCrops') : (t(c) || c.toUpperCase())}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Farmer Harvest Lots Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
             {filteredListings.map((lot) => (
               <div 
                 key={lot.id} 
@@ -409,70 +412,70 @@ export default function DirectMarketView() {
                   display: 'flex', 
                   flexDirection: 'column', 
                   justifyContent: 'space-between',
-                  borderTop: '4px solid var(--color-moss-green)'
+                  borderTop: '3px solid #FACC15'
                 }}
               >
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <span className="badge badge-midnight" style={{ fontSize: '0.7rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                    <span className="badge badge-white" style={{ fontSize: '0.68rem' }}>
                       Lot #{lot.id}
                     </span>
                     {lot.organic_certified && (
-                      <span className="badge badge-moss" style={{ fontSize: '0.7rem' }}>
-                        🌱 Organic Certified
+                      <span className="badge badge-yellow" style={{ fontSize: '0.68rem' }}>
+                        Organic
                       </span>
                     )}
                   </div>
 
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-beige)' }}>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#FFFFFF' }}>
                     {lot.crop_name}
                   </h3>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                    Variety: {lot.variety} • Grade: {lot.quality_grade}
+                  <div style={{ fontSize: '0.78rem', color: '#94A3B8', marginBottom: '10px' }}>
+                    {t('variety')}: {lot.variety} • Grade: {lot.quality_grade}
                   </div>
 
                   {/* Lot Spec Grid */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: 'rgba(5, 28, 19, 0.7)', padding: '10px 14px', borderRadius: 'var(--radius-sm)', marginBottom: '14px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', background: '#1E293B', padding: '8px 10px', borderRadius: '4px', marginBottom: '12px' }}>
                     <div>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>LOT QUANTITY</span>
-                      <div style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--color-beige)' }}>
-                        {lot.lot_size_quintals} Quintals
+                      <span style={{ fontSize: '0.68rem', color: '#94A3B8' }}>{t('lotQuantity')}</span>
+                      <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#FFFFFF' }}>
+                        {lot.lot_size_quintals} Q
                       </div>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>MOISTURE LEVEL</span>
-                      <div style={{ fontSize: '1rem', fontWeight: '800', color: lot.moisture_pct <= 12 ? 'var(--color-moss-green-light)' : 'var(--color-rosy-brown-light)' }}>
-                        {lot.moisture_pct}% (Ideal)
+                      <span style={{ fontSize: '0.68rem', color: '#94A3B8' }}>MOISTURE</span>
+                      <div style={{ fontSize: '0.92rem', fontWeight: '800', color: lot.moisture_pct <= 12 ? '#FACC15' : '#F87171' }}>
+                        {lot.moisture_pct}%
                       </div>
                     </div>
                   </div>
 
                   {/* Location & Farmer Details */}
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                    <MapPin size={13} color="var(--color-rosy-brown)" />
+                  <div style={{ fontSize: '0.78rem', color: '#CBD5E1', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                    <MapPin size={12} color="#FACC15" />
                     <span>{lot.district}, {lot.state} ({lot.farmer_name})</span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginBottom: '12px' }}>
                     {lot.pickup_ready_date}
                   </div>
                 </div>
 
                 {/* Price & Instant Buy Action */}
-                <div style={{ borderTop: '1px solid rgba(131, 153, 88, 0.2)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ borderTop: '1px solid #374151', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>ASKING FARMGATE PRICE</span>
-                    <div style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--color-beige)' }}>
-                      ₹{lot.asking_price_per_q.toLocaleString()}<span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>/Q</span>
+                    <span style={{ fontSize: '0.68rem', color: '#94A3B8' }}>{t('askingPrice')}</span>
+                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#FFFFFF' }}>
+                      ₹{lot.asking_price_per_q.toLocaleString()}<span style={{ fontSize: '0.7rem', color: '#94A3B8' }}>/Q</span>
                     </div>
                   </div>
 
                   <button 
                     onClick={() => initiateDeal(lot, 'from_farmer_lot')}
                     className="btn-primary"
-                    style={{ padding: '8px 16px', fontSize: '0.82rem' }}
+                    style={{ padding: '6px 14px', fontSize: '0.78rem' }}
                   >
-                    <Lock size={13} />
-                    <span>Buy with Escrow</span>
+                    <Lock size={12} />
+                    <span>{t('bookLot')}</span>
                   </button>
                 </div>
               </div>
@@ -489,36 +492,35 @@ export default function DirectMarketView() {
           left: 0, 
           right: 0, 
           bottom: 0, 
-          background: 'rgba(2, 18, 12, 0.85)', 
-          backdropFilter: 'blur(8px)',
+          background: 'rgba(0, 0, 0, 0.75)', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center', 
           zIndex: 9999,
-          padding: '20px'
+          padding: '16px'
         }}>
-          <div className="agri-card-solid" style={{ width: '100%', maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--color-moss-green)', position: 'relative' }}>
+          <div className="agri-card" style={{ width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #FACC15', position: 'relative' }}>
             <button 
               onClick={() => setShowListModal(false)}
-              style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'var(--color-beige)', cursor: 'pointer' }}
+              style={{ position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', color: '#FFFFFF', cursor: 'pointer' }}
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <Wheat size={24} color="var(--color-moss-green-light)" />
-              <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--color-beige)' }}>
-                List Your Harvest for Direct Buyer Sale
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <Wheat size={20} color="#FACC15" />
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#FFFFFF' }}>
+                {t('createNewListing')}
               </h2>
             </div>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-              Your produce will be broadcast directly to 140+ verified institutional flour mills, crushers, and supermarket sourcing teams.
+            <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '16px' }}>
+              {t('zeroMandiFee')}
             </p>
 
-            <form onSubmit={handleCreateListing} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleCreateListing} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                  Crop Commodity
+                <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#CBD5E1', display: 'block', marginBottom: '3px' }}>
+                  {t('cropType')}
                 </label>
                 <select 
                   value={newCropId} 
@@ -526,7 +528,8 @@ export default function DirectMarketView() {
                     setNewCropId(e.target.value);
                     setNewCropName(e.target.options[e.target.selectedIndex].text);
                   }}
-                  className="select-field"
+                  className="input-field"
+                  style={{ padding: '6px 10px' }}
                 >
                   <option value="wheat">Wheat (Sharbati Gold)</option>
                   <option value="rice">Paddy / Rice (Basmati 1121)</option>
@@ -537,48 +540,51 @@ export default function DirectMarketView() {
                 </select>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                    Specific Variety
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#CBD5E1', display: 'block', marginBottom: '3px' }}>
+                    {t('variety')}
                   </label>
                   <input 
                     type="text" 
                     value={newVariety} 
                     onChange={(e) => setNewVariety(e.target.value)} 
                     className="input-field" 
+                    style={{ padding: '6px 10px' }}
                     required 
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                    Lot Size (Quintals)
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#CBD5E1', display: 'block', marginBottom: '3px' }}>
+                    {t('lotQuantity')}
                   </label>
                   <input 
                     type="number" 
                     value={newLotSize} 
                     onChange={(e) => setNewLotSize(e.target.value)} 
                     className="input-field" 
+                    style={{ padding: '6px 10px' }}
                     required 
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
-                    Asking Price (₹ / Quintal)
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#CBD5E1', display: 'block', marginBottom: '3px' }}>
+                    {t('askingPrice')}
                   </label>
                   <input 
                     type="number" 
                     value={newAskingPrice} 
                     onChange={(e) => setNewAskingPrice(e.target.value)} 
                     className="input-field" 
+                    style={{ padding: '6px 10px' }}
                     required 
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#CBD5E1', display: 'block', marginBottom: '3px' }}>
                     Moisture Content (%)
                   </label>
                   <input 
@@ -587,13 +593,14 @@ export default function DirectMarketView() {
                     value={newMoisture} 
                     onChange={(e) => setNewMoisture(e.target.value)} 
                     className="input-field" 
+                    style={{ padding: '6px 10px' }}
                     required 
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#CBD5E1', display: 'block', marginBottom: '3px' }}>
                   Farmgate Pickup Address
                 </label>
                 <input 
@@ -601,19 +608,20 @@ export default function DirectMarketView() {
                   value={newAddress} 
                   onChange={(e) => setNewAddress(e.target.value)} 
                   className="input-field" 
+                  style={{ padding: '6px 10px' }}
                   required 
                 />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '2px 0' }}>
                 <input 
                   type="checkbox" 
                   id="organic_check" 
                   checked={newOrganic} 
                   onChange={(e) => setNewOrganic(e.target.checked)} 
-                  style={{ width: '16px', height: '16px', accentColor: 'var(--color-moss-green)' }}
+                  style={{ width: '15px', height: '15px', accentColor: '#FACC15' }}
                 />
-                <label htmlFor="organic_check" style={{ fontSize: '0.82rem', color: 'var(--color-beige)', cursor: 'pointer' }}>
+                <label htmlFor="organic_check" style={{ fontSize: '0.8rem', color: '#FFFFFF', cursor: 'pointer' }}>
                   Certified Organic Produce (NPOP / Jaivik Bharat)
                 </label>
               </div>
@@ -621,10 +629,10 @@ export default function DirectMarketView() {
               <button 
                 type="submit" 
                 className="btn-primary" 
-                style={{ marginTop: '10px', height: '46px', fontSize: '0.92rem' }}
+                style={{ marginTop: '8px', height: '40px', fontSize: '0.85rem' }}
               >
-                <Sparkles size={16} />
-                <span>Publish Produce to Direct Buyers</span>
+                <Sparkles size={15} />
+                <span>{t('listProduceBtn')}</span>
               </button>
             </form>
           </div>
@@ -639,87 +647,86 @@ export default function DirectMarketView() {
           left: 0, 
           right: 0, 
           bottom: 0, 
-          background: 'rgba(2, 18, 12, 0.88)', 
-          backdropFilter: 'blur(10px)',
+          background: 'rgba(0, 0, 0, 0.8)', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center', 
           zIndex: 9999,
-          padding: '20px'
+          padding: '16px'
         }}>
-          <div className="agri-card-solid" style={{ width: '100%', maxWidth: '600px', border: '2px solid var(--color-moss-green-light)', position: 'relative', padding: '30px' }}>
+          <div className="agri-card" style={{ width: '100%', maxWidth: '520px', border: '2px solid #FACC15', position: 'relative', padding: '24px' }}>
             <button 
               onClick={() => setContractModal(null)}
-              style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'var(--color-beige)', cursor: 'pointer' }}
+              style={{ position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', color: '#FFFFFF', cursor: 'pointer' }}
             >
-              <X size={22} />
+              <X size={18} />
             </button>
 
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <div style={{ 
-                width: '56px', 
-                height: '56px', 
-                borderRadius: '50%', 
-                background: 'rgba(131, 153, 88, 0.25)', 
-                color: 'var(--color-moss-green-light)', 
+                width: '46px', 
+                height: '46px', 
+                borderRadius: '4px', 
+                background: '#FACC15', 
+                color: '#000000', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                margin: '0 auto 12px'
+                margin: '0 auto 10px'
               }}>
-                <CheckCircle2 size={32} />
+                <CheckCircle2 size={26} />
               </div>
-              <span className="badge badge-moss" style={{ marginBottom: '8px' }}>
+              <span className="badge badge-yellow" style={{ marginBottom: '6px' }}>
                 <Lock size={12} /> {contractModal.escrow_status}
               </span>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--color-beige)' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#FFFFFF' }}>
                 Digital Direct Trade Contract
               </h2>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
                 Token ID: {contractModal.contract_id} • Created: {contractModal.created_at}
               </div>
             </div>
 
             {/* Contract Summary Box */}
-            <div style={{ background: 'rgba(5, 28, 19, 0.8)', padding: '16px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(131, 153, 88, 0.3)', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
+            <div style={{ background: '#1E293B', padding: '14px 16px', borderRadius: '4px', border: '1px solid #374151', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>FARMER:</span>
-                <strong style={{ color: 'var(--color-beige)', fontSize: '0.88rem' }}>{contractModal.farmer_name}</strong>
+                <span style={{ color: '#94A3B8', fontSize: '0.78rem' }}>FARMER:</span>
+                <strong style={{ color: '#FFFFFF', fontSize: '0.85rem' }}>{contractModal.farmer_name}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>INSTITUTIONAL BUYER:</span>
-                <strong style={{ color: 'var(--color-beige)', fontSize: '0.88rem' }}>{contractModal.buyer_company}</strong>
+                <span style={{ color: '#94A3B8', fontSize: '0.78rem' }}>BUYER:</span>
+                <strong style={{ color: '#FFFFFF', fontSize: '0.85rem' }}>{contractModal.buyer_company}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>PRODUCE:</span>
-                <strong style={{ color: 'var(--color-beige)', fontSize: '0.88rem' }}>{contractModal.crop_name} ({contractModal.quantity_quintals} Quintals)</strong>
+                <span style={{ color: '#94A3B8', fontSize: '0.78rem' }}>PRODUCE:</span>
+                <strong style={{ color: '#FFFFFF', fontSize: '0.85rem' }}>{contractModal.crop_name} ({contractModal.quantity_quintals} Q)</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(131, 153, 88, 0.2)', paddingTop: '8px' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>TOTAL DEAL VALUE:</span>
-                <strong style={{ color: 'var(--color-moss-green-light)', fontSize: '1.25rem', fontWeight: '800' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #374151', paddingTop: '6px' }}>
+                <span style={{ color: '#94A3B8', fontSize: '0.78rem' }}>TOTAL VALUE:</span>
+                <strong style={{ color: '#FACC15', fontSize: '1.15rem', fontWeight: '800' }}>
                   ₹{contractModal.total_deal_value.toLocaleString()}
                 </strong>
               </div>
             </div>
 
             {/* Logistics & Pickup Window */}
-            <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Truck size={15} color="var(--color-moss-green-light)" />
-                <span><strong>Farmgate Pickup Window:</strong> {contractModal.pickup_window}</span>
+            <div style={{ fontSize: '0.78rem', color: '#CBD5E1', display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Truck size={14} color="#FACC15" />
+                <span><strong>Farmgate Pickup:</strong> {contractModal.pickup_window}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <QrCode size={15} color="var(--color-moss-green-light)" />
-                <span><strong>Digital QR Pass:</strong> Verified for Gate Entry & Truck Loading</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <QrCode size={14} color="#FACC15" />
+                <span><strong>Digital QR Pass:</strong> Verified for Gate Entry</span>
               </div>
             </div>
 
             <button 
               onClick={() => setContractModal(null)}
               className="btn-primary"
-              style={{ width: '100%', height: '44px' }}
+              style={{ width: '100%', height: '38px' }}
             >
-              <span>Done & Download Contract Slip</span>
+              <span>Done</span>
             </button>
           </div>
         </div>

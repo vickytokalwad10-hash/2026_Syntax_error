@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import MetricCard from '../components/MetricCard';
 import { api } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 ChartJS.register(
   CategoryScale,
@@ -51,6 +52,7 @@ const CROPS = [
 ];
 
 export default function TrendsView() {
+  const { t, language } = useLanguage();
   const [cropId, setCropId] = useState('wheat');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -63,12 +65,11 @@ export default function TrendsView() {
       if (res && res.forecast_30d) {
         setData(res);
       } else {
-        // Fallback default structure
         const base = cropId === 'cotton' ? 7420 : cropId === 'rice' ? 3950 : cropId === 'onion' ? 2150 : 2840;
         const fallbackDays = [];
         for (let i = 0; i < 30; i++) {
           const pred = Math.round(base * (1 + (i * 0.0035)));
-          fallbackDays.append ? null : fallbackDays.push({
+          fallbackDays.push({
             day: i + 1,
             date: `Day ${i + 1}`,
             predicted_price: pred,
@@ -108,7 +109,7 @@ export default function TrendsView() {
             '30d_forecast_trend': '+4.6%',
             annual_volatility: '14.2%',
             model_confidence_r2: 0.942,
-            algorithm: 'Hybrid Prophet + LSTM Temporal Fusion Transformer (TFT)',
+            algorithm: 'Hybrid Prophet + LSTM TFT',
             training_lookback_years: 8
           }
         });
@@ -121,7 +122,7 @@ export default function TrendsView() {
   if (loading || !data) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-        <div className="pulse-dot" style={{ width: '24px', height: '24px' }} />
+        <div className="pulse-dot" style={{ width: '20px', height: '20px' }} />
       </div>
     );
   }
@@ -132,38 +133,37 @@ export default function TrendsView() {
     labels: forecastLabels,
     datasets: [
       {
-        label: 'Predicted Modal Price (₹/Q)',
+        label: `${t('predictedPrice')} (₹/Q)`,
         data: data.forecast_30d.map(d => d.predicted_price),
-        borderColor: '#A3BA76',
-        backgroundColor: 'rgba(163, 186, 118, 0.15)',
-        borderWidth: 3,
-        pointBackgroundColor: '#F7F4D5',
-        pointBorderColor: '#839958',
-        pointRadius: 4,
-        pointHoverRadius: 7,
+        borderColor: '#FACC15',
+        backgroundColor: 'rgba(250, 204, 21, 0.1)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#FFFFFF',
+        pointBorderColor: '#EAB308',
+        pointRadius: 3,
+        pointHoverRadius: 6,
         fill: false,
-        tension: 0.35,
+        tension: 0.2,
       },
       {
-        label: 'Upper 95% Confidence Interval',
+        label: 'Upper 95% Confidence',
         data: data.forecast_30d.map(d => d.upper_bound),
-        borderColor: 'rgba(211, 150, 140, 0.65)',
-        borderDash: [5, 5],
-        borderWidth: 1.5,
-        pointRadius: 0,
-        fill: '+1',
-        backgroundColor: 'rgba(16, 86, 102, 0.18)',
-        tension: 0.35,
-      },
-      {
-        label: 'Lower 95% Confidence Interval',
-        data: data.forecast_30d.map(d => d.lower_bound),
-        borderColor: 'rgba(211, 150, 140, 0.65)',
-        borderDash: [5, 5],
+        borderColor: '#FFFFFF',
+        borderDash: [4, 4],
         borderWidth: 1.5,
         pointRadius: 0,
         fill: false,
-        tension: 0.35,
+        tension: 0.2,
+      },
+      {
+        label: 'Lower 95% Confidence',
+        data: data.forecast_30d.map(d => d.lower_bound),
+        borderColor: '#94A3B8',
+        borderDash: [4, 4],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+        tension: 0.2,
       }
     ]
   };
@@ -177,21 +177,20 @@ export default function TrendsView() {
         type: 'line',
         label: 'Avg Modal Price (₹/Q)',
         data: (data.historical_12m || []).map(h => h.avg_price),
-        borderColor: '#839958',
-        backgroundColor: 'rgba(131, 153, 88, 0.15)',
-        borderWidth: 3,
-        pointBackgroundColor: '#F7F4D5',
+        borderColor: '#FACC15',
+        backgroundColor: 'rgba(250, 204, 21, 0.1)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#FFFFFF',
         yAxisID: 'y',
-        tension: 0.3
+        tension: 0.2
       },
       {
         type: 'bar',
         label: 'Arrival Volume (MT)',
         data: (data.historical_12m || []).map(h => h.arrival_volume_mt),
-        backgroundColor: 'rgba(16, 86, 102, 0.55)',
-        borderColor: '#105666',
-        borderWidth: 1,
-        borderRadius: 4,
+        backgroundColor: '#374151',
+        borderWidth: 0,
+        borderRadius: 2,
         yAxisID: 'y1'
       }
     ]
@@ -204,8 +203,8 @@ export default function TrendsView() {
       {
         label: 'Seasonality Index (100 = Baseline Average)',
         data: data.seasonality_indices.map(s => s.index),
-        backgroundColor: data.seasonality_indices.map(s => s.index >= 100 ? '#839958' : '#D3968C'),
-        borderRadius: 6,
+        backgroundColor: data.seasonality_indices.map(s => s.index >= 100 ? '#FACC15' : '#475569'),
+        borderRadius: 2,
       }
     ]
   };
@@ -216,26 +215,26 @@ export default function TrendsView() {
     plugins: {
       legend: {
         position: 'top',
-        labels: { color: '#F7F4D5', font: { family: 'Outfit', size: 12 } }
+        labels: { color: '#FFFFFF', font: { family: 'Outfit', size: 12 } }
       },
       tooltip: {
-        backgroundColor: '#0A3323',
-        titleColor: '#F7F4D5',
-        bodyColor: '#C8D6AF',
-        borderColor: '#839958',
+        backgroundColor: '#1E293B',
+        titleColor: '#FFFFFF',
+        bodyColor: '#FACC15',
+        borderColor: '#374151',
         borderWidth: 1,
-        padding: 12
+        padding: 10
       }
     },
     scales: {
       x: {
-        grid: { color: 'rgba(131, 153, 88, 0.1)' },
-        ticks: { color: '#8FA391', font: { family: 'Plus Jakarta Sans', size: 10 } }
+        grid: { color: '#1E293B' },
+        ticks: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 10 } }
       },
       y: {
-        grid: { color: 'rgba(131, 153, 88, 0.1)' },
+        grid: { color: '#1E293B' },
         ticks: { 
-          color: '#8FA391', 
+          color: '#94A3B8', 
           font: { family: 'Plus Jakarta Sans', size: 10 },
           callback: (value) => `₹${value}`
         }
@@ -247,52 +246,52 @@ export default function TrendsView() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'top', labels: { color: '#F7F4D5', font: { family: 'Outfit', size: 12 } } },
-      tooltip: { backgroundColor: '#0A3323', titleColor: '#F7F4D5', bodyColor: '#C8D6AF', borderColor: '#839958', borderWidth: 1, padding: 12 }
+      legend: { position: 'top', labels: { color: '#FFFFFF', font: { family: 'Outfit', size: 12 } } },
+      tooltip: { backgroundColor: '#1E293B', titleColor: '#FFFFFF', bodyColor: '#FACC15', borderColor: '#374151', borderWidth: 1, padding: 10 }
     },
     scales: {
-      x: { grid: { color: 'rgba(131, 153, 88, 0.1)' }, ticks: { color: '#8FA391' } },
+      x: { grid: { color: '#1E293B' }, ticks: { color: '#94A3B8' } },
       y: {
         type: 'linear',
         position: 'left',
-        grid: { color: 'rgba(131, 153, 88, 0.1)' },
-        ticks: { color: '#8FA391', callback: (v) => `₹${v}` }
+        grid: { color: '#1E293B' },
+        ticks: { color: '#FFFFFF', callback: (v) => `₹${v}` }
       },
       y1: {
         type: 'linear',
         position: 'right',
         grid: { drawOnChartArea: false },
-        ticks: { color: '#105666', callback: (v) => `${Math.round(v/1000)}k MT` }
+        ticks: { color: '#94A3B8', callback: (v) => `${Math.round(v/1000)}k MT` }
       }
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '26px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Top Crop Selector */}
       <div className="agri-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <TrendingUp size={20} color="var(--color-moss-green-light)" />
-            <h2 style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--color-beige)' }}>
-              Historical Trends & 30-Day Forward Price Forecast Curves
+            <TrendingUp size={20} color="#FACC15" />
+            <h2 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#FFFFFF' }}>
+              {t('trendsTitle')}
             </h2>
           </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
             Temporal Fusion Transformer (TFT) combining 8-year APMC mandi arrivals, export quotas, and Sentinel-2 canopy health.
           </p>
         </div>
 
         {/* Commodity Switcher Buttons */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {CROPS.map(c => (
             <button
               key={c.id}
               onClick={() => setCropId(c.id)}
               className={cropId === c.id ? 'btn-primary' : 'btn-secondary'}
-              style={{ fontSize: '0.82rem', padding: '7px 14px' }}
+              style={{ fontSize: '0.8rem', padding: '6px 12px' }}
             >
-              {c.name.split(' ')[0]}
+              {t(c.id) || c.name.split(' ')[0]}
             </button>
           ))}
         </div>
@@ -301,7 +300,7 @@ export default function TrendsView() {
       {/* Model Performance Stats */}
       <div className="grid-4">
         <MetricCard
-          title="Current Spot Price"
+          title={t('currentSpotPrice')}
           value={`₹${data.current_spot_price.toLocaleString()}`}
           unit="/ Quintal"
           delta={data.stats['30d_forecast_trend']}
@@ -310,7 +309,7 @@ export default function TrendsView() {
           icon={TrendingUp}
         />
         <MetricCard
-          title="Model Confidence (R²)"
+          title={t('modelConfidence')}
           value={`${(data.stats.model_confidence_r2 * 100).toFixed(1)}%`}
           unit="Accuracy"
           delta="Ensemble TFT"
@@ -319,7 +318,7 @@ export default function TrendsView() {
           icon={Cpu}
         />
         <MetricCard
-          title="Annual Volatility"
+          title={t('annualVolatility')}
           value={data.stats.annual_volatility}
           unit="Standard Dev"
           delta="Risk Measure"
@@ -328,7 +327,7 @@ export default function TrendsView() {
           icon={Activity}
         />
         <MetricCard
-          title="Lookback Training"
+          title={t('lookbackTraining')}
           value={`${data.stats.training_lookback_years} Years`}
           unit="2,800+ APMCs"
           delta="Sentinel-2 Synced"
@@ -340,44 +339,44 @@ export default function TrendsView() {
 
       {/* Main Forecast & Historical Chart Card */}
       <div className="agri-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Zap size={18} color="var(--color-moss-green-light)" />
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--color-beige)' }}>
+              <Zap size={18} color="#FACC15" />
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#FFFFFF' }}>
                 {chartTab === 'forecast' 
-                  ? `30-Day Forward Trajectory with 95% Confidence Bands (${data.crop_name})` 
-                  : `12-Month Historical Mandi Modal Price vs Arrival Volume (${data.crop_name})`}
+                  ? `30-Day Forward Trajectory with 95% Confidence Bands (${t(cropId) || data.crop_name})` 
+                  : `12-Month Historical Mandi Modal Price vs Arrival Volume (${t(cropId) || data.crop_name})`}
               </h3>
             </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+            <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '2px' }}>
               {chartTab === 'forecast' 
                 ? 'Confidence bounds expand dynamically over the horizon to reflect macro weather & export policy shifts.' 
                 : 'Correlates monthly market arrivals with price suppression vs post-harvest rallies.'}
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(5, 28, 19, 0.6)', padding: '4px', borderRadius: 'var(--radius-sm)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#111827', padding: '2px', borderRadius: '4px', border: '1px solid #374151' }}>
             <button
               onClick={() => setChartTab('forecast')}
               className={chartTab === 'forecast' ? 'btn-primary' : 'btn-secondary'}
-              style={{ padding: '6px 14px', fontSize: '0.78rem' }}
+              style={{ padding: '5px 12px', fontSize: '0.75rem' }}
             >
-              <LineChart size={14} />
+              <LineChart size={13} />
               <span>30-Day Forecast</span>
             </button>
             <button
               onClick={() => setChartTab('historical')}
               className={chartTab === 'historical' ? 'btn-primary' : 'btn-secondary'}
-              style={{ padding: '6px 14px', fontSize: '0.78rem' }}
+              style={{ padding: '5px 12px', fontSize: '0.75rem' }}
             >
-              <BarChart3 size={14} />
+              <BarChart3 size={13} />
               <span>12-Month History</span>
             </button>
           </div>
         </div>
 
-        <div style={{ height: '360px', width: '100%' }}>
+        <div style={{ height: '340px', width: '100%' }}>
           {chartTab === 'forecast' ? (
             <Line data={forecastChartData} options={chartOptions} />
           ) : (
@@ -388,22 +387,22 @@ export default function TrendsView() {
 
       {/* 12-Month Historical Seasonality Pattern Index */}
       <div className="agri-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Layers size={18} color="var(--color-moss-green-light)" />
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--color-beige)' }}>
+              <Layers size={18} color="#FACC15" />
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#FFFFFF' }}>
                 12-Month Historical Seasonality Pattern Index
               </h3>
             </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Green bars (Index &gt; 100) represent peak price realizations; Red bars (&lt; 100) indicate harvest supply glut periods.
+            <p style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+              Yellow bars (Index &gt; 100) represent peak price realizations; Slate bars (&lt; 100) indicate harvest supply periods.
             </p>
           </div>
-          <span className="badge badge-midnight">100 = Base Multi-Year Mean</span>
+          <span className="badge badge-white">100 = Base Multi-Year Mean</span>
         </div>
 
-        <div style={{ height: '260px', width: '100%' }}>
+        <div style={{ height: '240px', width: '100%' }}>
           <Bar data={seasonalityChartData} options={chartOptions} />
         </div>
       </div>

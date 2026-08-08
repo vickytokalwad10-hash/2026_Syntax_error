@@ -7,11 +7,13 @@ import {
   Zap, 
   Activity, 
   Database, 
-  ArrowUpRight, 
   Wheat, 
   Fuel, 
   CloudRain, 
-  CheckCircle2 
+  CheckCircle2,
+  Droplets,
+  Layers,
+  Sparkle
 } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -27,6 +29,7 @@ import {
 } from 'chart.js';
 import MetricCard from '../components/MetricCard';
 import { api } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 ChartJS.register(
   CategoryScale,
@@ -40,6 +43,7 @@ ChartJS.register(
 );
 
 export default function OverviewView() {
+  const { t, language } = useLanguage();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedCrop, setSelectedCrop] = useState('wheat');
@@ -51,7 +55,6 @@ export default function OverviewView() {
       if (res && res.forecast_15_days) {
         setData(res);
       } else {
-        // Fallback default structure if network is interrupted
         setData({
           market_summary: {
             active_tracked_apmc: 2847,
@@ -102,49 +105,48 @@ export default function OverviewView() {
   if (loading || !data) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-        <div className="pulse-dot" style={{ width: '24px', height: '24px' }} />
+        <div className="pulse-dot" style={{ width: '20px', height: '20px' }} />
       </div>
     );
   }
 
-  // Prepare chart dataset
+  // Prepare chart dataset in Yellow and White Palette
   const chartLabels = data.forecast_15_days.map(d => d.date);
   const chartData = {
     labels: chartLabels,
     datasets: [
       {
-        label: 'Predicted Price (₹/Q)',
+        label: t('currentPrice'),
         data: data.forecast_15_days.map(d => d.predicted_price),
-        borderColor: '#A3BA76',
-        backgroundColor: 'rgba(163, 186, 118, 0.15)',
-        borderWidth: 3,
-        pointBackgroundColor: '#F7F4D5',
-        pointBorderColor: '#839958',
+        borderColor: '#FACC15',
+        backgroundColor: 'rgba(250, 204, 21, 0.1)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#FFFFFF',
+        pointBorderColor: '#EAB308',
         pointRadius: 4,
-        pointHoverRadius: 7,
+        pointHoverRadius: 6,
         fill: false,
-        tension: 0.35,
+        tension: 0.2,
       },
       {
-        label: 'Upper 95% Confidence Bound',
+        label: `${t('forecast15d')} (+95% High)`,
         data: data.forecast_15_days.map(d => d.upper_confidence),
-        borderColor: 'rgba(211, 150, 140, 0.6)',
-        borderDash: [5, 5],
-        borderWidth: 1.5,
-        pointRadius: 0,
-        fill: '+1',
-        backgroundColor: 'rgba(16, 86, 102, 0.18)',
-        tension: 0.35,
-      },
-      {
-        label: 'Lower 95% Confidence Bound',
-        data: data.forecast_15_days.map(d => d.lower_confidence),
-        borderColor: 'rgba(211, 150, 140, 0.6)',
-        borderDash: [5, 5],
+        borderColor: '#FFFFFF',
+        borderDash: [4, 4],
         borderWidth: 1.5,
         pointRadius: 0,
         fill: false,
-        tension: 0.35,
+        tension: 0.2,
+      },
+      {
+        label: `${t('forecast15d')} (-95% Low)`,
+        data: data.forecast_15_days.map(d => d.lower_confidence),
+        borderColor: '#94A3B8',
+        borderDash: [4, 4],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+        tension: 0.2,
       }
     ]
   };
@@ -156,18 +158,17 @@ export default function OverviewView() {
       legend: {
         position: 'top',
         labels: {
-          color: '#F7F4D5',
+          color: '#FFFFFF',
           font: { family: 'Outfit', size: 12 }
         }
       },
       tooltip: {
-        backgroundColor: '#0A3323',
-        titleColor: '#F7F4D5',
-        bodyColor: '#C8D6AF',
-        borderColor: '#839958',
+        backgroundColor: '#1E293B',
+        titleColor: '#FFFFFF',
+        bodyColor: '#FACC15',
+        borderColor: '#374151',
         borderWidth: 1,
-        padding: 12,
-        boxPadding: 6,
+        padding: 10,
         callbacks: {
           label: function(context) {
             return ` ${context.dataset.label}: ₹${context.parsed.y}/Q`;
@@ -177,13 +178,13 @@ export default function OverviewView() {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(131, 153, 88, 0.1)' },
-        ticks: { color: '#8FA391', font: { family: 'Plus Jakarta Sans', size: 11 } }
+        grid: { color: '#1E293B' },
+        ticks: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 11 } }
       },
       y: {
-        grid: { color: 'rgba(131, 153, 88, 0.1)' },
+        grid: { color: '#1E293B' },
         ticks: { 
-          color: '#8FA391', 
+          color: '#94A3B8', 
           font: { family: 'Plus Jakarta Sans', size: 11 },
           callback: (value) => `₹${value}`
         }
@@ -192,140 +193,209 @@ export default function OverviewView() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      {/* Top Welcome & Verdict Banner */}
-      <div className="agri-card-solid" style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        borderLeft: '5px solid var(--color-moss-green-light)',
-        padding: '24px 30px'
-      }}>
-        <div style={{ maxWidth: '820px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <Sparkles size={18} color="var(--color-moss-green-light)" />
-            <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-moss-green-light)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              AI Decision Synthesis • Today's Strategic Recommendation
-            </span>
-          </div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: '700', marginBottom: '6px', color: 'var(--color-beige)' }}>
-            {data.market_summary.ai_market_verdict}
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Trained on 8-year historical APMC mandis, Sentinel-2 canopy moisture, IMD weather feeds, and global crude/fertilizer indices.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-          <span className="badge badge-moss">
-            <CheckCircle2 size={13} /> {data.market_summary.volatility_sentiment}
-          </span>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Model Precision: <strong style={{ color: 'var(--color-beige)' }}>{data.market_summary.national_model_accuracy}%</strong>
-          </span>
-        </div>
-      </div>
-
-      {/* KPI Stats Grid */}
-      <div className="grid-4">
-        <MetricCard
-          title="Monitored APMCs"
-          value={data.market_summary.active_tracked_apmc.toLocaleString()}
-          unit="Mandi Gates"
-          delta="100% Online"
-          isPositive={true}
-          subtext="28 States & UTs"
-          icon={Database}
-        />
-        <MetricCard
-          title="Wheat (Sharbati) Spot"
-          value="₹2,840"
-          unit="/ Quintal"
-          delta="+2.4% vs last week"
-          isPositive={true}
-          subtext="MSP: ₹2,275/Q (+24.8%)"
-          icon={Wheat}
-          tag="Top Gain"
-        />
-        <MetricCard
-          title="Agri Food CPI"
-          value={`${data.market_summary.cpi_agri_food_inflation_pct}%`}
-          unit="YoY Inflation"
-          delta="-0.3% vs Prior Month"
-          isPositive={true}
-          subtext="RBI Target Band"
-          icon={Activity}
-        />
-        <MetricCard
-          title="Crude Oil (Brent)"
-          value={`$${data.macro_indicators.brent_crude_usd}`}
-          unit="/ Barrel"
-          delta="+1.2% Freight Pressure"
-          isPositive={false}
-          subtext="Diesel: ₹89.5/L"
-          icon={Fuel}
-        />
-      </div>
-
-      {/* 15-Day Price Forecast Line Chart & Crop Selector */}
-      <div className="agri-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="page-body">
+      {/* Top Banner with Verdict */}
+      <div className="agri-card" style={{ marginBottom: '24px', borderLeft: '4px solid #FACC15' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Zap size={18} color="var(--color-moss-green-light)" />
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '700' }}>
-                15-Day AI Price Forecast & Confidence Envelope
-              </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <Sparkles size={18} color="#FACC15" />
+              <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#FFFFFF' }}>
+                {t('executiveOverview')}
+              </h2>
             </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Projected spot price trajectories with 95% Bayesian probability bands for {data.crop_snapshots.find(c => c.id === selectedCrop)?.name || 'Wheat'}
+            <p style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
+              {t('realTimePulse')}
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {data.crop_snapshots.map(c => (
-              <button
-                key={c.id}
-                onClick={() => setSelectedCrop(c.id)}
-                className={selectedCrop === c.id ? 'btn-primary' : 'btn-secondary'}
-                style={{ padding: '6px 12px', fontSize: '0.78rem' }}
-              >
-                {c.name.split(' ')[0]}
-              </button>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="badge badge-white">
+              <Database size={13} style={{ marginRight: '4px' }} />
+              2,847 Mandis Synced
+            </span>
+            <span className="badge badge-yellow">
+              <Activity size={13} style={{ marginRight: '4px' }} />
+              {t('status')}
+            </span>
           </div>
         </div>
 
-        <div style={{ height: '340px', width: '100%' }}>
-          <Line data={chartData} options={chartOptions} />
+        <div style={{ 
+          marginTop: '14px', 
+          padding: '10px 14px', 
+          borderRadius: '4px', 
+          background: '#1E293B', 
+          border: '1px solid #374151',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <CheckCircle2 size={18} color="#FACC15" style={{ flexShrink: 0 }} />
+          <p style={{ fontSize: '0.85rem', color: '#E2E8F0', lineHeight: 1.4 }}>
+            <strong>{t('forecastSubtitle')}:</strong> {data.market_summary.ai_market_verdict}
+          </p>
+        </div>
+      </div>
+
+      {/* KPI 4-Metric Grid */}
+      <div className="metric-grid">
+        <MetricCard
+          title={t('nationalBenchmark')}
+          value="₹2,840"
+          unit="/ Quintal"
+          delta="+4.8% Bullish"
+          isPositive={true}
+          subtext="Wheat (Sharbati Modal)"
+          icon={Wheat}
+        />
+        <MetricCard
+          title={t('aiForecastingAccuracy')}
+          value={`${data.market_summary.national_model_accuracy}%`}
+          unit="R² Precision"
+          delta={t('highConfidence')}
+          isPositive={true}
+          subtext="15-Day Multi-Horizon"
+          icon={Sparkle}
+        />
+        <MetricCard
+          title={t('wdraWarehouseRoi')}
+          value="+₹280"
+          unit="/ Quintal Net"
+          delta="+8.4% Post-Storage Gain"
+          isPositive={true}
+          subtext="After Stacking & Interest"
+          icon={Layers}
+        />
+        <MetricCard
+          title={t('directFarmgateTrade')}
+          value="5,400+"
+          unit="Metric Tons"
+          delta="0% Mandi Commission"
+          isPositive={true}
+          subtext="Direct Escrow Contracts"
+          icon={Zap}
+        />
+      </div>
+
+      {/* 15-Day Price Forecast & Agronomy Matrix */}
+      <div className="grid-2" style={{ marginBottom: '24px' }}>
+        {/* Left: 15-Day Forecast Chart */}
+        <div className="agri-card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Zap size={18} color="#FACC15" />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+                  {t('multiHorizonForecast')}
+                </h3>
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+                {t('forecastSubtitle')} ({t(selectedCrop) || selectedCrop})
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {data.crop_snapshots.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedCrop(c.id)}
+                  className={selectedCrop === c.id ? 'btn-primary' : 'btn-secondary'}
+                  style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                >
+                  {t(c.id) || c.name.split(' ')[0]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ height: '300px', width: '100%', marginTop: 'auto' }}>
+            <Line data={chartData} options={chartOptions} />
+          </div>
+        </div>
+
+        {/* Right: Agronomy Matrix Card */}
+        <div className="agri-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <Layers size={18} color="#FACC15" />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+                {t('agronomyMatrix')}
+              </h3>
+            </div>
+
+            {/* NDVI Progress */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontSize: '0.85rem', color: '#E2E8F0' }}>{t('ndviIndex')}</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#FACC15' }}>0.74 (Optimal Canopy)</span>
+              </div>
+              <div style={{ height: '6px', background: '#1E293B', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '74%', height: '100%', background: '#FACC15', borderRadius: '4px' }} />
+              </div>
+            </div>
+
+            {/* Soil Moisture Progress */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontSize: '0.85rem', color: '#E2E8F0' }}>{t('soilMoisture')}</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#FFFFFF' }}>32% (Sufficient Root Water)</span>
+              </div>
+              <div style={{ height: '6px', background: '#1E293B', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '64%', height: '100%', background: '#FFFFFF', borderRadius: '4px' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Spraying Window Alert Card */}
+          <div style={{ 
+            padding: '12px 14px', 
+            borderRadius: '4px', 
+            background: '#1E293B', 
+            border: '1px solid #374151',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginTop: '12px'
+          }}>
+            <Droplets size={22} color="#FACC15" style={{ flexShrink: 0 }} />
+            <div>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: '700', color: '#FFFFFF', marginBottom: '2px' }}>
+                {t('idealSprayingWindow')}
+              </h4>
+              <p style={{ fontSize: '0.78rem', color: '#94A3B8', lineHeight: 1.3 }}>
+                {t('optimalSprayingText')}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* National Commodity Snapshots Table */}
       <div className="agri-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: '700' }}>
-              National Commodity Price & MSP Spread Matrix
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+              {t('highMomentumCommodities')}
             </h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Live modal spot rates across primary benchmark APMC mandis compared against Central Government MSP
+            <p style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+              {t('forecastSubtitle')}
             </p>
           </div>
-          <span className="badge badge-midnight">Updated 5 Mins Ago</span>
+          <span className="badge badge-white">2,847 APMCs Live</span>
         </div>
 
         <div style={{ overflowX: 'auto' }}>
           <table className="agri-table">
             <thead>
               <tr>
-                <th>Crop Commodity</th>
-                <th>Spot Price (₹/Q)</th>
-                <th>24h Change</th>
-                <th>Govt MSP (₹/Q)</th>
-                <th>MSP Spread (%)</th>
-                <th>15-Day Outlook</th>
-                <th>Highest Payout Mandi</th>
+                <th>{t('commodity')}</th>
+                <th>{t('currentPrice')}</th>
+                <th>{t('trend7d')}</th>
+                <th>{t('govtMsp')}</th>
+                <th>{t('mspSpread')}</th>
+                <th>{t('momentum')}</th>
+                <th>{t('action')}</th>
               </tr>
             </thead>
             <tbody>
@@ -334,16 +404,16 @@ export default function OverviewView() {
                 return (
                   <tr key={crop.id}>
                     <td>
-                      <strong style={{ color: 'var(--color-beige)' }}>{crop.name}</strong>
+                      <strong style={{ color: '#FFFFFF' }}>{t(crop.id) || crop.name}</strong>
                     </td>
                     <td>
-                      <span style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-beige)' }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#FFFFFF' }}>
                         ₹{crop.spot_price.toLocaleString()}
                       </span>
                     </td>
                     <td>
                       <span style={{ 
-                        color: crop.change_pct >= 0 ? 'var(--color-moss-green-light)' : 'var(--color-rosy-brown-light)',
+                        color: crop.change_pct >= 0 ? '#FACC15' : '#F87171',
                         fontWeight: '700'
                       }}>
                         {crop.change_pct >= 0 ? `+${crop.change_pct}%` : `${crop.change_pct}%`}
@@ -352,20 +422,20 @@ export default function OverviewView() {
                     <td>{crop.msp_price > 0 ? `₹${crop.msp_price.toLocaleString()}` : 'Free Market'}</td>
                     <td>
                       {spread !== 'N/A' ? (
-                        <span className={`badge ${parseFloat(spread) >= 0 ? 'badge-moss' : 'badge-rose'}`}>
-                          {parseFloat(spread) >= 0 ? `+${spread}% Above` : `${spread}% Below`}
+                        <span className={`badge ${parseFloat(spread) >= 0 ? 'badge-yellow' : 'badge-rose'}`}>
+                          {parseFloat(spread) >= 0 ? `+${spread}% ${t('bullish')}` : `${spread}% ${t('bearish')}`}
                         </span>
                       ) : (
                         <span className="badge badge-dark">Deregulated</span>
                       )}
                     </td>
                     <td>
-                      <span style={{ color: crop.forecast_trend.includes('Bullish') ? 'var(--color-moss-green-light)' : 'var(--text-secondary)' }}>
-                        {crop.forecast_trend}
+                      <span style={{ color: crop.forecast_trend.includes('Bullish') ? '#FACC15' : '#94A3B8', fontWeight: '600' }}>
+                        {crop.forecast_trend.includes('Bullish') ? t('bullish') : t('neutral')}
                       </span>
                     </td>
                     <td>
-                      <span style={{ color: 'var(--color-beige)' }}>{crop.top_mandi}</span>
+                      <span style={{ color: '#FACC15', fontWeight: '600' }}>{crop.top_mandi}</span>
                     </td>
                   </tr>
                 );
