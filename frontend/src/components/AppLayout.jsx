@@ -3,12 +3,12 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
-export default function AppLayout({ language, setLanguage }) {
+export default function AppLayout() {
   return (
     <div className="app-container">
       <Sidebar />
       <div className="main-content">
-        <Header language={language} setLanguage={setLanguage} />
+        <Header />
         <main className="page-body">
           <Outlet />
         </main>

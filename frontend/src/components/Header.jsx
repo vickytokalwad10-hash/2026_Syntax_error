@@ -1,24 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mic, Globe, Activity, TrendingUp, TrendingDown, Sparkles } from 'lucide-react';
+import { Mic, Globe, Activity, TrendingUp, TrendingDown, ChevronDown, Check } from 'lucide-react';
 import { api } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 
 const TICKER_ITEMS = [
-  { name: 'Wheat Sharbati', price: '₹2,840/Q', change: '+2.4%', up: true },
-  { name: 'Basmati Paddy', price: '₹3,950/Q', change: '-0.8%', up: false },
-  { name: 'Cotton Med', price: '₹7,420/Q', change: '+3.1%', up: true },
-  { name: 'Soybean Yellow', price: '₹4,890/Q', change: '+1.7%', up: true },
-  { name: 'Mustard Seed', price: '₹5,780/Q', change: '+1.2%', up: true },
-  { name: 'Nashik Onion', price: '₹2,150/Q', change: '-4.2%', up: false },
-  { name: 'Hybrid Tomato', price: '₹1,820/Q', change: '+5.6%', up: true },
-  { name: 'Potato Jyoti', price: '₹1,460/Q', change: '-0.4%', up: false },
-  { name: 'Crude Brent', price: '$78.40/bbl', change: '+1.2%', up: true },
-  { name: 'Monsoon Anomaly', price: '+4.2% Normal', change: 'Surplus', up: true },
+  { name: 'Wheat Sharbati', mr: 'शरबती गहू', price: '₹2,840/Q', change: '+2.4%', up: true },
+  { name: 'Basmati Paddy', mr: 'बासमती धान', price: '₹3,950/Q', change: '-0.8%', up: false },
+  { name: 'Cotton Shankar-6', mr: 'शंकर-६ कापूस', price: '₹7,420/Q', change: '+3.1%', up: true },
+  { name: 'Soybean Yellow', mr: 'पिवळा सोयाबीन', price: '₹4,890/Q', change: '+1.7%', up: true },
+  { name: 'Mustard Seed', mr: 'मोहरी/राई', price: '₹5,780/Q', change: '+1.2%', up: true },
+  { name: 'Nashik Onion', mr: 'नाशिक कांदा', price: '₹2,150/Q', change: '-4.2%', up: false },
+  { name: 'Hybrid Tomato', mr: 'टोमॅटो', price: '₹1,820/Q', change: '+5.6%', up: true },
+  { name: 'Potato Jyoti', mr: 'ज्योती बटाटा', price: '₹1,460/Q', change: '-0.4%', up: false },
+  { name: 'Crude Brent', mr: 'कच्चे तेल', price: '$78.40/bbl', change: '+1.2%', up: true },
+  { name: 'Monsoon Anomaly', mr: 'मान्सून स्थिती', price: '+4.2% Normal', change: 'Surplus', up: true },
 ];
 
-export default function Header({ language, setLanguage }) {
+export default function Header() {
   const navigate = useNavigate();
+  const { language, setLanguage, t, languages, currentLanguageObj } = useLanguage();
   const [backendOnline, setBackendOnline] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const check = async () => {
@@ -30,17 +34,29 @@ export default function Header({ language, setLanguage }) {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <header style={{ width: '100%' }}>
+    <header style={{ width: '100%', position: 'relative' }}>
       {/* Real-time Commodity Ticker Tape */}
       <div className="ticker-strip">
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-moss-green-light)', fontWeight: '700' }}>
           <Activity size={14} />
-          <span>MANDI TICKER:</span>
+          <span>{t('mandiTicker')}</span>
         </div>
         {TICKER_ITEMS.map((item, idx) => (
           <div key={idx} className="ticker-item">
-            <span style={{ color: 'var(--color-beige)', fontWeight: '600' }}>{item.name}</span>
+            <span style={{ color: 'var(--color-beige)', fontWeight: '600' }}>
+              {language === 'mr' ? item.mr : item.name}
+            </span>
             <span style={{ color: 'var(--text-secondary)' }}>{item.price}</span>
             <span style={{ 
               display: 'inline-flex', 
@@ -59,11 +75,11 @@ export default function Header({ language, setLanguage }) {
       {/* Main Header Controls */}
       <div className="header-bar">
         <div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: '700', color: 'var(--color-beige)' }}>
-            Agricultural Decision Matrix & Prediction
+          <h1 style={{ fontSize: '1.35rem', fontWeight: '700', color: 'var(--color-beige)' }}>
+            {t('headerTitle')}
           </h1>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            AI Spot Arbitrage • Remote Sensing Canopy Analytics • Climate Shock Simulations
+            {t('headerSubtitle')}
           </p>
         </div>
 
@@ -80,19 +96,101 @@ export default function Header({ language, setLanguage }) {
           }}>
             <div className={backendOnline ? "pulse-dot" : "pulse-dot-rose"} />
             <span style={{ fontSize: '0.78rem', fontWeight: '600', color: backendOnline ? 'var(--color-moss-green-light)' : 'var(--color-rosy-brown-light)' }}>
-              {backendOnline ? 'FastAPI 8000 Live' : 'Connecting Engine...'}
+              {backendOnline ? t('fastApiLive') : t('connectingEngine')}
             </span>
           </div>
 
-          {/* Bilingual Toggle */}
-          <button 
-            className="btn-secondary"
-            onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
-            style={{ fontSize: '0.85rem', padding: '7px 14px' }}
-          >
-            <Globe size={15} color="var(--color-moss-green-light)" />
-            <span>{language === 'en' ? 'हिंदी (Hindi)' : 'English'}</span>
-          </button>
+          {/* Regional Multi-Language Selector Dropdown */}
+          <div style={{ position: 'relative' }} ref={dropdownRef}>
+            <button 
+              className="btn-secondary"
+              onClick={() => setLangMenuOpen(!langMenuOpen)}
+              style={{ 
+                fontSize: '0.85rem', 
+                padding: '7px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(16, 86, 102, 0.4)',
+                borderColor: 'var(--color-sea-green)'
+              }}
+            >
+              <Globe size={15} color="var(--color-moss-green-light)" />
+              <span style={{ fontWeight: '700', color: 'var(--color-beige)' }}>
+                {currentLanguageObj.native} ({currentLanguageObj.name})
+              </span>
+              <ChevronDown size={14} style={{ transition: 'transform 0.2s', transform: langMenuOpen ? 'rotate(180deg)' : 'none' }} />
+            </button>
+
+            {langMenuOpen && (
+              <div style={{
+                position: 'absolute',
+                top: 'calc(100% + 6px)',
+                right: 0,
+                background: '#072418',
+                border: '1px solid rgba(131, 153, 88, 0.4)',
+                borderRadius: 'var(--radius-sm)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                zIndex: 1000,
+                minWidth: '220px',
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '3px'
+              }}>
+                <div style={{ 
+                  padding: '6px 10px', 
+                  fontSize: '0.7rem', 
+                  color: 'var(--text-muted)', 
+                  fontWeight: '700', 
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  borderBottom: '1px solid rgba(131, 153, 88, 0.15)'
+                }}>
+                  {t('selectLanguage')}
+                </div>
+                {languages.map((lang) => {
+                  const isSelected = language === lang.code;
+                  return (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setLangMenuOpen(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
+                        background: isSelected ? 'rgba(131, 153, 88, 0.25)' : 'transparent',
+                        border: 'none',
+                        borderRadius: '6px',
+                        color: isSelected ? 'var(--color-moss-green-light)' : 'var(--color-beige)',
+                        fontSize: '0.88rem',
+                        fontWeight: isSelected ? '700' : '500',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'background 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '1rem' }}>{lang.native}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({lang.name})</span>
+                      </div>
+                      {isSelected && <Check size={14} color="var(--color-moss-green-light)" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           {/* AI Voice Copilot Quick Trigger */}
           <button 
@@ -101,7 +199,7 @@ export default function Header({ language, setLanguage }) {
             style={{ fontSize: '0.85rem', padding: '8px 16px' }}
           >
             <Mic size={16} />
-            <span>Ask Copilot</span>
+            <span>{t('askCopilot')}</span>
           </button>
         </div>
       </div>

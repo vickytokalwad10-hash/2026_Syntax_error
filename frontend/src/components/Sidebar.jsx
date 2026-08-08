@@ -9,26 +9,27 @@ import {
   Bell, 
   Mic, 
   Sprout, 
-  ShieldCheck,
-  Cpu,
   ShoppingBag,
   CloudSun
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const NAV_ITEMS = [
-  { path: '/overview', label: 'Overview', icon: LayoutDashboard, badge: 'Live' },
-  { path: '/direct-market', label: 'Direct B2B Market', icon: ShoppingBag, badge: '0% Fee', badgeType: 'moss' },
-  { path: '/weather', label: 'Weather & Microclimate', icon: CloudSun, badge: 'Radar', badgeType: 'moss' },
-  { path: '/heatmap', label: 'Satellite Heatmap', icon: Map, badge: 'NDVI' },
-  { path: '/what-if', label: 'What-If Simulator', icon: SlidersHorizontal },
-  { path: '/markets', label: 'Mandi Optimizer', icon: Store, badge: 'Arbitrage' },
-  { path: '/trends', label: 'Price Forecasts', icon: TrendingUp, badge: '30-Day' },
-  { path: '/alerts', label: 'Alerts & Anomalies', icon: Bell, badge: '2 New', badgeType: 'rose' },
-  { path: '/copilot', label: 'AI Voice Copilot', icon: Mic, badge: 'EN / HI' },
-  { path: '/crop-health', label: 'Sentinel-2 Health', icon: Sprout, badge: '10m' },
+  { path: '/overview', key: 'overview', icon: LayoutDashboard, badge: 'Live' },
+  { path: '/direct-market', key: 'directMarket', icon: ShoppingBag, badge: '0% Fee', badgeType: 'moss' },
+  { path: '/weather', key: 'weather', icon: CloudSun, badge: 'Radar', badgeType: 'moss' },
+  { path: '/heatmap', key: 'heatmap', icon: Map, badge: 'NDVI' },
+  { path: '/what-if', key: 'whatIf', icon: SlidersHorizontal },
+  { path: '/markets', key: 'markets', icon: Store, badge: 'Arbitrage' },
+  { path: '/trends', key: 'trends', icon: TrendingUp, badge: '30-Day' },
+  { path: '/alerts', key: 'alerts', icon: Bell, badge: '2 New', badgeType: 'rose' },
+  { path: '/copilot', key: 'copilot', icon: Mic, badge: 'AI Voice' },
+  { path: '/crop-health', key: 'cropHealth', icon: Sprout, badge: '10m' },
 ];
 
 export default function Sidebar() {
+  const { t, currentLanguageObj } = useLanguage();
+
   return (
     <aside className="sidebar">
       {/* Brand Header */}
@@ -83,7 +84,7 @@ export default function Sidebar() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <Icon size={19} color={item.badgeType === 'rose' ? 'var(--color-rosy-brown)' : 'currentColor'} />
-                <span className="nav-text" style={{ fontSize: '0.92rem' }}>{item.label}</span>
+                <span className="nav-text" style={{ fontSize: '0.92rem' }}>{t(item.key)}</span>
               </div>
               {item.badge && (
                 <span 
@@ -113,7 +114,7 @@ export default function Sidebar() {
           </span>
         </div>
         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-          Spatial 10m • 2,847 APMCs Sync
+          {currentLanguageObj.native} Mode Active • 2,847 APMCs
         </div>
       </div>
     </aside>
