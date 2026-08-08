@@ -2,6 +2,12 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import math
+import re
+from backend.services.gemini_service import (
+    ask_gemini_agri_copilot, 
+    OUT_OF_SCOPE_RESPONSES, 
+    LANGUAGE_NAMES
+)
 
 router = APIRouter(prefix="/api/copilot", tags=["AI Copilot Voice Assistant"])
 
@@ -296,7 +302,89 @@ def detect_crop(query_lower: str, context_crop: str = "wheat") -> str:
 
 @router.post("/query")
 def process_copilot_query(req: CopilotQuery):
+    # 1. Primary: Gemini AI Multilingual Agricultural Reasoning Engine
+    gemini_res = ask_gemini_agri_copilot(
+        query=req.query,
+        language_code=req.language,
+        context_crop=req.context_crop or "wheat",
+        role=req.role or "all"
+    )
+    
+    if gemini_res and isinstance(gemini_res, dict):
+        is_agri = gemini_res.get("is_agri_related", True)
+        cid = req.context_crop if req.context_crop in CROP_DATA else "wheat"
+        c_info = CROP_DATA.get(cid, CROP_DATA["wheat"])
+        if not is_agri:
+            return {
+                "status": "out_of_scope",
+                "crop_id": cid,
+                "crop_name": c_info["en_name"],
+                "language_detected": req.language,
+                "role_detected": req.role,
+                "voice_response": gemini_res.get("voice_response", OUT_OF_SCOPE_RESPONSES.get(req.language, OUT_OF_SCOPE_RESPONSES["en"])),
+                "action_title": gemini_res.get("action_title", "Agricultural Questions Only"),
+                "action_details": gemini_res.get("action_details", "AgriPulse AI is an AI copilot dedicated exclusively to agriculture, farming economics, and mandi price intelligence."),
+                "key_stats": gemini_res.get("key_stats", []),
+                "suggested_followups": gemini_res.get("suggested_followups", [
+                    "What is the 15-day price forecast for Wheat?",
+                    "Which APMC Mandi offers the highest net realization?",
+                    "Should I store my harvest or sell immediately?"
+                ])
+            }
+        else:
+            return {
+                "status": "success",
+                "crop_id": cid,
+                "crop_name": c_info["en_name"],
+                "language_detected": req.language,
+                "role_detected": req.role,
+                "voice_response": gemini_res.get("voice_response"),
+                "action_title": gemini_res.get("action_title"),
+                "action_details": gemini_res.get("action_details"),
+                "key_stats": gemini_res.get("key_stats", []),
+                "suggested_followups": gemini_res.get("suggested_followups", [])
+            }
+
+    # 2. Resilient Fallback: Domain Intelligence & Knowledge Base
     q = req.query.lower().strip()
+    
+    # Non-agricultural domain check for offline mode
+    non_agri_indicators = [
+        "who is", "prime minister", "president", "cricket", "ipl", "movie", "song", "lyrics", 
+        "tell a joke", "python code", "javascript", "react code", "capital of", "recipe for cake",
+        "who won", "football", "gaming", "bitcoin", "crypto"
+    ]
+    agri_indicators = [
+        "crop", "price", "mandi", "bhav", "rate", "wheat", "rice", "cotton", "soybean", "mustard",
+        "onion", "tomato", "potato", "sugarcane", "maize", "farm", "kisan", "farmer", "sell", "buy",
+        "weather", "rain", "fertilizer", "pest", "spray", "storage", "warehouse", "msp", "fpo",
+        "बाजार", "मंडी", "भाव", "दर", "गहू", "कांदा", "कापूस", "सोयाबीन", "शेती", "शेतकरी", "पीक", "खरेदी", "विक्री",
+        "गेहूं", "प्याज", "कपास", "फसल", "किसान", "भंडारण", "मौसम", "खाद", "दाम"
+    ]
+    
+    if any(nw in q for nw in non_agri_indicators) and not any(aw in q for aw in agri_indicators):
+        cid = req.context_crop if req.context_crop in CROP_DATA else "wheat"
+        c_info = CROP_DATA.get(cid, CROP_DATA["wheat"])
+        return {
+            "status": "out_of_scope",
+            "crop_id": cid,
+            "crop_name": c_info["en_name"],
+            "language_detected": req.language,
+            "role_detected": req.role,
+            "voice_response": OUT_OF_SCOPE_RESPONSES.get(req.language, OUT_OF_SCOPE_RESPONSES["en"]),
+            "action_title": "AgriPulse AI Agricultural Scope",
+            "action_details": "Please ask questions regarding crop prices, mandi arbitrage, weather forecasts, pest alerts, or storage decisions.",
+            "key_stats": [
+                {"label": "Domain", "val": "Agriculture & Mandis Only"},
+                {"label": "Supported Crops", "val": "9 Core Commodities"}
+            ],
+            "suggested_followups": [
+                "What is the current mandi rate for Wheat?",
+                "Which mandi offers highest profit for Soybean?",
+                "Compare 60-day storage vs immediate sale"
+            ]
+        }
+    
     is_mr = req.language == "mr" or any(w in q for w in ["कांदा", "गहू", "कापूस", "सोयाबीन", "तांदूळ", "बटाटा", "ऊस", "बाजार", "समिती", "नफा", "विक्री", "खरेदी", "साठवणूक", "भाव", "दर", "नाशिक", "लातूर", "पुणे", "अकोला", "लासलगाव", "करावा", "करावे", "आहे", "काय"])
     is_hi = (req.language == "hi" or any(char in q for char in "अआइईउऊऋएऐओऔकखगघचछजझटठडढणतथदधनपफबभमयरलवशषसहज्ञश्रड़ढ़")) and not is_mr
     
