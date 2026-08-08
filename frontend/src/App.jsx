@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import OverviewView from './pages/OverviewView';
 import DirectMarketView from './pages/DirectMarketView';
@@ -16,7 +16,7 @@ export default function App() {
   const [language, setLanguage] = useState('en');
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<AppLayout language={language} setLanguage={setLanguage} />}>
           <Route index element={<Navigate to="/overview" replace />} />
@@ -33,6 +33,6 @@ export default function App() {
           <Route path="*" element={<Navigate to="/overview" replace />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
