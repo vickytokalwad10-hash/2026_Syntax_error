@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mandi Arbitrage &amp; Freight Spread Finder - AgriPulse AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#71423a",
+                        "inverse-surface": "#e7e4c5",
+                        "primary-container": "#105666",
+                        "on-tertiary": "#4d251e",
+                        "inverse-primary": "#276676",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "secondary": "#b8cf88",
+                        "surface-container-low": "#1d1c0a",
+                        "on-background": "#e7e4c5",
+                        "primary-fixed-dim": "#94cfe2",
+                        "outline-variant": "#40484b",
+                        "surface": "#141404",
+                        "tertiary-fixed-dim": "#f8b7ac",
+                        "secondary-fixed-dim": "#b8cf88",
+                        "on-secondary-fixed-variant": "#3a4d15",
+                        "surface-tint": "#94cfe2",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#94cfe2",
+                        "on-primary-fixed-variant": "#004e5e",
+                        "on-tertiary-container": "#f1b1a6",
+                        "surface-container": "#21200d",
+                        "on-primary-fixed": "#001f27",
+                        "secondary-fixed": "#d3eca2",
+                        "surface-variant": "#363621",
+                        "surface-dim": "#141404",
+                        "outline": "#8a9295",
+                        "on-tertiary-fixed": "#34100b",
+                        "error": "#ffb4ab",
+                        "on-surface-variant": "#bfc8cb",
+                        "on-secondary-container": "#aac17c",
+                        "on-surface": "#e7e4c5",
+                        "tertiary": "#f8b7ac",
+                        "inverse-on-surface": "#32311d",
+                        "background": "#141404",
+                        "secondary-container": "#3c4f17",
+                        "on-primary-container": "#8ec9dc",
+                        "tertiary-fixed": "#ffdad4",
+                        "on-secondary": "#243600",
+                        "surface-container-lowest": "#0f0f02",
+                        "on-secondary-fixed": "#141f00",
+                        "surface-bright": "#3b3a25",
+                        "on-tertiary-fixed-variant": "#683a33",
+                        "surface-container-highest": "#363621",
+                        "primary-fixed": "#b0ecff",
+                        "surface-container-high": "#2b2b17",
+                        "on-primary": "#003641"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "sm": "16px",
+                        "md": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "48px",
+                        "lg": "40px",
+                        "gutter": "24px",
+                        "xs": "8px",
+                        "base": "4px",
+                        "xl": "64px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Outfit"],
+                        "metrics-xl": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "label-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "headline-sm": ["Outfit"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "metrics-xl": ["40px", { "lineHeight": "48px", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        .glass-panel {
+            background-color: rgba(16, 86, 102, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(131, 153, 88, 0.25);
+        }
+        .glow-active:hover {
+            box-shadow: 0 0 15px 0 rgba(26, 122, 144, 0.4);
+            border-color: rgba(26, 122, 144, 1);
+        }
+        .neon-text {
+            text-shadow: 0 0 10px rgba(148, 207, 226, 0.5);
+        }
+        
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #94cfe2;
+            cursor: pointer;
+            margin-top: -6px; 
+            box-shadow: 0 0 10px rgba(148, 207, 226, 0.8);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(131, 153, 88, 0.3);
+            border-radius: 2px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(16, 86, 102, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(148, 207, 226, 0.3);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 207, 226, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-hidden flex selection:bg-primary-container selection:text-primary">
+<!-- WebGL Background -->
+<!-- STITCH_SHADER_START:ANIMATION_1 class="absolute inset-0 w-full h-full -z-10 opacity-60" -->
+<div class="absolute inset-0 w-full h-full -z-10 opacity-60" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_1" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_1');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+varying vec2 v_texCoord;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+// Simplex 2D noise
+vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+float snoise(vec2 v){
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+           -0.577350269189626, 0.024390243902439);
+  vec2 i  = floor(v + dot(v, C.yy) );
+  vec2 x0 = v -   i + dot(i, C.xx);
+  vec2 i1;
+  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod(i, 289.0);
+  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0) )
+  + i.x + vec3(0.0, i1.x, 1.0) );
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+    dot(x12.zw,x12.zw)), 0.0);
+  m = m*m ;
+  m = m*m ;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+  vec3 g;
+  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    float noise = snoise(uv * 2.0 + u_time * 0.1);
+    
+    vec3 color1 = vec3(0.02, 0.11, 0.07); // Deep Forest #051C13
+    vec3 color2 = vec3(0.06, 0.34, 0.40); // Midnight Teal #105666
+    
+    vec3 finalColor = mix(color1, color2, noise * 0.5 + 0.5);
+    
+    // Add subtle scanlines
+    float scanline = sin(uv.y * 800.0) * 0.02;
+    finalColor += scanline;
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_1 -->
+<div class="absolute inset-0 bg-background/80 -z-10 mix-blend-multiply"></div>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col bg-surface-container dark:bg-surface-container/25 backdrop-blur-xl border-r border-secondary/25 w-64 z-50">
+<div class="p-md flex items-center gap-xs border-b border-secondary/25 backdrop-blur-xl">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center border border-secondary/25">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary neon-text">AgriPulse AI</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">2,847 Mandis Synced</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto py-sm custom-scrollbar">
+<ul class="space-y-base px-sm">
+<li>
+<a class="flex items-center gap-sm px-sm py-xs rounded-md text-on-surface-variant hover:text-on-surface hover:bg-primary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-lg text-label-lg">Overview</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-sm py-xs rounded-md text-on-surface-variant hover:text-on-surface hover:bg-primary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-lg text-label-lg">AI Copilot</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-sm py-xs rounded-md text-on-surface-variant hover:text-on-surface hover:bg-primary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">handshake</span>
+<span class="font-label-lg text-label-lg">B2B Market</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-sm py-xs rounded-md text-primary font-bold border-r-4 border-primary bg-primary-container/10 transition-transform hover:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">compare_arrows</span>
+<span class="font-label-lg text-label-lg">Mandi Arbitrage</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-sm py-xs rounded-md text-on-surface-variant hover:text-on-surface hover:bg-primary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-label-lg text-label-lg">Price Forecasts</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-sm py-xs rounded-md text-on-surface-variant hover:text-on-surface hover:bg-primary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-lg text-label-lg">Satellite Heatmap</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-sm py-xs rounded-md text-on-surface-variant hover:text-on-surface hover:bg-primary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">science</span>
+<span class="font-label-lg text-label-lg">What-If Simulator</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-sm py-xs rounded-md text-on-surface-variant hover:text-on-surface hover:bg-primary-container/20 transition-colors" href="#">
+<span class="material-symbols-outlined">cloud</span>
+<span class="font-label-lg text-label-lg">Weather</span>
+</a>
+</li>
+</ul>
+</div>
+<div class="p-md border-t border-secondary/25 backdrop-blur-xl">
+<div class="glass-panel rounded-lg p-sm flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(184,207,136,0.8)]"></span>
+<span class="font-label-md text-label-md text-secondary">System Status: Active</span>
+</div>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 z-40 flex justify-between items-center px-6 bg-surface-container dark:bg-surface-container/25 backdrop-blur-xl h-16 shadow-md border-b border-secondary/25">
+<div class="flex items-center gap-md">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-high/50 border border-secondary/25 rounded-full py-1.5 pl-10 pr-4 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all w-64 placeholder:text-on-surface-variant/50" placeholder="Search markets, commodities..." type="text"/>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-all cursor-pointer">Wheat: ₹2,450</div>
+<div class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-all cursor-pointer">Soybean: ₹4,820</div>
+<div class="text-on-surface-variant font-label-lg text-label-lg hover:text-primary transition-all cursor-pointer">Onion: ₹1,800</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="font-label-lg text-label-lg text-on-surface-variant hover:text-primary transition-colors">English</button>
+<div class="h-4 w-px bg-secondary/25"></div>
+<button class="font-label-lg text-label-lg bg-primary-container text-on-primary-container px-4 py-1.5 rounded-full hover:bg-primary-container/80 transition-colors border border-secondary/25 glow-active">Farmer Portal</button>
+<div class="flex items-center gap-xs ml-xs text-secondary">
+<button class="p-1 rounded-full hover:bg-primary-container/20 transition-colors flex items-center justify-center"><span class="material-symbols-outlined">language</span></button>
+<button class="p-1 rounded-full hover:bg-primary-container/20 transition-colors flex items-center justify-center"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-64 mt-16 p-margin-desktop h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar relative flex gap-md">
+<!-- Arbitrage Finder Area -->
+<div class="flex-1 flex flex-col gap-md">
+<!-- Header & Filters -->
+<div class="glass-panel rounded-xl p-md flex flex-col gap-sm">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface neon-text">Arbitrage Spread Finder</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Identify profitable hauling routes across mandis.</p>
+</div>
+<div class="flex items-center gap-sm text-secondary font-label-lg text-label-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">my_location</span>
+                        Base: Indore, MP
+                    </div>
+</div>
+<div class="h-px w-full bg-gradient-to-r from-secondary/50 to-transparent my-xs"></div>
+<div class="flex gap-md items-end">
+<div class="flex-1">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Target Commodity</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high/50 border border-secondary/25 rounded-md py-2 px-3 font-body-md text-on-surface appearance-none focus:outline-none focus:border-primary glow-active transition-all cursor-pointer">
+<option>Soybean (Grade A)</option>
+<option>Wheat (Lokwan)</option>
+<option>Chana (Desi)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between mb-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Search Radius</label>
+<span class="font-label-md text-label-md text-primary" id="radiusValue">500 km</span>
+</div>
+<div class="pt-2 pb-1 px-1">
+<input class="w-full" id="radiusSlider" max="1000" min="50" type="range" value="500"/>
+</div>
+</div>
+<button class="bg-primary-container text-on-primary-container px-lg py-2 rounded-md font-label-lg text-label-lg border border-secondary/25 glow-active flex items-center gap-xs transition-all h-[42px]">
+<span class="material-symbols-outlined">radar</span>
+                        Scan Spread
+                    </button>
+</div>
+</div>
+<!-- Arbitrage Matrix Table -->
+<div class="glass-panel rounded-xl flex-1 flex flex-col overflow-hidden">
+<div class="p-md border-b border-secondary/25 flex justify-between items-center bg-surface-container/30">
+<h3 class="font-headline-md text-headline-md text-on-surface">Live Spread Matrix</h3>
+<div class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">schedule</span> Last updated: Just now
+                    </div>
+</div>
+<div class="flex-1 overflow-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-surface-container-high/80 backdrop-blur-md z-10 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+<tr>
+<th class="p-sm font-medium border-b border-secondary/25 pl-md">Destination Mandi</th>
+<th class="p-sm font-medium border-b border-secondary/25">Distance</th>
+<th class="p-sm font-medium border-b border-secondary/25">Spot Price (Qtl)</th>
+<th class="p-sm font-medium border-b border-secondary/25">Est. Freight (Qtl)</th>
+<th class="p-sm font-medium border-b border-secondary/25">Net Realization</th>
+<th class="p-sm font-medium border-b border-secondary/25 pr-md text-right">Profit Outlook</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-on-surface divide-y divide-secondary/10">
+<!-- High Profit Row -->
+<tr class="hover:bg-primary-container/10 transition-colors cursor-pointer group" onclick="toggleDrawer()">
+<td class="p-sm pl-md">
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-sm">location_city</span>
+</div>
+<div>
+<div class="font-semibold text-primary group-hover:neon-text transition-all">Latur, MH</div>
+<div class="font-label-md text-on-surface-variant">Grade A Soybean</div>
+</div>
+</div>
+</td>
+<td class="p-sm text-on-surface-variant">482 km</td>
+<td class="p-sm">₹5,120</td>
+<td class="p-sm text-error/80">-₹185</td>
+<td class="p-sm font-bold">₹4,935</td>
+<td class="p-sm pr-md text-right">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-secondary-container/50 border border-secondary text-secondary font-label-md">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+                                        +₹235/Qtl
+                                    </span>
+</td>
+</tr>
+<!-- Moderate Row -->
+<tr class="hover:bg-primary-container/10 transition-colors cursor-pointer group">
+<td class="p-sm pl-md">
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">storefront</span>
+</div>
+<div>
+<div class="font-semibold group-hover:text-primary transition-colors">Kota, RJ</div>
+<div class="font-label-md text-on-surface-variant">Grade A Soybean</div>
+</div>
+</div>
+</td>
+<td class="p-sm text-on-surface-variant">315 km</td>
+<td class="p-sm">₹4,950</td>
+<td class="p-sm text-error/80">-₹130</td>
+<td class="p-sm font-bold">₹4,820</td>
+<td class="p-sm pr-md text-right">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-variant border border-outline-variant text-on-surface font-label-md">
+<span class="material-symbols-outlined text-[14px]">horizontal_rule</span>
+                                        +₹40/Qtl
+                                    </span>
+</td>
+</tr>
+<!-- Negative Row -->
+<tr class="hover:bg-primary-container/10 transition-colors cursor-pointer group opacity-75">
+<td class="p-sm pl-md">
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">domain</span>
+</div>
+<div>
+<div class="font-semibold group-hover:text-primary transition-colors">Ujjain, MP</div>
+<div class="font-label-md text-on-surface-variant">Grade A Soybean</div>
+</div>
+</div>
+</td>
+<td class="p-sm text-on-surface-variant">55 km</td>
+<td class="p-sm">₹4,780</td>
+<td class="p-sm text-error/80">-₹45</td>
+<td class="p-sm font-bold">₹4,735</td>
+<td class="p-sm pr-md text-right">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-error-container/30 border border-error text-error font-label-md">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+                                        -₹45/Qtl
+                                    </span>
+</td>
+</tr>
+<!-- Moderate Row -->
+<tr class="hover:bg-primary-container/10 transition-colors cursor-pointer group">
+<td class="p-sm pl-md">
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">storefront</span>
+</div>
+<div>
+<div class="font-semibold group-hover:text-primary transition-colors">Jalgaon, MH</div>
+<div class="font-label-md text-on-surface-variant">Grade A Soybean</div>
+</div>
+</div>
+</td>
+<td class="p-sm text-on-surface-variant">380 km</td>
+<td class="p-sm">₹5,010</td>
+<td class="p-sm text-error/80">-₹160</td>
+<td class="p-sm font-bold">₹4,850</td>
+<td class="p-sm pr-md text-right">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-secondary-container/30 border border-secondary/50 text-secondary font-label-md">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+                                        +₹80/Qtl
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Breakdown Drawer (Initially hidden on desktop unless clicked, simulated state here) -->
+<aside class="w-80 glass-panel rounded-xl flex flex-col hidden lg:flex border-l-4 border-l-primary relative overflow-hidden transition-all duration-300 transform translate-x-0" id="breakdownDrawer">
+<!-- Simulated gradient highlight at top -->
+<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-transparent"></div>
+<div class="p-md border-b border-secondary/25 flex justify-between items-start">
+<div>
+<div class="font-label-md text-secondary tracking-widest uppercase mb-1">Spread Analysis</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Latur Route</h3>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors lg:hidden" onclick="toggleDrawer()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-md flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-md">
+<!-- Profit Callout -->
+<div class="bg-primary-container/20 rounded-lg p-sm border border-primary/30 flex items-center justify-between">
+<div>
+<div class="font-label-md text-on-surface-variant">Net Profit per Truck (25MT)</div>
+<div class="font-metrics-xl text-primary neon-text">₹58,750</div>
+</div>
+<span class="material-symbols-outlined text-[40px] text-secondary opacity-50">verified</span>
+</div>
+<!-- Waterfall Chart Simulation -->
+<div>
+<h4 class="font-label-lg text-on-surface mb-sm">Unit Economics (per Quintal)</h4>
+<div class="space-y-xs font-body-sm text-on-surface-variant">
+<div class="flex justify-between items-center">
+<span>Base Local Price (Indore)</span>
+<span class="font-medium text-on-surface">₹4,700</span>
+</div>
+<div class="h-4 flex relative">
+<div class="absolute left-[10px] top-0 bottom-0 w-px bg-secondary/30"></div>
+</div>
+<div class="flex justify-between items-center pl-6 relative">
+<span class="material-symbols-outlined absolute left-0 text-[16px] text-secondary">add_circle</span>
+<span>Latur Spot Premium</span>
+<span class="text-secondary font-medium">+₹420</span>
+</div>
+<div class="h-4 flex relative">
+<div class="absolute left-[10px] top-0 bottom-0 w-px bg-secondary/30"></div>
+</div>
+<!-- Freight Costs Breakdown -->
+<div class="bg-surface-container-high/30 p-xs rounded border border-outline-variant/30 ml-6 relative">
+<div class="absolute -left-6 top-2 h-px w-6 bg-secondary/30"></div>
+<div class="font-label-md text-on-surface mb-2 flex justify-between">
+<span>Total Freight Deduction</span>
+<span class="text-error">-₹185</span>
+</div>
+<div class="space-y-1 text-xs opacity-80">
+<div class="flex justify-between">
+<span>Diesel (482km @ 4kmpl, ₹92/L)</span>
+<span>-₹115</span>
+</div>
+<div class="flex justify-between">
+<span>Tolls (6 Plazas)</span>
+<span>-₹35</span>
+</div>
+<div class="flex justify-between">
+<span>Labor (Loading/Unloading)</span>
+<span>-₹25</span>
+</div>
+<div class="flex justify-between">
+<span>Mandi Tax &amp; Transit</span>
+<span>-₹10</span>
+</div>
+</div>
+</div>
+<div class="h-4 flex relative">
+<div class="absolute left-[10px] top-0 bottom-0 w-px bg-secondary/30"></div>
+</div>
+<div class="flex justify-between items-center font-bold text-primary bg-surface-container p-xs rounded border border-primary/20">
+<span>Net Realization</span>
+<span>₹4,935</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-auto bg-transparent border-2 border-secondary text-secondary hover:bg-secondary/10 px-4 py-2 rounded-md font-label-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">local_shipping</span>
+                    Book Fleet Allocation
+                </button>
+</div>
+</aside>
+</main>
+<script>
+        // Simple slider value update
+        const slider = document.getElementById('radiusSlider');
+        const output = document.getElementById('radiusValue');
+        slider.oninput = function() {
+            output.innerHTML = this.value + ' km';
+        }
+
+        // Drawer toggle logic for smaller screens (simulated)
+        function toggleDrawer() {
+            const drawer = document.getElementById('breakdownDrawer');
+            if(window.innerWidth < 1024) { // Only toggle if not strictly desktop fixed
+                drawer.classList.toggle('hidden');
+                drawer.classList.toggle('absolute');
+                drawer.classList.toggle('right-0');
+                drawer.classList.toggle('h-full');
+                drawer.classList.toggle('z-50');
+            }
+        }
+    </script>
+</body></html>
