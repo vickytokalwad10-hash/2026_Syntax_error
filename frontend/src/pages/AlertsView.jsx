@@ -55,12 +55,12 @@ export default function AlertsView() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <Bell size={18} color="#FACC15" />
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#FFFFFF' }}>
+              <Bell size={18} color="#D97706" />
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#0F172A' }}>
                 {t('alertsTitle')}
               </h2>
             </div>
-            <p style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
+            <p style={{ fontSize: '0.82rem', color: '#64748B' }}>
               Automated anomaly detection across IMD Doppler radars, Sentinel-2 spectral indices, and 2,800+ APMC mandis.
             </p>
           </div>
@@ -80,9 +80,9 @@ export default function AlertsView() {
         </div>
 
         {/* Filter Pills */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', borderTop: '1px solid #374151', paddingTop: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', borderTop: '1px solid #E2E8F0', paddingTop: '12px' }}>
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>SEVERITY:</span>
+            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: '600' }}>SEVERITY:</span>
             {['ALL', 'CRITICAL', 'WARNING', 'ADVISORY'].map((s) => (
               <button
                 key={s}
@@ -96,7 +96,7 @@ export default function AlertsView() {
           </div>
 
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>CATEGORY:</span>
+            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: '600' }}>CATEGORY:</span>
             {['ALL', 'WEATHER', 'PRICE', 'POLICY', 'PEST'].map((c) => (
               <button
                 key={c}
@@ -121,7 +121,7 @@ export default function AlertsView() {
               key={alt.id} 
               className="agri-card"
               style={{ 
-                borderLeft: `4px solid ${isCritical ? '#EF4444' : (alt.severity === 'Warning' ? '#FACC15' : '#FFFFFF')}`,
+                borderLeft: `4px solid ${isCritical ? '#DC2626' : (alt.severity === 'Warning' ? '#D97706' : '#2563EB')}`,
                 padding: '18px 22px'
               }}
             >
@@ -129,21 +129,21 @@ export default function AlertsView() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{ 
                     padding: '8px', 
-                    borderRadius: '4px', 
-                    background: isCritical ? '#7F1D1D' : '#374151',
-                    color: isCritical ? '#FCA5A5' : '#FACC15'
+                    borderRadius: '6px', 
+                    background: isCritical ? '#FEE2E2' : '#FEF3C7',
+                    color: isCritical ? '#DC2626' : '#D97706'
                   }}>
                     <Icon size={18} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0F172A' }}>
                       {alt.title}
                     </h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
                       <span className={`badge ${isCritical ? 'badge-rose' : (alt.severity === 'Warning' ? 'badge-yellow' : 'badge-white')}`}>
                         {alt.severity}
                       </span>
-                      <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
                         {alt.category} • {alt.timestamp}
                       </span>
                     </div>
@@ -160,26 +160,26 @@ export default function AlertsView() {
               </div>
 
               {/* Metric Trigger & Details */}
-              <div style={{ background: '#1E293B', padding: '10px 14px', borderRadius: '4px', border: '1px solid #374151', marginBottom: '12px' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: '700', color: '#FACC15', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '3px' }}>
+              <div style={{ background: '#F8FAFC', padding: '10px 14px', borderRadius: '6px', border: '1px solid #E2E8F0', marginBottom: '12px' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: '700', color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '3px' }}>
                   Trigger Diagnostic: {alt.metric_trigger}
                 </div>
-                <p style={{ fontSize: '0.85rem', color: '#CBD5E1', lineHeight: '1.4' }}>
+                <p style={{ fontSize: '0.85rem', color: '#334155', lineHeight: '1.4', margin: 0 }}>
                   {alt.details}
                 </p>
               </div>
 
               {/* Action Required Box */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
-                <CheckCircle2 size={16} color="#FACC15" style={{ flexShrink: 0 }} />
-                <div style={{ fontSize: '0.82rem', color: '#FFFFFF' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#FFFBEB', borderRadius: '6px', border: '1px solid #FCD34D' }}>
+                <CheckCircle2 size={16} color="#D97706" style={{ flexShrink: 0 }} />
+                <div style={{ fontSize: '0.82rem', color: '#92400E' }}>
                   <strong>Prescribed Action:</strong> {alt.action_required}
                 </div>
               </div>
 
               {/* Regions Affected Footer */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontSize: '0.75rem', color: '#94A3B8' }}>
-                <MapPin size={12} color="#FACC15" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', fontSize: '0.75rem', color: '#64748B' }}>
+                <MapPin size={12} color="#D97706" />
                 <span>Affected Geography: {alt.affected_regions.join(' • ')}</span>
               </div>
             </div>

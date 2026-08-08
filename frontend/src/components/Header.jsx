@@ -46,22 +46,22 @@ export default function Header() {
     <header style={{ width: '100%', position: 'relative' }}>
       {/* Real-time Commodity Ticker Tape */}
       <div className="ticker-strip">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FACC15', fontWeight: '700' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#D97706', fontWeight: '700' }}>
           <Activity size={14} />
           <span>{t('mandiTicker')}</span>
         </div>
         {TICKER_COMMODITIES.map((item, idx) => (
           <div key={idx} className="ticker-item">
-            <span style={{ color: '#FFFFFF', fontWeight: '600' }}>
+            <span style={{ color: '#0F172A', fontWeight: '600' }}>
               {t(item.key)}
             </span>
-            <span style={{ color: '#E2E8F0' }}>{item.price}</span>
+            <span style={{ color: '#334155' }}>{item.price}</span>
             <span style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 
               fontSize: '0.75rem', 
               fontWeight: '700', 
-              color: item.up ? '#FACC15' : '#FCA5A5' 
+              color: item.up ? '#059669' : '#DC2626' 
             }}>
               {item.up ? <TrendingUp size={12} style={{ marginRight: '2px' }} /> : <TrendingDown size={12} style={{ marginRight: '2px' }} />}
               {item.change}
@@ -73,10 +73,10 @@ export default function Header() {
       {/* Main Header Controls */}
       <div className="header-bar">
         <div>
-          <h1 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#FFFFFF' }}>
+          <h1 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#0F172A' }}>
             {t('headerTitle')}
           </h1>
-          <p style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+          <p style={{ fontSize: '0.8rem', color: '#64748B' }}>
             {t('headerSubtitle')}
           </p>
         </div>
@@ -89,11 +89,11 @@ export default function Header() {
             gap: '8px', 
             padding: '5px 10px', 
             borderRadius: '4px', 
-            background: '#1E293B',
-            border: `1px solid ${backendOnline ? '#EAB308' : '#EF4444'}`
+            background: '#F8FAFC',
+            border: `1px solid ${backendOnline ? '#FCD34D' : '#FCA5A5'}`
           }}>
             <div className={backendOnline ? "pulse-dot" : "pulse-dot-rose"} />
-            <span style={{ fontSize: '0.75rem', fontWeight: '600', color: backendOnline ? '#FACC15' : '#FCA5A5' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: '600', color: backendOnline ? '#92400E' : '#991B1B' }}>
               {backendOnline ? t('fastApiLive') : t('connectingEngine')}
             </span>
           </div>
@@ -109,12 +109,13 @@ export default function Header() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                background: '#1E293B',
-                borderColor: '#475569'
+                background: '#FFFFFF',
+                borderColor: '#CBD5E1',
+                color: '#0F172A'
               }}
             >
-              <Globe size={14} color="#FACC15" />
-              <span style={{ fontWeight: '700', color: '#FFFFFF' }}>
+              <Globe size={14} color="#D97706" />
+              <span style={{ fontWeight: '700', color: '#0F172A' }}>
                 {currentLanguageObj.native} ({currentLanguageObj.name})
               </span>
               <ChevronDown size={14} style={{ transition: 'transform 0.2s', transform: langMenuOpen ? 'rotate(180deg)' : 'none' }} />
@@ -125,9 +126,10 @@ export default function Header() {
                 position: 'absolute',
                 top: 'calc(100% + 4px)',
                 right: 0,
-                background: '#1E293B',
-                border: '1px solid #475569',
+                background: '#FFFFFF',
+                border: '1px solid #CBD5E1',
                 borderRadius: '6px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                 zIndex: 1000,
                 minWidth: '220px',
                 padding: '4px',
@@ -138,10 +140,10 @@ export default function Header() {
                 <div style={{ 
                   padding: '6px 10px', 
                   fontSize: '0.7rem', 
-                  color: '#94A3B8', 
+                  color: '#64748B', 
                   fontWeight: '700', 
                   textTransform: 'uppercase',
-                  borderBottom: '1px solid #334155'
+                  borderBottom: '1px solid #E2E8F0'
                 }}>
                   {t('selectLanguage')}
                 </div>
@@ -159,10 +161,10 @@ export default function Header() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '7px 10px',
-                        background: isSelected ? '#FACC15' : 'transparent',
+                        background: isSelected ? '#FEF3C7' : 'transparent',
                         border: 'none',
                         borderRadius: '4px',
-                        color: isSelected ? '#000000' : '#FFFFFF',
+                        color: isSelected ? '#92400E' : '#0F172A',
                         fontSize: '0.85rem',
                         fontWeight: isSelected ? '700' : '500',
                         cursor: 'pointer',
@@ -171,9 +173,9 @@ export default function Header() {
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span>{lang.native}</span>
-                        <span style={{ fontSize: '0.72rem', color: isSelected ? '#000000' : '#94A3B8' }}>({lang.name})</span>
+                        <span style={{ fontSize: '0.72rem', color: isSelected ? '#92400E' : '#64748B' }}>({lang.name})</span>
                       </div>
-                      {isSelected && <Check size={14} color="#000000" />}
+                      {isSelected && <Check size={14} color="#92400E" />}
                     </button>
                   );
                 })}
@@ -181,14 +183,20 @@ export default function Header() {
             )}
           </div>
 
-          {/* AI Voice Copilot Quick Trigger */}
+          {/* Quick Voice AI Trigger Button */}
           <button 
-            className="btn-primary"
+            className="btn-primary" 
             onClick={() => navigate('/copilot')}
-            style={{ fontSize: '0.82rem', padding: '7px 14px' }}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              fontSize: '0.82rem',
+              padding: '6px 12px'
+            }}
           >
-            <Mic size={15} />
-            <span>{t('askCopilot')}</span>
+            <Mic size={14} />
+            <span>{t('aiVoiceCopilot')}</span>
           </button>
         </div>
       </div>

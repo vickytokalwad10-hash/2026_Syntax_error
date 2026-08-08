@@ -33,23 +33,24 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       {/* Brand Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '20px', borderBottom: '1px solid #2D3A4F' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '20px', borderBottom: '1px solid var(--border-card)' }}>
         <div style={{ 
           width: '38px', 
           height: '38px', 
           borderRadius: '8px', 
-          background: '#FACC15', 
+          background: '#FEF3C7', 
+          border: '1px solid #FCD34D',
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
         }}>
-          <Sprout size={22} color="#000000" />
+          <Sprout size={22} color="#D97706" />
         </div>
         <div className="logo-text">
-          <h2 style={{ fontSize: '1.2rem', fontWeight: '800', lineHeight: 1.1, color: '#FFFFFF' }}>
-            AgriPulse <span style={{ color: '#FACC15' }}>AI</span>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: '800', lineHeight: 1.1, color: '#0F172A' }}>
+            AgriPulse <span style={{ color: '#D97706' }}>AI</span>
           </h2>
-          <span style={{ fontSize: '0.7rem', color: '#94A3B8', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '0.7rem', color: '#64748B', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: '600' }}>
             Decision Intelligence
           </span>
         </div>
@@ -73,14 +74,15 @@ export default function Sidebar() {
                 padding: '10px 12px',
                 borderRadius: '6px',
                 textDecoration: 'none',
-                color: isActive ? '#000000' : '#FFFFFF',
-                backgroundColor: isActive ? '#FACC15' : 'transparent',
+                color: isActive ? '#92400E' : '#334155',
+                backgroundColor: isActive ? '#FEF3C7' : 'transparent',
                 fontWeight: isActive ? '700' : '500',
-                transition: 'background-color 0.15s ease',
+                borderLeft: isActive ? '3px solid #D97706' : '3px solid transparent',
+                transition: 'all 0.15s ease',
               })}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Icon size={18} color={item.badgeType === 'rose' ? '#EF4444' : 'currentColor'} />
+                <Icon size={18} color={item.badgeType === 'rose' ? '#DC2626' : 'currentColor'} />
                 <span className="nav-text" style={{ fontSize: '0.9rem' }}>{t(item.key)}</span>
               </div>
               {item.badge && (
@@ -101,16 +103,16 @@ export default function Sidebar() {
         marginTop: 'auto', 
         padding: '12px', 
         borderRadius: '6px', 
-        background: '#1E293B', 
-        border: '1px solid #2D3A4F' 
+        background: '#F8FAFC', 
+        border: '1px solid #E2E8F0' 
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
           <div className="pulse-dot" />
-          <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#FACC15', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Sentinel-2 Live
           </span>
         </div>
-        <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
+        <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: '500' }}>
           {currentLanguageObj.native} Active • 2,847 APMCs
         </div>
       </div>

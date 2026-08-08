@@ -103,8 +103,8 @@ export default function WhatIfView() {
       {/* Scenario Presets Banner */}
       <div className="agri-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <Bookmark size={18} color="#FACC15" />
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+          <Bookmark size={18} color="#D97706" />
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0F172A' }}>
             {t('whatifTitle')}
           </h3>
         </div>
@@ -120,13 +120,14 @@ export default function WhatIfView() {
                 alignItems: 'flex-start', 
                 padding: '10px 12px', 
                 textAlign: 'left',
-                border: '1px solid #374151'
+                border: '1px solid #E2E8F0',
+                background: '#FFFFFF'
               }}
             >
-              <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#FFFFFF', marginBottom: '3px' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#0F172A', marginBottom: '3px' }}>
                 {p.title}
               </span>
-              <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+              <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
                 {p.description}
               </span>
             </button>
@@ -140,8 +141,8 @@ export default function WhatIfView() {
         <div className="agri-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <SlidersHorizontal size={18} color="#FACC15" />
-              <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#FFFFFF' }}>{t('shockParameters')}</h3>
+              <SlidersHorizontal size={18} color="#D97706" />
+              <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#0F172A' }}>{t('shockParameters')}</h3>
             </div>
             <button 
               onClick={runSimulation}
@@ -155,7 +156,7 @@ export default function WhatIfView() {
 
           {/* Commodity Dropdown */}
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: '600', color: '#CBD5E1', display: 'block', marginBottom: '4px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: '600', color: '#0F172A', display: 'block', marginBottom: '4px' }}>
               {t('cropType')}
             </label>
             <select 
@@ -173,8 +174,8 @@ export default function WhatIfView() {
           {/* Slider 1: Yield Shock */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
-              <span style={{ color: '#CBD5E1' }}>{t('yieldShock')}</span>
-              <strong style={{ color: yieldShock >= 0 ? '#FACC15' : '#FCA5A5' }}>
+              <span style={{ color: '#0F172A', fontWeight: '500' }}>{t('yieldShock')}</span>
+              <strong style={{ color: yieldShock >= 0 ? '#059669' : '#DC2626' }}>
                 {yieldShock >= 0 ? `+${yieldShock}%` : `${yieldShock}%`}
               </strong>
             </div>
@@ -185,7 +186,7 @@ export default function WhatIfView() {
               value={yieldShock} 
               onChange={(e) => setYieldShock(e.target.value)} 
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#94A3B8', marginTop: '2px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#64748B', marginTop: '2px' }}>
               <span>-50% Loss</span>
               <span>+50% Bumper</span>
             </div>
@@ -194,8 +195,8 @@ export default function WhatIfView() {
           {/* Slider 2: Export Duty */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
-              <span style={{ color: '#CBD5E1' }}>{t('exportDuty')}</span>
-              <strong style={{ color: '#FFFFFF' }}>
+              <span style={{ color: '#0F172A', fontWeight: '500' }}>{t('exportDuty')}</span>
+              <strong style={{ color: '#0F172A' }}>
                 {exportDuty >= 0 ? `+${exportDuty}%` : `${exportDuty}%`}
               </strong>
             </div>
@@ -211,8 +212,8 @@ export default function WhatIfView() {
           {/* Slider 3: Freight Transport Cost */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
-              <span style={{ color: '#CBD5E1' }}>{t('freightRate')}</span>
-              <strong style={{ color: freightCost >= 0 ? '#FCA5A5' : '#FACC15' }}>
+              <span style={{ color: '#0F172A', fontWeight: '500' }}>{t('freightRate')}</span>
+              <strong style={{ color: freightCost >= 0 ? '#DC2626' : '#059669' }}>
                 {freightCost >= 0 ? `+${freightCost}%` : `${freightCost}%`}
               </strong>
             </div>
@@ -228,8 +229,8 @@ export default function WhatIfView() {
           {/* Slider 4: Monsoon Rainfall Anomaly */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
-              <span style={{ color: '#CBD5E1' }}>{t('rainfallAnomaly')}</span>
-              <strong style={{ color: rainfallAnomaly >= 0 ? '#FACC15' : '#FCA5A5' }}>
+              <span style={{ color: '#0F172A', fontWeight: '500' }}>{t('rainfallAnomaly')}</span>
+              <strong style={{ color: rainfallAnomaly >= 0 ? '#059669' : '#DC2626' }}>
                 {rainfallAnomaly >= 0 ? `+${rainfallAnomaly}%` : `${rainfallAnomaly}%`}
               </strong>
             </div>
@@ -245,8 +246,8 @@ export default function WhatIfView() {
           {/* Slider 5: Fertilizer Subsidy */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.8rem' }}>
-              <span style={{ color: '#CBD5E1' }}>{t('fertilizerSubsidy')}</span>
-              <strong style={{ color: '#FFFFFF' }}>
+              <span style={{ color: '#0F172A', fontWeight: '500' }}>{t('fertilizerSubsidy')}</span>
+              <strong style={{ color: '#0F172A' }}>
                 {fertilizerSubsidy >= 0 ? `+${fertilizerSubsidy}%` : `${fertilizerSubsidy}%`}
               </strong>
             </div>
@@ -264,17 +265,17 @@ export default function WhatIfView() {
         {simulationResult ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* Equilibrium Price Impact Card */}
-            <div className="agri-card" style={{ borderLeft: '4px solid #FACC15' }}>
+            <div className="agri-card" style={{ borderLeft: '4px solid #D97706' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div>
-                  <span style={{ fontSize: '0.75rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: '600' }}>
                     {t('simulatedSpotPrice')}
                   </span>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginTop: '2px' }}>
-                    <h2 style={{ fontSize: '2.2rem', fontWeight: '800', color: '#FFFFFF' }}>
+                    <h2 style={{ fontSize: '2.2rem', fontWeight: '800', color: '#0F172A' }}>
                       ₹{simulationResult.simulated_price.toLocaleString()}
                     </h2>
-                    <span style={{ fontSize: '0.9rem', color: '#94A3B8' }}>
+                    <span style={{ fontSize: '0.9rem', color: '#64748B' }}>
                       Base: ₹{simulationResult.base_price.toLocaleString()}/Q
                     </span>
                   </div>
@@ -285,12 +286,12 @@ export default function WhatIfView() {
                   alignItems: 'center', 
                   gap: '6px', 
                   padding: '8px 14px', 
-                  borderRadius: '4px', 
-                  background: '#1E293B',
-                  border: `1px solid ${simulationResult.price_delta_pct >= 0 ? '#FACC15' : '#EF4444'}`
+                  borderRadius: '6px', 
+                  background: '#FEF3C7',
+                  border: `1px solid #FCD34D`
                 }}>
-                  {simulationResult.price_delta_pct >= 0 ? <TrendingUp size={20} color="#FACC15" /> : <TrendingDown size={20} color="#FCA5A5" />}
-                  <span style={{ fontSize: '1.15rem', fontWeight: '800', color: simulationResult.price_delta_pct >= 0 ? '#FACC15' : '#FCA5A5' }}>
+                  {simulationResult.price_delta_pct >= 0 ? <TrendingUp size={20} color="#059669" /> : <TrendingDown size={20} color="#DC2626" />}
+                  <span style={{ fontSize: '1.15rem', fontWeight: '800', color: simulationResult.price_delta_pct >= 0 ? '#059669' : '#DC2626' }}>
                     {simulationResult.price_delta_pct >= 0 ? `+${simulationResult.price_delta_pct}%` : `${simulationResult.price_delta_pct}%`}
                   </span>
                 </div>
@@ -298,30 +299,30 @@ export default function WhatIfView() {
 
               {/* Economic Metrics Breakdown */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '12px' }}>
-                <div style={{ padding: '10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{t('farmerNetMargin')}</div>
-                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#FFFFFF' }}>
+                <div style={{ padding: '10px', background: '#F8FAFC', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: '600' }}>{t('farmerNetMargin')}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#0F172A' }}>
                     ₹{simulationResult.simulated_net_margin_per_acre.toLocaleString()}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: simulationResult.margin_delta_pct >= 0 ? '#FACC15' : '#FCA5A5' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '600', color: simulationResult.margin_delta_pct >= 0 ? '#059669' : '#DC2626' }}>
                     {simulationResult.margin_delta_pct >= 0 ? `+${simulationResult.margin_delta_pct}% Gain` : `${simulationResult.margin_delta_pct}% Squeeze`}
                   </div>
                 </div>
 
-                <div style={{ padding: '10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{t('mandiPressure')}</div>
-                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#FFFFFF' }}>
+                <div style={{ padding: '10px', background: '#F8FAFC', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: '600' }}>{t('mandiPressure')}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#0F172A' }}>
                     {simulationResult.mandi_arrival_pressure}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Wholesale Liquidity</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B' }}>Wholesale Liquidity</div>
                 </div>
 
-                <div style={{ padding: '10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{t('cpiImpact')}</div>
-                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#FFFFFF' }}>
+                <div style={{ padding: '10px', background: '#F8FAFC', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: '600' }}>{t('cpiImpact')}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#0F172A' }}>
                     {simulationResult.cpi_food_inflation_impact_pts >= 0 ? `+${simulationResult.cpi_food_inflation_impact_pts}` : `${simulationResult.cpi_food_inflation_impact_pts}`}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Headline CPI</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B' }}>Headline CPI</div>
                 </div>
               </div>
             </div>
@@ -329,8 +330,8 @@ export default function WhatIfView() {
             {/* Strategic Recommendations Card */}
             <div className="agri-card">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <Zap size={18} color="#FACC15" />
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#FFFFFF' }}>
+                <Zap size={18} color="#D97706" />
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#0F172A' }}>
                   {t('strategicRecommendations')}
                 </h4>
               </div>
@@ -344,17 +345,17 @@ export default function WhatIfView() {
                       alignItems: 'flex-start', 
                       gap: '10px', 
                       padding: '10px 12px', 
-                      background: '#1E293B', 
-                      borderRadius: '4px',
-                      border: '1px solid #374151'
+                      background: '#F8FAFC', 
+                      borderRadius: '6px',
+                      border: '1px solid #E2E8F0'
                     }}
                   >
                     <div style={{ 
                       width: '22px', 
                       height: '22px', 
                       borderRadius: '4px', 
-                      background: '#FACC15', 
-                      color: '#000000', 
+                      background: '#FEF3C7', 
+                      color: '#92400E', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
@@ -364,7 +365,7 @@ export default function WhatIfView() {
                     }}>
                       {idx + 1}
                     </div>
-                    <span style={{ fontSize: '0.88rem', color: '#FFFFFF', lineHeight: '1.4' }}>
+                    <span style={{ fontSize: '0.88rem', color: '#0F172A', lineHeight: '1.4' }}>
                       {rec}
                     </span>
                   </div>

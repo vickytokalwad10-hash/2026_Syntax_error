@@ -268,14 +268,14 @@ export default function CopilotView() {
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#FFFFFF' }}>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#0F172A' }}>
                 {t('copilotTitle')}
               </h2>
               <span className="badge badge-yellow" style={{ fontSize: '0.7rem' }}>
                 {currentLanguageObj.native}
               </span>
             </div>
-            <p style={{ fontSize: '0.78rem', color: '#94A3B8' }}>
+            <p style={{ fontSize: '0.78rem', color: '#64748B' }}>
               {t('copilotSubtitle')}
             </p>
           </div>
@@ -284,7 +284,7 @@ export default function CopilotView() {
         {/* Persona & Crop Filters */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           {/* Persona Switcher */}
-          <div style={{ display: 'flex', background: '#111827', padding: '2px', borderRadius: '4px', border: '1px solid #374151' }}>
+          <div style={{ display: 'flex', background: '#F1F5F9', padding: '2px', borderRadius: '4px', border: '1px solid #CBD5E1' }}>
             <button
               onClick={() => setRolePersona('farmer')}
               className={rolePersona === 'farmer' ? 'btn-primary' : 'btn-secondary'}
@@ -322,9 +322,9 @@ export default function CopilotView() {
             <button 
               className="btn-secondary"
               onClick={stopSpeaking}
-              style={{ padding: '5px 10px', fontSize: '0.75rem', borderColor: '#EF4444', color: '#FCA5A5' }}
+              style={{ padding: '5px 10px', fontSize: '0.75rem', borderColor: '#EF4444', color: '#DC2626' }}
             >
-              <VolumeX size={13} color="#FCA5A5" />
+              <VolumeX size={13} color="#DC2626" />
               <span>{t('stopVoice')}</span>
             </button>
           )}
@@ -356,14 +356,16 @@ export default function CopilotView() {
                 <div style={{ 
                   width: '32px', 
                   height: '32px', 
-                  borderRadius: '4px', 
-                  background: '#FACC15', 
+                  borderRadius: '6px', 
+                  background: '#FEF3C7', 
+                  color: '#D97706',
+                  border: '1px solid #FCD34D',
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
                   flexShrink: 0
                 }}>
-                  <Bot size={16} color="#000000" />
+                  <Bot size={16} />
                 </div>
               )}
 
@@ -375,10 +377,10 @@ export default function CopilotView() {
               }}>
                 <div style={{
                   padding: '12px 16px',
-                  borderRadius: '4px',
-                  background: isAI ? '#1E293B' : '#FACC15',
-                  border: isAI ? '1px solid #374151' : 'none',
-                  color: isAI ? '#FFFFFF' : '#000000',
+                  borderRadius: '6px',
+                  background: isAI ? '#F8FAFC' : '#D97706',
+                  border: isAI ? '1px solid #E2E8F0' : 'none',
+                  color: isAI ? '#0F172A' : '#FFFFFF',
                   fontSize: '0.88rem',
                   fontWeight: isAI ? 'normal' : '600',
                   lineHeight: '1.5'
@@ -393,13 +395,14 @@ export default function CopilotView() {
                         style={{
                           background: 'transparent',
                           border: 'none',
-                          color: '#FACC15',
+                          color: '#D97706',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
                           fontSize: '0.72rem',
-                          padding: '2px 4px'
+                          padding: '2px 4px',
+                          fontWeight: '600'
                         }}
                       >
                         <Volume2 size={12} />
@@ -413,19 +416,19 @@ export default function CopilotView() {
                 {isAI && msg.action_title && (
                   <div style={{
                     padding: '10px 14px',
-                    borderRadius: '4px',
-                    background: '#1E293B',
-                    border: '1px solid #FACC15',
+                    borderRadius: '6px',
+                    background: '#FFFBEB',
+                    border: '1px solid #FCD34D',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '4px'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#FACC15', fontWeight: '700', fontSize: '0.82rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#92400E', fontWeight: '700', fontSize: '0.82rem' }}>
                       <Sparkles size={14} />
                       <span>{msg.action_title}</span>
                     </div>
                     {msg.action_details && (
-                      <p style={{ fontSize: '0.78rem', color: '#CBD5E1', margin: 0 }}>
+                      <p style={{ fontSize: '0.78rem', color: '#78350F', margin: 0 }}>
                         {msg.action_details}
                       </p>
                     )}
@@ -443,14 +446,14 @@ export default function CopilotView() {
                           alignItems: 'center',
                           gap: '4px',
                           padding: '3px 8px',
-                          background: '#1E293B',
-                          border: '1px solid #374151',
+                          background: '#FFFFFF',
+                          border: '1px solid #E2E8F0',
                           borderRadius: '4px',
                           fontSize: '0.72rem'
                         }}
                       >
-                        <span style={{ color: '#94A3B8' }}>{st.label}:</span>
-                        <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{st.val}</span>
+                        <span style={{ color: '#64748B' }}>{st.label}:</span>
+                        <span style={{ color: '#0F172A', fontWeight: '700' }}>{st.val}</span>
                       </div>
                     ))}
                   </div>
@@ -461,14 +464,15 @@ export default function CopilotView() {
                 <div style={{ 
                   width: '32px', 
                   height: '32px', 
-                  borderRadius: '4px', 
-                  background: '#FFFFFF', 
+                  borderRadius: '6px', 
+                  background: '#F1F5F9', 
+                  border: '1px solid #CBD5E1',
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',
                   flexShrink: 0
                 }}>
-                  <User size={16} color="#000000" />
+                  <User size={16} color="#0F172A" />
                 </div>
               )}
             </div>
@@ -480,25 +484,26 @@ export default function CopilotView() {
             <div style={{ 
               width: '32px', 
               height: '32px', 
-              borderRadius: '4px', 
-              background: '#FACC15', 
+              borderRadius: '6px', 
+              background: '#FEF3C7', 
+              border: '1px solid #FCD34D',
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center' 
             }}>
-              <Bot size={16} color="#000000" />
+              <Bot size={16} color="#D97706" />
             </div>
             <div style={{ 
               padding: '10px 14px', 
-              borderRadius: '4px', 
-              background: '#1E293B', 
-              border: '1px solid #374151',
+              borderRadius: '6px', 
+              background: '#F8FAFC', 
+              border: '1px solid #E2E8F0',
               display: 'flex',
               alignItems: 'center',
               gap: '6px'
             }}>
               <div className="pulse-dot" />
-              <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+              <span style={{ fontSize: '0.8rem', color: '#64748B' }}>
                 {t('loading')}
               </span>
             </div>
@@ -510,7 +515,7 @@ export default function CopilotView() {
 
       {/* Suggested Quick Question Chips */}
       <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
-        <span style={{ fontSize: '0.72rem', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+        <span style={{ fontSize: '0.72rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
           <HelpCircle size={12} />
           {t('sampleQuestions')}
         </span>
@@ -552,9 +557,9 @@ export default function CopilotView() {
           title={isListening ? "Stop Listening" : "Tap to Speak"}
         >
           {isListening ? (
-            <MicOff size={18} color="#000000" />
+            <MicOff size={18} color="#FFFFFF" />
           ) : (
-            <Mic size={18} color="#FFFFFF" />
+            <Mic size={18} color="#0F172A" />
           )}
         </button>
 

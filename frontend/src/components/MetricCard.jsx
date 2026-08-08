@@ -6,7 +6,7 @@ export default function MetricCard({ title, value, unit, delta, isPositive, subt
     <div className="agri-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
         <div>
-          <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             {title}
           </span>
           {tag && (
@@ -18,10 +18,10 @@ export default function MetricCard({ title, value, unit, delta, isPositive, subt
         {Icon && (
           <div style={{ 
             padding: '6px', 
-            borderRadius: '4px', 
-            background: '#1E293B', 
-            color: '#FACC15',
-            border: '1px solid #374151'
+            borderRadius: '6px', 
+            background: '#FEF3C7', 
+            color: '#D97706',
+            border: '1px solid #FCD34D'
           }}>
             <Icon size={16} />
           </div>
@@ -29,10 +29,10 @@ export default function MetricCard({ title, value, unit, delta, isPositive, subt
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '6px' }}>
-        <span style={{ fontSize: '1.7rem', fontWeight: '800', fontFamily: 'var(--font-heading)', color: '#FFFFFF' }}>
+        <span style={{ fontSize: '1.7rem', fontWeight: '800', fontFamily: 'var(--font-heading)', color: '#0F172A' }}>
           {value}
         </span>
-        {unit && <span style={{ fontSize: '0.85rem', color: '#94A3B8' }}>{unit}</span>}
+        {unit && <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: '600' }}>{unit}</span>}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
@@ -41,14 +41,14 @@ export default function MetricCard({ title, value, unit, delta, isPositive, subt
             display: 'flex', 
             alignItems: 'center', 
             gap: '4px', 
-            color: isPositive ? '#FACC15' : '#F87171',
+            color: isPositive ? '#059669' : '#DC2626',
             fontWeight: '700'
           }}>
             {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
             <span>{delta}</span>
           </div>
         )}
-        {subtext && <span style={{ color: '#94A3B8' }}>{subtext}</span>}
+        {subtext && <span style={{ color: '#64748B', fontWeight: '500' }}>{subtext}</span>}
       </div>
     </div>
   );

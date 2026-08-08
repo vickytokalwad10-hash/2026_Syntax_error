@@ -18,10 +18,10 @@ import { useLanguage } from '../context/LanguageContext';
 const INDIA_CENTER = [22.9734, 78.6569];
 
 function getNdviColor(ndvi) {
-  if (ndvi >= 0.75) return '#FACC15'; // Crisp Yellow
-  if (ndvi >= 0.65) return '#EAB308'; // Amber
-  if (ndvi >= 0.55) return '#94A3B8'; // Slate
-  return '#EF4444'; // Red / Stressed
+  if (ndvi >= 0.75) return '#16A34A'; // Lush green
+  if (ndvi >= 0.65) return '#D97706'; // Amber / Optimal
+  if (ndvi >= 0.55) return '#64748B'; // Slate / Moderate
+  return '#DC2626'; // Red / Stressed
 }
 
 export default function HeatmapView() {
@@ -65,12 +65,12 @@ export default function HeatmapView() {
       <div className="agri-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <Satellite size={18} color="#FACC15" />
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#FFFFFF' }}>
+            <Satellite size={18} color="#D97706" />
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#0F172A' }}>
               {t('heatmapTitle')}
             </h2>
           </div>
-          <p style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
+          <p style={{ fontSize: '0.82rem', color: '#64748B' }}>
             High-resolution Copernicus Sentinel-2 MSI Multi-Spectral Vegetation Indices (NDVI, EVI, Soil Moisture %) calibrated across all state agro-climatic zones.
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function HeatmapView() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '20px', minHeight: '520px' }}>
         {/* Leaflet Map Card */}
         <div className="agri-card" style={{ padding: '6px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ flex: 1, borderRadius: '4px', overflow: 'hidden', minHeight: '480px' }}>
+          <div style={{ flex: 1, borderRadius: '6px', overflow: 'hidden', minHeight: '480px' }}>
             <MapContainer
               center={INDIA_CENTER}
               zoom={5}
@@ -127,7 +127,7 @@ export default function HeatmapView() {
                     center={[st.lat, st.lng]}
                     radius={isSelected ? 20 : 14}
                     pathOptions={{
-                      color: isSelected ? '#FFFFFF' : color,
+                      color: isSelected ? '#0F172A' : color,
                       fillColor: color,
                       fillOpacity: 0.8,
                       weight: isSelected ? 3 : 2
@@ -137,7 +137,7 @@ export default function HeatmapView() {
                     }}
                   >
                     <Popup>
-                      <div style={{ padding: '4px', minWidth: '160px', color: '#111827' }}>
+                      <div style={{ padding: '4px', minWidth: '160px', color: '#0F172A' }}>
                         <h4 style={{ margin: '0 0 4px 0', fontSize: '0.95rem', fontWeight: 'bold' }}>
                           {st.state_name}
                         </h4>
@@ -156,23 +156,23 @@ export default function HeatmapView() {
 
           {/* Map Color Legend */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px 2px 12px', fontSize: '0.72rem' }}>
-            <span style={{ color: '#94A3B8' }}>NDVI Scale:</span>
+            <span style={{ color: '#64748B', fontWeight: '600' }}>NDVI Scale:</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FACC15', display: 'inline-block' }} />
-                <span>Lush (&ge;0.75)</span>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#16A34A', display: 'inline-block' }} />
+                <span style={{ color: '#0F172A' }}>Lush (&ge;0.75)</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EAB308', display: 'inline-block' }} />
-                <span>Optimal (0.65-0.74)</span>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#D97706', display: 'inline-block' }} />
+                <span style={{ color: '#0F172A' }}>Optimal (0.65-0.74)</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#94A3B8', display: 'inline-block' }} />
-                <span>Moderate (0.55-0.64)</span>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#64748B', display: 'inline-block' }} />
+                <span style={{ color: '#0F172A' }}>Moderate (0.55-0.64)</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444', display: 'inline-block' }} />
-                <span>Stress (&lt;0.55)</span>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#DC2626', display: 'inline-block' }} />
+                <span style={{ color: '#0F172A' }}>Stress (&lt;0.55)</span>
               </div>
             </div>
           </div>
@@ -185,10 +185,10 @@ export default function HeatmapView() {
               <div className="agri-card" style={{ borderLeft: `4px solid ${getNdviColor(selectedState.ndvi_index)}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                   <div>
-                    <span style={{ fontSize: '0.72rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: '600' }}>
                       Selected Zone
                     </span>
-                    <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#FFFFFF' }}>
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0F172A' }}>
                       {selectedState.state_name}
                     </h3>
                   </div>
@@ -198,38 +198,38 @@ export default function HeatmapView() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '12px' }}>
-                  <div style={{ padding: '8px 10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>{t('ndviCanopy')}</div>
-                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#FFFFFF' }}>{selectedState.ndvi_index}</div>
-                    <div style={{ fontSize: '0.68rem', color: '#FACC15' }}>Canopy Cover</div>
+                  <div style={{ padding: '8px 10px', background: '#F8FAFC', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#64748B' }}>{t('ndviCanopy')}</div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#0F172A' }}>{selectedState.ndvi_index}</div>
+                    <div style={{ fontSize: '0.68rem', color: '#D97706', fontWeight: '600' }}>Canopy Cover</div>
                   </div>
 
-                  <div style={{ padding: '8px 10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>{t('soilMoisturePct')}</div>
-                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#FFFFFF' }}>{selectedState.soil_moisture_pct}%</div>
-                    <div style={{ fontSize: '0.68rem', color: '#CBD5E1' }}>Volumetric</div>
+                  <div style={{ padding: '8px 10px', background: '#F8FAFC', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#64748B' }}>{t('soilMoisturePct')}</div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#0F172A' }}>{selectedState.soil_moisture_pct}%</div>
+                    <div style={{ fontSize: '0.68rem', color: '#64748B' }}>Volumetric</div>
                   </div>
 
-                  <div style={{ padding: '8px 10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>{t('droughtRisk')}</div>
-                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: selectedState.drought_risk_score > 3.0 ? '#FCA5A5' : '#FACC15' }}>
+                  <div style={{ padding: '8px 10px', background: '#F8FAFC', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#64748B' }}>{t('droughtRisk')}</div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: selectedState.drought_risk_score > 3.0 ? '#DC2626' : '#D97706' }}>
                       {selectedState.drought_risk_score} / 5.0
                     </div>
-                    <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>Risk Score</div>
+                    <div style={{ fontSize: '0.68rem', color: '#64748B' }}>Risk Score</div>
                   </div>
 
-                  <div style={{ padding: '8px 10px', background: '#1E293B', borderRadius: '4px', border: '1px solid #374151' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>{t('yieldProjection')}</div>
-                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: selectedState.yield_projection_delta_pct >= 0 ? '#FACC15' : '#FCA5A5' }}>
+                  <div style={{ padding: '8px 10px', background: '#F8FAFC', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#64748B' }}>{t('yieldProjection')}</div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: selectedState.yield_projection_delta_pct >= 0 ? '#16A34A' : '#DC2626' }}>
                       {selectedState.yield_projection_delta_pct >= 0 ? `+${selectedState.yield_projection_delta_pct}%` : `${selectedState.yield_projection_delta_pct}%`}
                     </div>
-                    <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>vs 5-Yr Mean</div>
+                    <div style={{ fontSize: '0.68rem', color: '#64748B' }}>vs 5-Yr Mean</div>
                   </div>
                 </div>
 
                 {/* Primary Crops in State */}
                 <div style={{ marginTop: '12px' }}>
-                  <div style={{ fontSize: '0.72rem', fontWeight: '600', color: '#CBD5E1', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: '600', color: '#0F172A', marginBottom: '6px' }}>
                     Dominant Crops:
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -244,7 +244,7 @@ export default function HeatmapView() {
 
               {/* State Selection Quick List */}
               <div className="agri-card" style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#CBD5E1', marginBottom: '8px', textTransform: 'uppercase' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#0F172A', marginBottom: '8px', textTransform: 'uppercase' }}>
                   Switch State Territory
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '180px', overflowY: 'auto' }}>
@@ -257,10 +257,10 @@ export default function HeatmapView() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '6px 10px',
-                        borderRadius: '4px',
-                        background: selectedState.id === s.id ? '#1E293B' : 'transparent',
-                        border: selectedState.id === s.id ? '1px solid #FACC15' : '1px solid #374151',
-                        color: '#FFFFFF',
+                        borderRadius: '6px',
+                        background: selectedState.id === s.id ? '#FEF3C7' : '#F8FAFC',
+                        border: selectedState.id === s.id ? '1px solid #FCD34D' : '1px solid #E2E8F0',
+                        color: '#0F172A',
                         cursor: 'pointer',
                         textAlign: 'left'
                       }}

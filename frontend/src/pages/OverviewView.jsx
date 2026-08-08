@@ -158,17 +158,18 @@ export default function OverviewView() {
       legend: {
         position: 'top',
         labels: {
-          color: '#FFFFFF',
-          font: { family: 'Outfit', size: 12 }
+          color: '#0F172A',
+          font: { family: 'Outfit', size: 12, weight: '600' }
         }
       },
       tooltip: {
-        backgroundColor: '#1E293B',
-        titleColor: '#FFFFFF',
-        bodyColor: '#FACC15',
-        borderColor: '#374151',
+        backgroundColor: '#FFFFFF',
+        titleColor: '#0F172A',
+        bodyColor: '#D97706',
+        borderColor: '#E2E8F0',
         borderWidth: 1,
         padding: 10,
+        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
         callbacks: {
           label: function(context) {
             return ` ${context.dataset.label}: ₹${context.parsed.y}/Q`;
@@ -178,13 +179,13 @@ export default function OverviewView() {
     },
     scales: {
       x: {
-        grid: { color: '#1E293B' },
-        ticks: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 11 } }
+        grid: { color: '#E2E8F0' },
+        ticks: { color: '#64748B', font: { family: 'Plus Jakarta Sans', size: 11 } }
       },
       y: {
-        grid: { color: '#1E293B' },
+        grid: { color: '#E2E8F0' },
         ticks: { 
-          color: '#94A3B8', 
+          color: '#64748B', 
           font: { family: 'Plus Jakarta Sans', size: 11 },
           callback: (value) => `₹${value}`
         }
@@ -195,16 +196,16 @@ export default function OverviewView() {
   return (
     <div className="page-body">
       {/* Top Banner with Verdict */}
-      <div className="agri-card" style={{ marginBottom: '24px', borderLeft: '4px solid #FACC15' }}>
+      <div className="agri-card" style={{ marginBottom: '24px', borderLeft: '4px solid #D97706' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <Sparkles size={18} color="#FACC15" />
-              <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#FFFFFF' }}>
+              <Sparkles size={18} color="#D97706" />
+              <h2 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0F172A' }}>
                 {t('executiveOverview')}
               </h2>
             </div>
-            <p style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
+            <p style={{ color: '#64748B', fontSize: '0.85rem' }}>
               {t('realTimePulse')}
             </p>
           </div>
@@ -224,15 +225,15 @@ export default function OverviewView() {
         <div style={{ 
           marginTop: '14px', 
           padding: '10px 14px', 
-          borderRadius: '4px', 
-          background: '#1E293B', 
-          border: '1px solid #374151',
+          borderRadius: '6px', 
+          background: '#F8FAFC', 
+          border: '1px solid #E2E8F0',
           display: 'flex',
           alignItems: 'center',
           gap: '12px'
         }}>
-          <CheckCircle2 size={18} color="#FACC15" style={{ flexShrink: 0 }} />
-          <p style={{ fontSize: '0.85rem', color: '#E2E8F0', lineHeight: 1.4 }}>
+          <CheckCircle2 size={18} color="#D97706" style={{ flexShrink: 0 }} />
+          <p style={{ fontSize: '0.85rem', color: '#0F172A', lineHeight: 1.4 }}>
             <strong>{t('forecastSubtitle')}:</strong> {data.market_summary.ai_market_verdict}
           </p>
         </div>
@@ -285,12 +286,12 @@ export default function OverviewView() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Zap size={18} color="#FACC15" />
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+                <Zap size={18} color="#D97706" />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0F172A' }}>
                   {t('multiHorizonForecast')}
                 </h3>
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+              <p style={{ fontSize: '0.8rem', color: '#64748B' }}>
                 {t('forecastSubtitle')} ({t(selectedCrop) || selectedCrop})
               </p>
             </div>
@@ -318,8 +319,8 @@ export default function OverviewView() {
         <div className="agri-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <Layers size={18} color="#FACC15" />
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+              <Layers size={18} color="#D97706" />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0F172A' }}>
                 {t('agronomyMatrix')}
               </h3>
             </div>
@@ -327,22 +328,22 @@ export default function OverviewView() {
             {/* NDVI Progress */}
             <div style={{ marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ fontSize: '0.85rem', color: '#E2E8F0' }}>{t('ndviIndex')}</span>
-                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#FACC15' }}>0.74 (Optimal Canopy)</span>
+                <span style={{ fontSize: '0.85rem', color: '#0F172A' }}>{t('ndviIndex')}</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#D97706' }}>0.74 (Optimal Canopy)</span>
               </div>
-              <div style={{ height: '6px', background: '#1E293B', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: '74%', height: '100%', background: '#FACC15', borderRadius: '4px' }} />
+              <div style={{ height: '6px', background: '#E2E8F0', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '74%', height: '100%', background: '#D97706', borderRadius: '4px' }} />
               </div>
             </div>
 
             {/* Soil Moisture Progress */}
             <div style={{ marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ fontSize: '0.85rem', color: '#E2E8F0' }}>{t('soilMoisture')}</span>
-                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#FFFFFF' }}>32% (Sufficient Root Water)</span>
+                <span style={{ fontSize: '0.85rem', color: '#0F172A' }}>{t('soilMoisture')}</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#059669' }}>32% (Sufficient Root Water)</span>
               </div>
-              <div style={{ height: '6px', background: '#1E293B', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: '64%', height: '100%', background: '#FFFFFF', borderRadius: '4px' }} />
+              <div style={{ height: '6px', background: '#E2E8F0', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '64%', height: '100%', background: '#059669', borderRadius: '4px' }} />
               </div>
             </div>
           </div>
@@ -350,20 +351,20 @@ export default function OverviewView() {
           {/* Spraying Window Alert Card */}
           <div style={{ 
             padding: '12px 14px', 
-            borderRadius: '4px', 
-            background: '#1E293B', 
-            border: '1px solid #374151',
+            borderRadius: '6px', 
+            background: '#FFFBEB', 
+            border: '1px solid #FCD34D',
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
             marginTop: '12px'
           }}>
-            <Droplets size={22} color="#FACC15" style={{ flexShrink: 0 }} />
+            <Droplets size={22} color="#D97706" style={{ flexShrink: 0 }} />
             <div>
-              <h4 style={{ fontSize: '0.85rem', fontWeight: '700', color: '#FFFFFF', marginBottom: '2px' }}>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: '700', color: '#92400E', marginBottom: '2px' }}>
                 {t('idealSprayingWindow')}
               </h4>
-              <p style={{ fontSize: '0.78rem', color: '#94A3B8', lineHeight: 1.3 }}>
+              <p style={{ fontSize: '0.78rem', color: '#78350F', lineHeight: 1.3, margin: 0 }}>
                 {t('optimalSprayingText')}
               </p>
             </div>
@@ -375,10 +376,10 @@ export default function OverviewView() {
       <div className="agri-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#FFFFFF' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0F172A' }}>
               {t('highMomentumCommodities')}
             </h3>
-            <p style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+            <p style={{ fontSize: '0.8rem', color: '#64748B' }}>
               {t('forecastSubtitle')}
             </p>
           </div>
@@ -404,16 +405,16 @@ export default function OverviewView() {
                 return (
                   <tr key={crop.id}>
                     <td>
-                      <strong style={{ color: '#FFFFFF' }}>{t(crop.id) || crop.name}</strong>
+                      <strong style={{ color: '#0F172A' }}>{t(crop.id) || crop.name}</strong>
                     </td>
                     <td>
-                      <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#FFFFFF' }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#0F172A' }}>
                         ₹{crop.spot_price.toLocaleString()}
                       </span>
                     </td>
                     <td>
                       <span style={{ 
-                        color: crop.change_pct >= 0 ? '#FACC15' : '#F87171',
+                        color: crop.change_pct >= 0 ? '#059669' : '#DC2626',
                         fontWeight: '700'
                       }}>
                         {crop.change_pct >= 0 ? `+${crop.change_pct}%` : `${crop.change_pct}%`}
@@ -430,12 +431,12 @@ export default function OverviewView() {
                       )}
                     </td>
                     <td>
-                      <span style={{ color: crop.forecast_trend.includes('Bullish') ? '#FACC15' : '#94A3B8', fontWeight: '600' }}>
+                      <span style={{ color: crop.forecast_trend.includes('Bullish') ? '#059669' : '#64748B', fontWeight: '600' }}>
                         {crop.forecast_trend.includes('Bullish') ? t('bullish') : t('neutral')}
                       </span>
                     </td>
                     <td>
-                      <span style={{ color: '#FACC15', fontWeight: '600' }}>{crop.top_mandi}</span>
+                      <span style={{ color: '#D97706', fontWeight: '600' }}>{crop.top_mandi}</span>
                     </td>
                   </tr>
                 );

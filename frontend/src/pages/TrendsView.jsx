@@ -215,26 +215,26 @@ export default function TrendsView() {
     plugins: {
       legend: {
         position: 'top',
-        labels: { color: '#FFFFFF', font: { family: 'Outfit', size: 12 } }
+        labels: { color: '#0F172A', font: { family: 'Outfit', size: 12 } }
       },
       tooltip: {
-        backgroundColor: '#1E293B',
-        titleColor: '#FFFFFF',
-        bodyColor: '#FACC15',
-        borderColor: '#374151',
+        backgroundColor: '#FFFFFF',
+        titleColor: '#0F172A',
+        bodyColor: '#D97706',
+        borderColor: '#E2E8F0',
         borderWidth: 1,
         padding: 10
       }
     },
     scales: {
       x: {
-        grid: { color: '#1E293B' },
-        ticks: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 10 } }
+        grid: { color: '#F1F5F9' },
+        ticks: { color: '#64748B', font: { family: 'Plus Jakarta Sans', size: 10 } }
       },
       y: {
-        grid: { color: '#1E293B' },
+        grid: { color: '#F1F5F9' },
         ticks: { 
-          color: '#94A3B8', 
+          color: '#64748B', 
           font: { family: 'Plus Jakarta Sans', size: 10 },
           callback: (value) => `₹${value}`
         }
@@ -246,22 +246,22 @@ export default function TrendsView() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'top', labels: { color: '#FFFFFF', font: { family: 'Outfit', size: 12 } } },
-      tooltip: { backgroundColor: '#1E293B', titleColor: '#FFFFFF', bodyColor: '#FACC15', borderColor: '#374151', borderWidth: 1, padding: 10 }
+      legend: { position: 'top', labels: { color: '#0F172A', font: { family: 'Outfit', size: 12 } } },
+      tooltip: { backgroundColor: '#FFFFFF', titleColor: '#0F172A', bodyColor: '#D97706', borderColor: '#E2E8F0', borderWidth: 1, padding: 10 }
     },
     scales: {
-      x: { grid: { color: '#1E293B' }, ticks: { color: '#94A3B8' } },
+      x: { grid: { color: '#F1F5F9' }, ticks: { color: '#64748B' } },
       y: {
         type: 'linear',
         position: 'left',
-        grid: { color: '#1E293B' },
-        ticks: { color: '#FFFFFF', callback: (v) => `₹${v}` }
+        grid: { color: '#F1F5F9' },
+        ticks: { color: '#0F172A', callback: (v) => `₹${v}` }
       },
       y1: {
         type: 'linear',
         position: 'right',
         grid: { drawOnChartArea: false },
-        ticks: { color: '#94A3B8', callback: (v) => `${Math.round(v/1000)}k MT` }
+        ticks: { color: '#64748B', callback: (v) => `${Math.round(v/1000)}k MT` }
       }
     }
   };
@@ -272,12 +272,12 @@ export default function TrendsView() {
       <div className="agri-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <TrendingUp size={20} color="#FACC15" />
-            <h2 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#FFFFFF' }}>
+            <TrendingUp size={20} color="#D97706" />
+            <h2 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#0F172A' }}>
               {t('trendsTitle')}
             </h2>
           </div>
-          <p style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
+          <p style={{ fontSize: '0.82rem', color: '#64748B' }}>
             Temporal Fusion Transformer (TFT) combining 8-year APMC mandi arrivals, export quotas, and Sentinel-2 canopy health.
           </p>
         </div>
@@ -342,21 +342,21 @@ export default function TrendsView() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Zap size={18} color="#FACC15" />
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#FFFFFF' }}>
+              <Zap size={18} color="#D97706" />
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#0F172A' }}>
                 {chartTab === 'forecast' 
                   ? `30-Day Forward Trajectory with 95% Confidence Bands (${t(cropId) || data.crop_name})` 
                   : `12-Month Historical Mandi Modal Price vs Arrival Volume (${t(cropId) || data.crop_name})`}
               </h3>
             </div>
-            <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '2px' }}>
+            <p style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '2px' }}>
               {chartTab === 'forecast' 
                 ? 'Confidence bounds expand dynamically over the horizon to reflect macro weather & export policy shifts.' 
                 : 'Correlates monthly market arrivals with price suppression vs post-harvest rallies.'}
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#111827', padding: '2px', borderRadius: '4px', border: '1px solid #374151' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#F1F5F9', padding: '3px', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
             <button
               onClick={() => setChartTab('forecast')}
               className={chartTab === 'forecast' ? 'btn-primary' : 'btn-secondary'}
@@ -390,12 +390,12 @@ export default function TrendsView() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Layers size={18} color="#FACC15" />
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#FFFFFF' }}>
+              <Layers size={18} color="#D97706" />
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#0F172A' }}>
                 12-Month Historical Seasonality Pattern Index
               </h3>
             </div>
-            <p style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+            <p style={{ fontSize: '0.8rem', color: '#64748B' }}>
               Yellow bars (Index &gt; 100) represent peak price realizations; Slate bars (&lt; 100) indicate harvest supply periods.
             </p>
           </div>
