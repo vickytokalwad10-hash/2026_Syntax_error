@@ -26,7 +26,7 @@ export default function AlertsView() {
     async function load() {
       setLoading(true);
       const res = await api.getAlerts();
-      if (res && res.alerts) {
+      if (res && res.alerts && res.alerts.length > 0) {
         setAlerts(res.alerts);
       }
       setLoading(false);

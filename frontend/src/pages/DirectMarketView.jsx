@@ -66,6 +66,7 @@ export default function DirectMarketView() {
 
   // Buyer filters
   const [filterCrop, setFilterCrop] = useState('ALL');
+  const [selectedCropFilter, setSelectedCropFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
