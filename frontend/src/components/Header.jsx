@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mic, Globe, Activity, TrendingUp, TrendingDown, ChevronDown, Check } from 'lucide-react';
+import { Mic, Globe, Activity, TrendingUp, TrendingDown, ChevronDown, Check, User, ShieldCheck, Sprout, Building2, Menu } from 'lucide-react';
 import { api } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const TICKER_COMMODITIES = [
   { key: 'wheat', price: '₹2,840/Q', change: '+2.4%', up: true },
@@ -15,9 +16,10 @@ const TICKER_COMMODITIES = [
   { key: 'potato', price: '₹1,460/Q', change: '-0.4%', up: false },
 ];
 
-export default function Header() {
+export default function Header({ onMenuClick }) {
   const navigate = useNavigate();
   const { language, setLanguage, t, languages, currentLanguageObj } = useLanguage();
+  const { user, role, isAuthenticated, logout } = useAuth();
   const [backendOnline, setBackendOnline] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -72,16 +74,32 @@ export default function Header() {
 
       {/* Main Header Controls */}
       <div className="header-bar">
-        <div>
-          <h1 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#0F172A' }}>
-            {t('headerTitle')}
-          </h1>
-          <p style={{ fontSize: '0.8rem', color: '#64748B' }}>
-            {t('headerSubtitle')}
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            className="hamburger-btn"
+            onClick={onMenuClick}
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              color: '#0F172A', 
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'none' // Hidden by default, shown in media query
+            }}
+          >
+            <Menu size={24} />
+          </button>
+          <div className="header-titles">
+            <h1 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#0F172A' }}>
+              {t('headerTitle')}
+            </h1>
+            <p style={{ fontSize: '0.8rem', color: '#64748B' }}>
+              {t('headerSubtitle')}
+            </p>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {/* Backend Status Indicator */}
           <div style={{ 
             display: 'flex', 
@@ -97,6 +115,51 @@ export default function Header() {
               {backendOnline ? t('fastApiLive') : t('connectingEngine')}
             </span>
           </div>
+
+          {/* Role / Auth Portal Button */}
+          {isAuthenticated ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                onClick={() => navigate(role === 'farmer' ? '/dashboard/farmer' : '/dashboard/buyer')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '5px 10px',
+                  borderRadius: '6px',
+                  background: role === 'farmer' ? '#FEF3C7' : '#F1F5F9',
+                  border: `1px solid ${role === 'farmer' ? '#FCD34D' : '#CBD5E1'}`,
+                  color: role === 'farmer' ? '#92400E' : '#0F172A',
+                  fontSize: '0.8rem',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                {role === 'farmer' ? <Sprout size={14} color="#D97706" /> : <Building2 size={14} color="#0F172A" />}
+                <span>{user?.name?.split(' ')[0] || (role === 'farmer' ? 'Farmer' : 'Buyer')}</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate('/auth/role')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '6px',
+                background: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                color: '#0F172A',
+                fontSize: '0.82rem',
+                fontWeight: '700',
+                cursor: 'pointer'
+              }}
+            >
+              <User size={14} color="#D97706" />
+              <span>Login / Portal</span>
+            </button>
+          )}
 
           {/* Regional Multi-Language Selector Dropdown */}
           <div style={{ position: 'relative' }} ref={dropdownRef}>

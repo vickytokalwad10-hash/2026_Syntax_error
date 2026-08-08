@@ -3,11 +3,18 @@ from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import math
 import re
-from backend.services.gemini_service import (
-    ask_gemini_agri_copilot, 
-    OUT_OF_SCOPE_RESPONSES, 
-    LANGUAGE_NAMES
-)
+try:
+    from services.gemini_service import (
+        ask_gemini_agri_copilot, 
+        OUT_OF_SCOPE_RESPONSES, 
+        LANGUAGE_NAMES
+    )
+except ImportError:
+    from backend.services.gemini_service import (
+        ask_gemini_agri_copilot, 
+        OUT_OF_SCOPE_RESPONSES, 
+        LANGUAGE_NAMES
+    )
 
 router = APIRouter(prefix="/api/copilot", tags=["AI Copilot Voice Assistant"])
 

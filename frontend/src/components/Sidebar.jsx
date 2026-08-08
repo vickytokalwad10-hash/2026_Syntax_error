@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Map, 
@@ -10,9 +10,13 @@ import {
   Mic, 
   Sprout, 
   ShoppingBag,
-  CloudSun
+  CloudSun,
+  Building2,
+  User,
+  LogIn
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const NAV_ITEMS = [
   { path: '/overview', key: 'overview', icon: LayoutDashboard, badge: 'Live' },
@@ -27,11 +31,13 @@ const NAV_ITEMS = [
   { path: '/crop-health', key: 'cropHealth', icon: Sprout, badge: '10m' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, setIsOpen }) {
   const { t, currentLanguageObj } = useLanguage();
+  const { isAuthenticated, role, user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       {/* Brand Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '20px', borderBottom: '1px solid var(--border-card)' }}>
         <div style={{ 
@@ -98,9 +104,67 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {/* Auth Portal Section */}
+      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-card)' }}>
+        <span style={{ fontSize: '0.65rem', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0 4px' }}>Portals</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '6px' }}>
+          {isAuthenticated ? (
+            <>
+              <button
+                onClick={() => navigate(role === 'farmer' ? '/dashboard/farmer' : '/dashboard/buyer')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '9px 12px', borderRadius: '6px', border: 'none',
+                  background: '#FEF3C7', color: '#92400E', fontWeight: '700',
+                  fontSize: '0.88rem', cursor: 'pointer', textAlign: 'left', width: '100%'
+                }}
+              >
+                {role === 'farmer' ? <Sprout size={16} color="#D97706" /> : <Building2 size={16} color="#D97706" />}
+                <span className="nav-text">{user?.name?.split(' ')[0]} Dashboard</span>
+              </button>
+              <button
+                onClick={logout}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '8px 12px', borderRadius: '6px', border: '1px solid #E2E8F0',
+                  background: 'transparent', color: '#64748B', fontWeight: '600',
+                  fontSize: '0.82rem', cursor: 'pointer', textAlign: 'left', width: '100%'
+                }}
+              >
+                <LogIn size={15} />
+                <span className="nav-text">Sign Out</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/auth/farmer/login" style={({ isActive }) => ({
+                display: 'flex', alignItems: 'center', gap: '10px',
+                padding: '9px 12px', borderRadius: '6px', textDecoration: 'none',
+                background: isActive ? '#FEF3C7' : 'transparent',
+                color: isActive ? '#92400E' : '#334155', fontWeight: isActive ? '700' : '500',
+                fontSize: '0.88rem', borderLeft: isActive ? '3px solid #D97706' : '3px solid transparent'
+              })}>
+                <Sprout size={16} color="#D97706" />
+                <span className="nav-text">{t('farmerPortal').split('(')[0].trim()}</span>
+              </NavLink>
+              <NavLink to="/auth/buyer/login" style={({ isActive }) => ({
+                display: 'flex', alignItems: 'center', gap: '10px',
+                padding: '9px 12px', borderRadius: '6px', textDecoration: 'none',
+                background: isActive ? '#F1F5F9' : 'transparent',
+                color: isActive ? '#0F172A' : '#334155', fontWeight: isActive ? '700' : '500',
+                fontSize: '0.88rem', borderLeft: isActive ? '3px solid #0F172A' : '3px solid transparent'
+              })}>
+                <Building2 size={16} color="#0F172A" />
+                <span className="nav-text">{t('buyerPortal').split('(')[0].trim()}</span>
+              </NavLink>
+            </>
+          )}
+        </div>
+      </div>
+
       {/* Status Card Footer */}
       <div style={{ 
-        marginTop: 'auto', 
+        marginTop: '12px', 
         padding: '12px', 
         borderRadius: '6px', 
         background: '#F8FAFC', 
