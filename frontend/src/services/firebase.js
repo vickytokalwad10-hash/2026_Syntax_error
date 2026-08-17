@@ -1,18 +1,15 @@
-// Firebase Configuration for AgriPulse AI
-// Replace config values below from your Firebase Console
-// Go to: https://console.firebase.google.com → Your Project → Project Settings → Your apps
-
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_PROJECT_ID.firebasestorage.app',
-  messagingSenderId: 'YOUR_SENDER_ID',
-  appId: 'YOUR_APP_ID'
+  apiKey: "AIzaSyAU2quWtQ7p7imblPhR6f9s5yshWwgTBWE",
+  authDomain: "agripulse-ai-69e26.firebaseapp.com",
+  projectId: "agripulse-ai-69e26",
+  storageBucket: "agripulse-ai-69e26.firebasestorage.app",
+  messagingSenderId: "715201820558",
+  appId: "1:715201820558:web:346ad6ec17de6b2adf56df",
+  measurementId: "G-SBG07VLXG3"
 };
 
 const app = initializeApp(firebaseConfig);
