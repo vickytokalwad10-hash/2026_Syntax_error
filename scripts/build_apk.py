@@ -64,21 +64,21 @@ def build_apk():
     info_content = f"""🌾 AgriPulse AI — Android Build Information
 ==================================================
 Version:        v{version} (Phase 2 Pro)
-Build Code:     8
+Build Code:     9
 Built On:       {build_time}
 File Size:      {size_mb:.2f} MB
 Standard APK:   AgriPulse_AI.apk
 Versioned APK:  AgriPulse_AI_v{version}.apk
 
 Key Features in v{version}:
-1. Official Android Adaptive App Icon Set (Foreground + Background + Legacy Densities)
-2. Custom Brand Asset Preparation (1024x1024 Master + Play Store 512 + PWA Web Icons)
-3. Multi-Density Support (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) with Safe-Zone Geometry
-4. Multi-Source Government Mandi Integration (Agmarknet Spot & e-NAM Electronic Auction)
-5. 3-Way Source Toggle on Overview (AgriPulse Network / Agmarknet / e-NAM Electronic)
-6. Dynamic Reporting Mandis Telemetry (no hardcoded coverage claims)
-7. 3-Way Cross-Verification Table on Arbitrage Floor (Spot vs Agmarknet vs e-NAM)
-8. Multi-Source Attribution under NDSAP & SFAC Terms
+1. Startup Lifecycle & Context Provider Hierarchy Fix (Resolves App Startup Issue)
+2. Official Android Adaptive App Icon Set (Foreground + Background + Legacy Densities)
+3. Custom Brand Asset Preparation (1024x1024 Master + Play Store 512 + PWA Web Icons)
+4. Multi-Density Support (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) with Safe-Zone Geometry
+5. Multi-Source Government Mandi Integration (Agmarknet Spot & e-NAM Electronic Auction)
+6. 3-Way Source Toggle on Overview (AgriPulse Network / Agmarknet / e-NAM Electronic)
+7. Dynamic Reporting Mandis Telemetry (no hardcoded coverage claims)
+8. 3-Way Cross-Verification Table on Arbitrage Floor (Spot vs Agmarknet vs e-NAM)
 9. Android Hardware & Gesture Back Button Navigation Engine (@capacitor/app)
 10. Unified Multilingual System Across 11 Indian Languages with 100% Key Parity
 ==================================================

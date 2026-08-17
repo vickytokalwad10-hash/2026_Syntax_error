@@ -35,8 +35,8 @@ import PaymentPage from './pages/PaymentPage';
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <LanguageProvider>
         <NetworkProvider>
           <NotificationProvider>
             <HashRouter>
@@ -92,7 +92,7 @@ export default function App() {
           </HashRouter>
           </NotificationProvider>
         </NetworkProvider>
-      </AuthProvider>
-    </LanguageProvider>
+      </LanguageProvider>
+    </AuthProvider>
   );
 }

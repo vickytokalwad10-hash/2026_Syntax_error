@@ -41,7 +41,13 @@ const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
   const { i18n, t } = useTranslation();
-  const { user } = useAuth();
+  let user = null;
+  try {
+    const auth = useAuth();
+    user = auth?.user;
+  } catch {
+    user = null;
+  }
 
   // Initialize from LocalStorage or default
   const [language, setLanguageState] = useState(() => {
