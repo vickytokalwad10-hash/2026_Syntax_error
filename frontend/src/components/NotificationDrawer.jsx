@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../context/NotificationContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function NotificationDrawer() {
+  const { t } = useLanguage();
   const {
     notifications,
     unreadCount,
@@ -21,11 +23,11 @@ export default function NotificationDrawer() {
   if (!isDrawerOpen) return null;
 
   const categories = [
-    { key: 'all', label: 'All', count: categoryCounts.all || notifications.length },
-    { key: 'weather', label: '🌦️ Weather', count: categoryCounts.weather || 0 },
-    { key: 'price', label: '📈 Prices', count: categoryCounts.price || 0 },
-    { key: 'scheme', label: '🏛️ Schemes', count: categoryCounts.scheme || 0 },
-    { key: 'marketplace', label: '🛒 Market', count: categoryCounts.marketplace || 0 }
+    { key: 'all', label: `🌐 ${t('notifications.all')}`, count: categoryCounts.all || notifications.length },
+    { key: 'weather', label: `🌦️ ${t('notifications.weather')}`, count: categoryCounts.weather || 0 },
+    { key: 'price', label: `📈 ${t('notifications.prices')}`, count: categoryCounts.price || 0 },
+    { key: 'scheme', label: `🏛️ ${t('notifications.schemes')}`, count: categoryCounts.scheme || 0 },
+    { key: 'marketplace', label: `🛒 ${t('notifications.marketplace')}`, count: categoryCounts.marketplace || 0 }
   ];
 
   const filteredNotifications = selectedCategory === 'all'

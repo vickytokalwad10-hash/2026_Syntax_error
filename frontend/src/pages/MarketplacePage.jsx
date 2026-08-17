@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function MarketplacePage() {
   const { user, role } = useAuth();
+  const { t, formatCurrency } = useLanguage();
   const [activeCategory, setActiveCategory] = useState('All');
   const [biddingLot, setBiddingLot] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
@@ -163,14 +165,14 @@ export default function MarketplacePage() {
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-[#14532d] animate-pulse"></span>
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#14532d]">
-            Direct Farmgate B2B Floor
+            {t('marketplace.title')}
           </span>
         </div>
         <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1c1917] tracking-tight font-editorial mt-0.5 flex items-center gap-2">
-          सीधा व्यापार मंडी • B2B Direct Trading Floor
+          {t('marketplace.title')}
         </h2>
         <p className="text-xs sm:text-sm text-[#57534e] max-w-3xl mt-1 leading-relaxed">
-          Zero-brokerage direct trading between verified Farmer Producer Organizations (FPOs) and institutional mill buyers with NABL quality assay certification and 100% smart escrow payment security.
+          {t('marketplace.subtitle')}
         </p>
       </div>
 
@@ -180,7 +182,7 @@ export default function MarketplacePage() {
           <div className="paper-card p-4 sm:p-5 space-y-3.5 border-l-4 border-l-[#14532d]">
             <h3 className="font-extrabold text-[#1c1917] pb-2.5 border-b border-[#f5f2eb] flex items-center gap-2 font-editorial text-sm sm:text-base">
               <span className="material-symbols-outlined text-[#14532d]">add_business</span>
-              फसल लॉट बनाएं • List Verified Harvest
+              {t('marketplace.listHarvest')}
             </h3>
 
             <form onSubmit={handlePublishLot} className="space-y-3 text-xs">

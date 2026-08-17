@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNetwork } from '../context/NetworkContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useLanguage } from '../context/LanguageContext';
 import NotificationDrawer from './NotificationDrawer';
 import NotificationSettingsModal from './NotificationSettingsModal';
 
@@ -10,46 +11,44 @@ export default function AppLayout() {
   const { user, role, logout } = useAuth();
   const { isOnline, pendingSyncCount, isSyncing, triggerSync } = useNetwork();
   const { unreadCount, isDrawerOpen, setIsDrawerOpen, urgentToast, dismissToast, markAsRead } = useNotifications();
+  const { language, setLanguage, languages, t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('en'); // 'en' or 'hi'
 
   const navSections = [
     {
-      title: 'मंडी व व्यापार • Intelligence',
+      title: t('nav.overview'),
       links: [
-        { to: '/overview', label: 'Mandi Radar & Dashboard', subLabel: 'दैनिक मंडी भाव', icon: 'grid_view' },
-        { to: '/crop-planning', label: 'Crop Planning AI', subLabel: 'फसल योजना', icon: 'psychology' },
-        { to: '/fraud-detection', label: 'Buyer Trust Shield', subLabel: 'आढ़तिया व खरीदार जांच', icon: 'verified_user' },
-        { to: '/marketplace', label: 'B2B Trading Floor', subLabel: 'सीधा व्यापार', icon: 'storefront' },
-        { to: '/copilot', label: 'Voice Kisan Mitra', subLabel: 'आवाज सहायक', icon: 'mic' }
+        { to: '/overview', label: t('nav.overview'), subLabel: 'दैनिक मंडी भाव', icon: 'grid_view' },
+        { to: '/marketplace', label: t('nav.marketplace'), subLabel: 'सीधा व्यापार', icon: 'storefront' },
+        { to: '/copilot', label: t('nav.copilot'), subLabel: 'आवाज सहायक', icon: 'mic' }
       ]
     },
     {
-      title: 'खेती व मौसम • Agronomy & Tools',
+      title: t('nav.weather'),
       links: [
-        { to: '/diagnose', label: 'Crop Doctor (Camera)', subLabel: 'कीट व रोग पहचान', icon: 'photo_camera' },
-        { to: '/irrigation', label: 'Smart Irrigation', subLabel: 'सिंचाई प्रबंधन', icon: 'water_drop' },
-        { to: '/rentals', label: 'Machinery & Labor Sharing', subLabel: 'ट्रैक्टर व मजदूर', icon: 'agriculture' },
-        { to: '/calendar', label: 'Crop Almanac & Calendar', subLabel: 'कृषि पंचांग', icon: 'calendar_month' },
-        { to: '/satellite', label: 'Satellite NDVI Map', subLabel: 'उपग्रह फसल निगरानी', icon: 'satellite_alt' },
-        { to: '/weather', label: 'Weather Radar', subLabel: 'मौसम व स्प्रे एडवाइजरी', icon: 'cloud' }
+        { to: '/satellite', label: t('nav.satellite'), subLabel: 'उपग्रह फसल निगरानी', icon: 'satellite_alt' },
+        { to: '/weather', label: t('nav.weather'), subLabel: 'मौसम व स्प्रे एडवाइजरी', icon: 'cloud' },
+        { to: '/simulator', label: t('nav.simulator'), subLabel: 'मुनाफा सिम्युलेटर', icon: 'calculate' },
+        { to: '/arbitrage', label: t('nav.arbitrage'), subLabel: 'मंडी अंतर', icon: 'compare_arrows' }
       ]
     },
     {
-      title: 'योजनाएं व वित्त • Schemes & Finance',
+      title: t('nav.schemes'),
       links: [
-        { to: '/schemes', label: 'Govt Schemes & Subsidies', subLabel: 'PM-KISAN व फसल बीमा', icon: 'account_balance' },
-        { to: '/finance', label: 'Credit & KCC Loans', subLabel: '4% किसान क्रेडिट कार्ड', icon: 'credit_score' },
+        { to: '/schemes', label: t('nav.schemes'), subLabel: 'PM-KISAN व फसल बीमा', icon: 'account_balance' },
+        { to: '/finance', label: t('nav.finance'), subLabel: '4% किसान क्रेडिट कार्ड', icon: 'credit_score' },
         { to: '/payment', label: 'Payment & Escrow Vault', subLabel: 'सुरक्षित भुगतान', icon: 'payments' }
       ]
     },
     {
-      title: 'समुदाय व पशुपालन • Community',
+      title: t('nav.community'),
       links: [
-        { to: '/community', label: 'Farmer Forum & Stories', subLabel: 'किसान चौपाल', icon: 'groups' },
-        { to: '/livestock', label: 'Livestock & Dairy Rates', subLabel: 'पशु चिकित्सा व दूध भाव', icon: 'pets' }
+        { to: '/diagnose', label: t('nav.diagnose'), subLabel: 'कीट व रोग पहचान', icon: 'photo_camera' },
+        { to: '/calendar', label: t('nav.calendar'), subLabel: 'कृषि पंचांग', icon: 'calendar_month' },
+        { to: '/community', label: t('nav.community'), subLabel: 'किसान चौपाल', icon: 'groups' },
+        { to: '/livestock', label: t('nav.livestock'), subLabel: 'पशु चिकित्सा व दूध भाव', icon: 'pets' }
       ]
     }
   ];
@@ -250,20 +249,21 @@ export default function AppLayout() {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Language Switcher */}
-            <div className="flex items-center bg-[#f5f2eb] p-0.5 rounded-lg text-[11px] font-bold">
-              <button
-                onClick={() => setSelectedLanguage('en')}
-                className={`px-2 py-0.5 rounded-md transition ${selectedLanguage === 'en' ? 'bg-white text-[#1c1917] shadow-2xs' : 'text-[#78716c]'}`}
+            {/* Global 11-Language Switcher (Single Source of Truth) */}
+            <div className="flex items-center bg-[#f5f2eb] border border-[#e7e5e4] px-2 py-1 rounded-xl text-xs font-bold text-[#1c1917] shadow-2xs">
+              <span className="material-symbols-outlined text-[16px] text-[#14532d] mr-1">translate</span>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="bg-transparent text-xs font-extrabold text-[#1c1917] focus:outline-hidden cursor-pointer"
+                aria-label={t('nav.switchLanguage')}
               >
-                EN
-              </button>
-              <button
-                onClick={() => setSelectedLanguage('hi')}
-                className={`px-2 py-0.5 rounded-md transition ${selectedLanguage === 'hi' ? 'bg-white text-[#1c1917] shadow-2xs' : 'text-[#78716c]'}`}
-              >
-                हिन्दी
-              </button>
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code} className="bg-white text-[#1c1917] font-semibold py-1">
+                    {l.native} ({l.name})
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Offline/Online Persistent Signal Badge */}

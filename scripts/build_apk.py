@@ -64,23 +64,23 @@ def build_apk():
     info_content = f"""🌾 AgriPulse AI — Android Build Information
 ==================================================
 Version:        v{version} (Phase 2 Pro)
-Build Code:     3
+Build Code:     4
 Built On:       {build_time}
 File Size:      {size_mb:.2f} MB
 Standard APK:   AgriPulse_AI.apk
 Versioned APK:  AgriPulse_AI_v{version}.apk
 
 Key Features in v{version}:
-1. Persistent Notification Center & In-App Hand-Drawn Bell Drawer
-2. Automated Weather Alert Triggers (Rain >70%, Spraying Safety, Severe Heatwave)
-3. Automated Mandi Crop Price Volatility Triggers (Watchlist >5% Delta, MSP Crossovers)
-4. Anti-Spam Deduplication Engine (4h Price Cooldown, 24h Weather Cooldown)
-5. Configurable Notification Settings (Category Toggles, Threshold Sliders, Crop Watchlist)
-6. Urgent Toast Pop-up Banners for Critical Field Alerts
-7. Responsive Proportions & Safe-Area Overhaul across all 8 Breakpoints (360px to 1920px)
-8. Domain-Restricted Multilingual Kisan Mitra Copilot (11+ Indian Regional Languages)
-9. Shared Google Gemini API Integration via server-side GEMINI_API_KEY
-10. Supabase Authentication, PostgreSQL Sync, and Multi-Rail Smart Escrow Vault
+1. Unified Single Source of Truth Multilingual System (react-i18next)
+2. 100% Translation Key Parity Across All 11 Indian Regional Languages (en, hi, mr, pa, gu, te, ta, kn, bn, ml, or)
+3. Shared Backend Language Engine & Centralized build_language_instruction()
+4. Kisan Mitra Copilot with 3-Step Per-Message Script Detection & 1-Tap App Language Switching
+5. Dynamic SpeechRecognition.lang & SpeechSynthesisUtterance.lang Locale Assignment
+6. Persistent In-App Notification Center & Auto-Alert Engine (Weather & Price Volatility)
+7. Anti-Spam Deduplication Engine (4h Price Cooldown, 24h Weather Cooldown)
+8. Multi-Rail Smart Escrow Vault & Razorpay / UPI Integration
+9. Responsive Viewport Overhaul across all 8 Breakpoints (360px to 1920px)
+10. CONTRIBUTING.md Guidelines to Prevent Future Multilingual Regressions
 ==================================================
 """
     with open(info_file, "w", encoding="utf-8") as f:

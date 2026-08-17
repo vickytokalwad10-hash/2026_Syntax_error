@@ -5,6 +5,13 @@ import logging
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
 from services.gemini_client import call_gemini, is_gemini_configured
+from services.language_utils import (
+    SUPPORTED_LANGUAGES,
+    detect_language_pipeline,
+    build_language_instruction,
+    OFF_TOPIC_REFUSALS,
+    DEFAULT_AGRI_SUGGESTIONS
+)
 
 logger = logging.getLogger("agripulse.copilot_service")
 
@@ -41,156 +48,40 @@ class CopilotResponse(BaseModel):
 
 
 # ============================================================================
-# LOCALIZED POLITE REFUSAL MESSAGES
-# ============================================================================
-
-OFF_TOPIC_REFUSALS: Dict[str, str] = {
-    "en": "I can only help with farming and agriculture-related questions. Please ask me about crops, weather, mandi prices, government schemes (like PM-KISAN/PMFBY), fertilizers, or farming advice.",
-    "hi": "मैं केवल कृषि और खेती से जुड़े सवालों में आपकी सहायता कर सकता हूँ। कृपया मुझसे फसलों, मौसम, मंडी भाव, सरकारी योजनाओं (जैसे PM-KISAN, फसल बीमा), खाद-उर्वरक या खेती सलाह के बारे में पूछें।",
-    "mr": "मी फक्त शेती आणि कृषी संबंधित प्रश्नांमध्ये मदत करू शकतो. कृपया मला पिके, हवामान, बाजारभाव (मंडी दर), सरकारी योजना (PM-KISAN/पीक विमा), खते किंवा शेतीविषयक सल्ल्याबद्दल विचारा.",
-    "pa": "ਮੈਂ ਸਿਰਫ਼ ਖੇਤੀਬਾੜੀ ਅਤੇ ਕਿਸਾਨੀ ਨਾਲ ਸੰਬੰਧਿਤ ਸਵਾਲਾਂ ਵਿੱਚ ਹੀ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ। ਕਿਰਪਾ ਕਰਕੇ ਮੈਨੂੰ ਫ਼ਸਲਾਂ, ਮੌਸਮ, ਮੰਡੀ ਦੇ ਭਾਅ, ਸਰਕਾਰੀ ਸਕੀਮਾਂ (ਜਿਵੇਂ PM-KISAN), ਖਾਦਾਂ ਜਾਂ ਖੇਤੀ ਸਲਾਹ ਬਾਰੇ ਪੁੱਛੋ।",
-    "gu": "હું ફક્ત ખેતી અને કૃષિ સંબંધિત પ્રશ્નોમાં જ મદદ કરી શકું છું. કૃપા કરીને મને પાક, હવામાન, બજાર ભાવ (મંડી દરો), સરકારી યોજનાઓ (જેમ કે PM-KISAN), ખાતર અથવા ખેતી સલાહ વિશે પૂછો.",
-    "te": "నేను వ్యవసాయం మరియు సాగుకు సంబంధించిన ప్రశ్నలకు మాత్రమే సహాయం చేయగలను. దయచేసి పంటలు, వాతావరణం, మార్కెట్ ధరలు, ప్రభుత్వ పథకాలు (PM-KISAN/PMFBY), ఎరువులు లేదా వ్యవసాయ సలహాల గురించి నన్ను అడగండి.",
-    "ta": "நான் விவசாயம் மற்றும் பண்ணை தொடர்பான கேள்விகளுக்கு மட்டுமே உதவ முடியும். பயிர்கள், வானிலை, சந்தை விலைகள், அரசு திட்டங்கள் (PM-KISAN/PMFBY), உரங்கள் அல்லது விவசாய ஆலோசனைகள் பற்றி என்னிடம் கேளுங்கள்.",
-    "kn": "ನಾನು ಕೃಷಿ ಮತ್ತು ವ್ಯವಸಾಯಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಪ್ರಶ್ನೆಗಳಿಗೆ ಮಾತ್ರ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ. ದಯವಿಟ್ಟು ಬೆಳೆಗಳು, ಹವಾಮಾನ, ಮಾರುಕಟ್ಟೆ ದರಗಳು, ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು (PM-KISAN/PMFBY), ಗೊಬ್ಬರಗಳು ಅಥವಾ ಕೃಷಿ ಸಲಹೆಗಳ ಬಗ್ಗೆ ಕೇಳಿ.",
-    "bn": "আমি কেবল কৃষি ও চাষাবাদ সম্পর্কিত প্রশ্নে সাহায্য করতে পারি। দয়া করে আমাকে ফসল, আবহাওয়া, বাজার দর, সরকারি প্রকল্প (যেমন PM-KISAN), সার বা কৃষি পরামর্শ সম্পর্কে জিজ্ঞাসা করুন।",
-    "ml": "എനിക്ക് കൃഷിയുമായി ബന്ധപ്പെട്ട ചോദ്യങ്ങൾക്ക് മാത്രമേ സഹായിക്കാനാകൂ. വിളകൾ, കാലാവസ്ഥ, വിപണി വിലകൾ, സർക്കാർ പദ്ധതികൾ (PM-KISAN/വിള ഇൻഷുറൻസ്), വളങ്ങൾ അല്ലെങ്കിൽ കാർഷിക ഉപദേശങ്ങൾ എന്നിവയെക്കുറിച്ച് ചോദിക്കുക.",
-    "or": "ମୁଁ କେବଳ କୃଷି ଓ ଚାଷ ସମ୍ବନ୍ଧୀୟ ପ୍ରଶ୍ନରେ ସାହାଯ୍ୟ କରିପାରିବି। ଦୟାକରି ମୋତେ ଫସଲ, ପାଣିପାଗ, ମଣ୍ଡି ଦର, ସରକାରୀ ଯୋଜନା (ଯେପରିକି PM-KISAN), ଖତ-ସାର ବା ଚାଷ ପରାମର୍ଶ ବିଷୟରେ ପଚାରନ୍ତୁ।",
-    "hi-Latn": "Main keval kheti aur krishi se jude sawalon me madad kar sakta hoon. Kripya faslon, mausam, mandi bhav, sarkari yojanaon (jaise PM-KISAN), ya kheti ki salah ke bare me poochein."
-}
-
-DEFAULT_AGRI_SUGGESTIONS: Dict[str, List[str]] = {
-    "en": ["What fertilizer should I use for wheat?", "What is the PM-KISAN installment date?", "How to control yellow rust in crops?"],
-    "hi": ["गेहूं की फसल में कौन सी खाद डालनी चाहिए?", "करनाल मंडी में आज का गेहूं भाव क्या है?", "PM-KISAN की अगली किस्त कब आएगी?"],
-    "mr": ["कापूस पिकावर कीड आली आहे, काय करावे?", "सोयाबीन पिकासाठी खत व्यवस्थापन कसे करावे?", "आजचे लातूर बाजारभाव काय आहेत?"],
-    "pa": ["ਕਣਕ ਦਾ ਅੱਜ ਦਾ ਮੰਡੀ ਭਾਅ ਕੀ ਹੈ?", "ਕਣਕ ਵਿੱਚ ਪਹਿਲਾ ਪਾਣੀ ਕਦੋਂ ਲਗਾਉਣਾ ਹੈ?", "ਪੀਲਾ ਰਤੂਆ ਰੋਗ ਦੀ ਰੋਕਥਾਮ ਕਿਵੇਂ ਕਰੀਏ?"],
-    "gu": ["મગફળીના પાક માટે કયું ખાતર સારું છે?", "કપાસમાં ગુલાબી ઈયળના નિયંત્રણ માટે શું કરવું?", "આજના રાજકોટ માર્કેટ યાર્ડના ભાવ શું છે?"],
-    "te": ["వరి పంటకు ఎరువులు ఎప్పుడు వేయాలి?", "మిరప పంటలో తెగుళ్ళ నివారణ ఎలా?", "PM-KISAN పథకం స్టేటస్ ఎలా చెక్ చేయాలి?"],
-    "ta": ["நெல் பயிருக்கு எந்த உரம் நல்லது?", "பயிர்களில் பூச்சி தாக்குதலை கட்டுப்படுத்துவது எப்படி?", "இன்றைய மண்டி நெல் விலை என்ன?"],
-    "kn": ["ಭತ್ತದ ಬೆಳೆಗೆ ಯಾವ ಗೊಬ್ಬರ ಒಳ್ಳೆಯದು?", "ಕಬ್ಬಿನ ಇಳುವರಿ ಹೆಚ್ಚಿಸಲು ಏನು ಮಾಡಬೇಕು?", "ಇಂದಿನ ಮಂಡಿ ದರಗಳು ತಿಳಿಸಿ."],
-    "bn": ["ধান চাষে কোন সার ব্যবহার করা ভালো?", "আলু ফসলের রোগ নিরাময়ে কী করা উচিত?", "আজকের মান্ডি দর কত?"],
-    "ml": ["നെൽകൃഷിക്ക് ഏത് വളമാണ് നല്ലത്?", "റബ്ബർ കൃഷിയിലെ രോഗബാധ എങ്ങനെ തടയാം?", "വിള ഇൻഷുറൻസ് ക്ലെയിം എങ്ങനെ ചെയ്യാം?"],
-    "or": ["ଧାନ ଫସଲରେ କେଉଁ ସାର ପ୍ରୟୋଗ କରିବା ଭଲ?", "ପନିପରିବା ଚାଷରେ ପୋକ ନିୟନ୍ତ୍ରଣ କିପରି କରିବେ?", "ଆଜିର ମଣ୍ଡି ଦର କେତେ?"],
-    "hi-Latn": ["Wheat ki fasal me kaunsi khad daalu?", "Karnal mandi me sharbati gehu ka bhav kya hai?", "PM-KISAN ki kist kaise check karein?"]
-}
-
-# ============================================================================
 # STEP 1: LANGUAGE & SCRIPT DETECTION (FAST HEURISTICS + GEMINI AI FALLBACK)
 # ============================================================================
 
 def detect_language(query: str, manual_override: Optional[str] = None) -> LanguageInfo:
     """
-    Detects language and script of incoming user text with zero-latency heuristics
-    for Indian regional scripts, plus Romanized / Hinglish vocabulary detection.
+    Detects language and script of incoming user text using the unified language_utils pipeline.
     """
-    if manual_override and manual_override in OFF_TOPIC_REFUSALS and manual_override != "auto":
-        code_to_meta = {
-            "en": ("English", "Latin", False),
-            "hi": ("हिन्दी (Hindi)", "Devanagari", False),
-            "mr": ("मराठी (Marathi)", "Devanagari", False),
-            "pa": ("ਪੰਜਾਬੀ (Punjabi)", "Gurmukhi", False),
-            "gu": ("ગુજરાતી (Gujarati)", "Gujarati", False),
-            "te": ("తెలుగు (Telugu)", "Telugu", False),
-            "ta": ("தமிழ் (Tamil)", "Tamil", False),
-            "kn": ("ಕನ್ನಡ (Kannada)", "Kannada", False),
-            "bn": ("বাংলা (Bengali)", "Bengali", False),
-            "ml": ("മലയാളം (Malayalam)", "Malayalam", False),
-            "or": ("ଓଡ଼ିଆ (Odia)", "Odia", False),
-            "hi-Latn": ("Hinglish / Romanized Hindi", "Latin", True)
-        }
-        meta = code_to_meta.get(manual_override, ("English", "Latin", False))
-        return LanguageInfo(code=manual_override, name=meta[0], script=meta[1], is_romanized=meta[2], confidence=1.0)
+    if manual_override and manual_override in SUPPORTED_LANGUAGES and manual_override != "auto":
+        meta = SUPPORTED_LANGUAGES[manual_override]
+        return LanguageInfo(
+            code=meta.code,
+            name=f"{meta.native} ({meta.name})" if meta.native != meta.name else meta.name,
+            script=meta.script,
+            is_romanized=False,
+            confidence=1.0
+        )
+    elif manual_override == "hi-Latn":
+        return LanguageInfo(
+            code="hi-Latn",
+            name="Hinglish (Romanized Hindi)",
+            script="Latin",
+            is_romanized=True,
+            confidence=1.0
+        )
 
-    clean_text = query.strip()
-    if not clean_text:
-        return LanguageInfo(code="en", name="English", script="Latin", is_romanized=False, confidence=1.0)
+    res = detect_language_pipeline(query)
+    return LanguageInfo(
+        code=res["code"],
+        name=res["name"],
+        script=res["script"],
+        is_romanized=res.get("is_romanized", False),
+        confidence=res.get("confidence", 0.95)
+    )
 
-    # Count Unicode characters per script
-    gurmukhi_count = len(re.findall(r'[\u0A00-\u0A7F]', clean_text))
-    gujarati_count = len(re.findall(r'[\u0A80-\u0AFF]', clean_text))
-    telugu_count = len(re.findall(r'[\u0C00-\u0C7F]', clean_text))
-    tamil_count = len(re.findall(r'[\u0B80-\u0BFF]', clean_text))
-    kannada_count = len(re.findall(r'[\u0C80-\u0CFF]', clean_text))
-    bengali_count = len(re.findall(r'[\u0980-\u09FF]', clean_text))
-    malayalam_count = len(re.findall(r'[\u0D00-\u0D7F]', clean_text))
-    odia_count = len(re.findall(r'[\u0B00-\u0B7F]', clean_text))
-    devanagari_count = len(re.findall(r'[\u0900-\u097F]', clean_text))
-
-    total_indic = (gurmukhi_count + gujarati_count + telugu_count + tamil_count +
-                   kannada_count + bengali_count + malayalam_count + odia_count + devanagari_count)
-
-    # 1. Indic Script Direct Matches
-    if gurmukhi_count > 0 and gurmukhi_count >= total_indic * 0.4:
-        return LanguageInfo(code="pa", name="ਪੰਜਾਬੀ (Punjabi)", script="Gurmukhi", is_romanized=False, confidence=0.98)
-    
-    if gujarati_count > 0 and gujarati_count >= total_indic * 0.4:
-        return LanguageInfo(code="gu", name="ગુજરાતી (Gujarati)", script="Gujarati", is_romanized=False, confidence=0.98)
-
-    if telugu_count > 0 and telugu_count >= total_indic * 0.4:
-        return LanguageInfo(code="te", name="తెలుగు (Telugu)", script="Telugu", is_romanized=False, confidence=0.98)
-
-    if tamil_count > 0 and tamil_count >= total_indic * 0.4:
-        return LanguageInfo(code="ta", name="தமிழ் (Tamil)", script="Tamil", is_romanized=False, confidence=0.98)
-
-    if kannada_count > 0 and kannada_count >= total_indic * 0.4:
-        return LanguageInfo(code="kn", name="ಕನ್ನಡ (Kannada)", script="Kannada", is_romanized=False, confidence=0.98)
-
-    if bengali_count > 0 and bengali_count >= total_indic * 0.4:
-        return LanguageInfo(code="bn", name="বাংলা (Bengali)", script="Bengali", is_romanized=False, confidence=0.98)
-
-    if malayalam_count > 0 and malayalam_count >= total_indic * 0.4:
-        return LanguageInfo(code="ml", name="മലയാളം (Malayalam)", script="Malayalam", is_romanized=False, confidence=0.98)
-
-    if odia_count > 0 and odia_count >= total_indic * 0.4:
-        return LanguageInfo(code="or", name="ଓଡ଼ିଆ (Odia)", script="Odia", is_romanized=False, confidence=0.98)
-
-    # 2. Devanagari: Differentiate Marathi vs Hindi
-    if devanagari_count > 0 and devanagari_count >= total_indic * 0.4:
-        marathi_markers = [
-            r'\bआहे\b', r'\bआहेत\b', r'\bकरावे\b', r'\bपिकावर\b', r'\bपिक\b', r'\bपिके\b',
-            r'\bनाही\b', r'\bकरायचे\b', r'\bगहू\b', r'\bकापूस\b', r'\bशेतकरी\b', r'\bहोते\b',
-            r'\bद्यावे\b', r'\bझाले\b', r'\bखात\b', r'\bभाव\b', r'\bकाय\b', r'\bकसे\b',
-            r'\bसांगा\b', r'\bलागवड\b', r'\bफवारणी\b', r'\bकीड\b', r'\bऔषध\b', r'\bमला\b',
-            r'\bएक\b', r'\bचांगला\b', r'\bचांगली\b', r'\bचित्रपट\b', r'\bकिंवा\b', r'\bसिनेमा\b',
-            r'\bसुचवा\b', r'\bमाहिती\b', r'\bद्या\b', r'\bसांग\b', r'\bकधी\b', r'\bकुठे\b'
-        ]
-        marathi_score = sum(1 for p in marathi_markers if re.search(p, clean_text))
-        
-        hindi_markers = [
-            r'\bहै\b', r'\bहैं\b', r'\bहूँ\b', r'\bडालनी\b', r'\bफसल\b', r'\bचाहिए\b',
-            r'\bकरना\b', r'\bकैसे\b', r'\bक्या\b', r'\bगेहूं\b', r'\bखाद\b', r'\bदवा\b',
-            r'\bखेती\b', r'\bकिसान\b', r'\bछिड़काव\b', r'\bरोग\b', r'\bकीट\b', r'\bपानी\b',
-            r'\bमंडी\b', r'\bकिस्त\b', r'\bबीमा\b', r'\bमुझे\b', r'\bबताओ\b', r'\bबताइए\b',
-            r'\bअच्छा\b', r'\bफिल्म\b', r'\bगाना\b'
-        ]
-        hindi_score = sum(1 for p in hindi_markers if re.search(p, clean_text))
-
-        if marathi_score > hindi_score:
-            return LanguageInfo(code="mr", name="मराठी (Marathi)", script="Devanagari", is_romanized=False, confidence=0.95)
-        else:
-            return LanguageInfo(code="hi", name="हिन्दी (Hindi)", script="Devanagari", is_romanized=False, confidence=0.95)
-
-    # 3. Latin Script: Distinguish English from Romanized Hindi / Hinglish / Romanized Marathi
-    lower_text = clean_text.lower()
-    
-    romanized_indic_tokens = [
-        "fasal", "faslo", "kisan", "kisaan", "kheti", "khad", "khaad", "bhav", "bhaav",
-        "mandi", "paani", "pani", "gehu", "gehoon", "dhan", "chawal", "sarso", "kapas",
-        "kapus", "chahiye", "chaahiye", "kaise", "kya", "kyu", "kare", "karein", "karna",
-        "daalu", "daale", "daalen", "rog", "keet", "dawa", "dawaii", "yojana", "kist",
-        "bima", "beema", "sarkar", "sarkari", "karave", "pika", "pikaavarti", "ahe",
-        "sangaa", "aani", "aata", "kitna", "kab", "kaha", "hoga", "hogi", "batao",
-        "bataiye", "namaskar", "namaste", "pranam", "ram ram", "me", "mein", "ka", "ki", "ke"
-    ]
-    
-    words = re.findall(r'[a-zA-Z]+', lower_text)
-    indic_word_matches = sum(1 for w in words if w in romanized_indic_tokens)
-    
-    if len(words) > 0 and (indic_word_matches / len(words) >= 0.20 or indic_word_matches >= 2):
-        return LanguageInfo(code="hi-Latn", name="Hinglish / Romanized Hindi", script="Latin", is_romanized=True, confidence=0.92)
-
-    # Default to English
-    return LanguageInfo(code="en", name="English", script="Latin", is_romanized=False, confidence=0.90)
 
 
 # ============================================================================
@@ -337,14 +228,14 @@ def generate_response(
 
     # 2. Call Gemini via shared client if API key is active
     if is_gemini_configured():
+        lang_instr = build_language_instruction(lang_info.code, lang_info.is_romanized)
         system_instruction = f"""
 You are AgriPulse AI, an expert Indian Agricultural Copilot and Agronomist.
 
 HARD RULES:
 1. Scope: Answer ONLY questions related to farming, crops, pest/disease control, fertilizers (NPK/Urea/DAP dosage), irrigation, mandi spot prices, MSP, PM-KISAN, PMFBY crop insurance, KCC loans, farm machinery, or livestock/dairy.
-2. Language Constraint: You MUST write your entire response ONLY in {lang_info.name} (Code: {lang_info.code}) using the {lang_info.script} script.
-{'3. SCRIPT: Use Romanized / Hinglish text matching user input.' if lang_info.is_romanized else '3. SCRIPT: Use authentic native script for this language (e.g. Devanagari for Hindi/Marathi, Gurmukhi for Punjabi, Telugu, Tamil, Kannada, Gujarati, Bengali, Malayalam, Odia).'}
-4. Context & Tone: Use practical Indian farming terms (ICAR guidelines, quintals, acres, Kharif/Rabi, MSP, Mandi). Keep it concise, helpful, and direct for a farmer.
+2. {lang_instr}
+3. Context & Tone: Use practical Indian farming terms (ICAR guidelines, quintals, acres, Kharif/Rabi, MSP, Mandi). Keep it concise, helpful, and direct for a farmer.
 
 Output ONLY valid JSON in this exact structure:
 {{

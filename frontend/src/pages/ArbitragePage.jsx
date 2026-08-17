@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ArbitragePage() {
+  const { t, formatCurrency } = useLanguage();
   const [selectedCrop, setSelectedCrop] = useState('wheat');
   const [freightRatePerKm, setFreightRatePerKm] = useState(4.5); // ₹ / km / ton
   const [cargoWeightTons, setCargoWeightTons] = useState(25); // 250 Quintals
@@ -71,12 +73,15 @@ export default function ArbitragePage() {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#14532d] animate-pulse"></span>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#14532d]">
-              Logistics & Freight Optimizer
+              {t('arbitrage.title')}
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-[#1c1917] tracking-tight font-editorial mt-0.5">
-            मंडी मुनाफा अंतर • Inter-Mandi Arbitrage Engine
+            {t('arbitrage.title')}
           </h2>
+          <p className="text-xs sm:text-sm text-[#57534e] max-w-2xl mt-0.5">
+            {t('arbitrage.subtitle')}
+          </p>
         </div>
 
         <div className="flex items-center gap-2 self-start md:self-auto">

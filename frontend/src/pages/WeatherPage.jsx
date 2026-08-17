@@ -19,7 +19,10 @@ ChartJS.register(
   Legend
 );
 
+import { useLanguage } from '../context/LanguageContext';
+
 export default function WeatherPage() {
+  const { t } = useLanguage();
   const [selectedDay, setSelectedDay] = useState(0);
 
   const forecastDays = [
@@ -83,12 +86,15 @@ export default function WeatherPage() {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#14532d] animate-pulse"></span>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#14532d]">
-              Microclimate Radar
+              {t('weather.title')}
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-[#1c1917] tracking-tight font-editorial mt-0.5">
-            मौसम व स्प्रे रडार • Weather & Agronomy Telemetry
+            {t('weather.title')}
           </h2>
+          <p className="text-xs sm:text-sm text-[#57534e] max-w-2xl mt-0.5">
+            {t('weather.subtitle')}
+          </p>
         </div>
         <span className="text-xs font-bold text-[#78716c]">Karnal District • Updated 10m ago</span>
       </div>
@@ -99,7 +105,7 @@ export default function WeatherPage() {
           <div className="flex items-center gap-2 mb-1">
             <span className="material-symbols-outlined text-[#14532d] text-[22px]">agriculture</span>
             <h3 className="text-sm sm:text-base font-extrabold text-[#1c1917] font-editorial">
-              छिड़काव व उर्वरक विंडो • Spraying & Fertilization Window
+              {t('weather.sprayingSafety')}
             </h3>
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#f5fdf7] text-[#14532d] border border-[#bbf7d0]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#14532d] animate-pulse"></span>

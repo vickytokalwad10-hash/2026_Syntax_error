@@ -19,7 +19,10 @@ ChartJS.register(
   Legend
 );
 
+import { useLanguage } from '../context/LanguageContext';
+
 export default function SimulatorPage() {
+  const { t, formatCurrency } = useLanguage();
   const [fertilizerCost, setFertilizerCost] = useState(4800); // ₹ / acre
   const [expectedYield, setExpectedYield] = useState(24); // Quintals / acre
   const [marketPrice, setMarketPrice] = useState(2840); // ₹ / quintal
@@ -100,12 +103,15 @@ export default function SimulatorPage() {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#14532d] animate-pulse"></span>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#14532d]">
-              Dynamic Agronomic Simulation
+              {t('simulator.title')}
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-[#1c1917] tracking-tight font-editorial mt-0.5">
-            मुनाफा व उपज सिम्युलेटर • What-If Scenario Simulator
+            {t('simulator.title')}
           </h2>
+          <p className="text-xs sm:text-sm text-[#57534e] max-w-2xl mt-0.5">
+            {t('simulator.subtitle')}
+          </p>
         </div>
       </div>
 

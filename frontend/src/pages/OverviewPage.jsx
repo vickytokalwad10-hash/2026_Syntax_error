@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -27,6 +28,7 @@ ChartJS.register(
 
 export default function OverviewPage() {
   const { user, role } = useAuth();
+  const { t, formatCurrency, formatDate } = useLanguage();
   const navigate = useNavigate();
   const [selectedCrop, setSelectedCrop] = useState('wheat');
   const [activeTab, setActiveTab] = useState('1M');

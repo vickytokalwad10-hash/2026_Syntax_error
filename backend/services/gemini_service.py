@@ -18,27 +18,12 @@ def get_gemini_key():
                         break
     return key or ""
 
-LANGUAGE_NAMES = {
-    "en": "English",
-    "mr": "मराठी (Marathi)",
-    "hi": "हिन्दी (Hindi)",
-    "pa": "ਪੰਜਾਬੀ (Punjabi)",
-    "gu": "ગુજરાતી (Gujarati)",
-    "te": "తెలుగు (Telugu)",
-    "ta": "தமிழ் (Tamil)",
-    "kn": "ಕನ್ನಡ (Kannada)"
-}
-
-OUT_OF_SCOPE_RESPONSES = {
-    "en": "I am AgriPulse AI, specialized exclusively in Agriculture, Mandi Prices, Crop Health, Weather, and Farming Economics. Please ask an agricultural or market-related question.",
-    "mr": "मी ॲग्रीपल्स एआय (AgriPulse AI) आहे, मी केवळ शेती, पीक सल्ला, बाजारभाव (मंडी दर), हवामान आणि कृषी अर्थशास्त्राशी संबंधित प्रश्नांची उत्तरे देतो. कृपया शेतीविषयक प्रश्न विचारा.",
-    "hi": "मैं एग्रीपल्स एआई (AgriPulse AI) हूँ, जो केवल कृषि, मंडी भाव, फसल स्वास्थ्य, मौसम और किसान बाजार से जुड़े प्रश्नों के लिए समर्पित है। कृपया खेती या मंडी से संबंधित प्रश्न पूछें।",
-    "pa": "ਮੈਂ ਐਗਰੀਪਲਸ ਏਆਈ ਹਾਂ, ਜੋ ਸਿਰਫ਼ ਖੇਤੀਬਾੜੀ, ਮੰਡੀ ਦੇ ਭਾਅ, ਫਸਲਾਂ ਦੀ ਸਿਹਤ ਅਤੇ ਮੌਸਮ ਸੰਬੰਧੀ ਸਵਾਲਾਂ ਦੇ ਜਵਾਬ ਦੇਣ ਲਈ ਤਿਆਰ ਕੀਤਾ ਗਿਆ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਖੇਤੀ ਨਾਲ ਸੰਬੰਧਿਤ ਸਵਾਲ ਪੁੱਛੋ।",
-    "gu": "હું એગ્રીપલ્સ એઆઈ છું, જે ફક્ત ખેતી, બજાર ભાવ (મંડી દરો), પાક સંભાળ અને હવામાન સંબંધિત પ્રશ્નો માટે સમર્પિત છે. કૃપા કરીને કૃષિ સંબંધિત પ્રશ્ન પૂછો.",
-    "te": "నేను అగ్రిపల్స్ AI ని, వ్యవసాయం, మార్కెట్ ధరలు, పంట ఆరోగ్యం మరియు వాతావరణానికి సంబంధించిన ప్రశ్నలకు మాత్రమే సమాధానం ఇస్తాను. దయచేసి వ్యవసాయ సంబంధిత ప్రశ్న అడగండి.",
-    "ta": "நான் அக்ரிபல்ஸ் AI, விவசாயம், மண்டி சந்தை விலைகள், பயிர் ஆரோக்கியம் மற்றும் வானிலை தொடர்பான கேள்விகளுக்கு மட்டுமே பதிலளிப்பேன். தயவுசெய்து விவசாயம் சார்ந்த கேள்வியைக் கேளுங்கள்.",
-    "kn": "ನಾನು ಅಗ್ರಿಪಲ್ಸ್ ಎಐ, ಕೃಷಿ, ಮಂಡಿ ಮಾರುಕಟ್ಟೆ ದರಗಳು, ಬೆಳೆ ಆರೋಗ್ಯ ಮತ್ತು ಹವಾಮಾನಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಪ್ರಶ್ನೆಗಳಿಗೆ ಮಾತ್ರ ಉತ್ತರಿಸುತ್ತೇನೆ. ದಯವಿಟ್ಟು ಕೃಷಿ ಸಂಬಂಧಿತ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ."
-}
+from typing import Dict, Any, Optional
+from services.language_utils import (
+    SUPPORTED_LANGUAGES,
+    build_language_instruction,
+    OFF_TOPIC_REFUSALS
+)
 
 def ask_gemini_agri_copilot(
     query: str, 
@@ -50,7 +35,9 @@ def ask_gemini_agri_copilot(
     key = api_key or get_gemini_key()
     if not key:
         return None
-    lang_name = LANGUAGE_NAMES.get(language_code, "English")
+    meta = SUPPORTED_LANGUAGES.get(language_code, SUPPORTED_LANGUAGES["en"])
+    lang_name = f"{meta.native} ({meta.name})"
+    lang_instr = build_language_instruction(meta.code)
 
     system_instruction = f"""
 You are AgriPulse AI, India's leading AI Agricultural Economics, Agronomy, and APMC Mandi Market Intelligence Copilot.
@@ -58,7 +45,7 @@ You are AgriPulse AI, India's leading AI Agricultural Economics, Agronomy, and A
 CRITICAL RULES:
 1. DOMAIN RESTRICTION: You MUST ONLY answer questions strictly relevant to Agriculture, Farming, Crops, Mandi Spot Prices, Price Forecasts, Weather/Monsoon advisories, Crop Pests/Diseases/Fertilizers, Warehouse Storage (WDRA) vs Sell decisions, Farm Machinery, Agricultural Policies (MSP, PM-Kisan, Export/Import Duties), and Direct Farmgate-to-Buyer Trading.
 2. OUT-OF-SCOPE QUESTIONS: If the user asks about anything outside agriculture, farming, or agricultural market trading (e.g. coding, software, general history, movies, politics, entertainment, gaming, sports, etc.), you MUST politely DECLINE in the requested language: {lang_name} and instruct them to ask about farming, crops, or mandi prices.
-3. LANGUAGE ENFORCEMENT: You MUST answer strictly in the requested language: {lang_name} (Language Code: {language_code}).
+3. {lang_instr}
 4. OUTPUT FORMAT: Output ONLY a valid, parseable JSON object with no markdown backticks, matching this exact schema:
 {{
   "is_agri_related": true,

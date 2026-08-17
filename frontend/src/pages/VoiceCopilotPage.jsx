@@ -1,21 +1,38 @@
+/**
+ * ============================================================================
+ * AGRIPULSE AI — KISAN MITRA MULTILINGUAL COPILOT
+ * ============================================================================
+ * Part 3: Chatbot Architecture tied to Global LanguageContext (Single Source of Truth)
+ * 
+ * - Reads default language from global `useLanguage()`.
+ * - Per-message detection: Unicode script detection -> Hinglish detection -> Confidence.
+ * - Displays 1-tap "Switch app language to [Language]?" prompt on language shift.
+ * - SpeechRecognition.lang & SpeechSynthesisUtterance.lang set DYNAMICALLY per utterance.
+ *   KNOWN PAST FAILURE POINT: Never fix recognition.lang in useEffect at mount.
+ * ============================================================================
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function VoiceCopilotPage() {
   const { user } = useAuth();
-  const [selectedLanguage, setSelectedLanguage] = useState('auto'); // 'auto' by default
+  const { language, setLanguage, languages, currentLanguageObj, t } = useLanguage();
+
   const [isListening, setIsListening] = useState(false);
   const [inputText, setInputText] = useState('');
   const [detectedLangInfo, setDetectedLangInfo] = useState(null);
+  const [suggestLanguageSwitch, setSuggestLanguageSwitch] = useState(null); // { code, name }
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'copilot',
-      text: 'नमस्ते! मैं एग्रीपल्स किसान मित्र (AgriPulse Copilot) हूँ। आप मुझसे किसी भी भाषा में (हिन्दी, मराठी, ਪੰਜਾਬੀ, ગુજરાતી, తెలుగు, தமிழ், ಕನ್ನಡ, বাংলা, English) खेती, खाद, कीट नियंत्रण, मौसम, या मंडी भाव के बारे में पूछ सकते हैं।',
-      langName: 'हिन्दी (Hindi)',
-      langCode: 'hi',
+      text: t('copilot.welcomeMessage'),
+      langName: currentLanguageObj.name,
+      langCode: currentLanguageObj.code,
       isAgri: true,
-      category: 'Farming Welcoming Advisory',
+      category: 'Farming Advisory',
       followups: [
         'गेहूं की फसल में कौन सी खाद डालनी चाहिए?',
         'कापूस पिकावर कीड आली आहे, काय करावे?',
@@ -28,28 +45,12 @@ export default function VoiceCopilotPage() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const languages = [
-    { code: 'auto', label: '🌐 Auto-Detect Language (बोलें या लिखें)' },
-    { code: 'hi', label: 'हिन्दी (Hindi)' },
-    { code: 'mr', label: 'मराठी (Marathi)' },
-    { code: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)' },
-    { code: 'gu', label: 'ગુજરાતી (Gujarati)' },
-    { code: 'te', label: 'తెలుగు (Telugu)' },
-    { code: 'ta', label: 'தமிழ் (Tamil)' },
-    { code: 'kn', label: 'ಕನ್ನಡ (Kannada)' },
-    { code: 'bn', label: 'বাংলা (Bengali)' },
-    { code: 'ml', label: 'മലയാളം (Malayalam)' },
-    { code: 'or', label: 'ଓଡ଼ିଆ (Odia)' },
-    { code: 'hi-Latn', label: 'Hinglish (Romanized)' },
-    { code: 'en', label: 'English' }
-  ];
-
   const quickPrompts = [
     { title: 'गेहूं में खाद (Hindi)', text: 'गेहूं की फसल में कौन सी खाद डालनी चाहिए?' },
     { title: 'कापूस कीड (Marathi)', text: 'कापूस पिकावर कीड आली आहे, काय करावे?' },
     { title: 'ਕਣਕ ਦਾ ਭਾਅ (Punjabi)', text: 'ਕਣਕ ਦਾ ਭਾਅ ਕੀ ਹੈ?' },
     { title: 'મગફળી ખાતર (Gujarati)', text: 'મગફળીના પાક માટે કયું ખાતર સારું છે?' },
-    { title: 'వరి ఎరువులు (Telugu)', text: 'వరి పంటకు ఎరువులు ఎప్పుడు వేয়ాలి?' },
+    { title: 'వరి ఎరువులు (Telugu)', text: 'వరి పంటకు ఎరువులు ఎప్పుడు వేయాలి?' },
     { title: 'நெல் உரம் (Tamil)', text: 'நெல் பயிருக்கு எந்த உரம் நல்லது?' },
     { title: 'Hinglish (Wheat Khad)', text: 'wheat ki fasal me kaunsi khad daalu' },
     { title: 'Off-Topic Test (Cricket)', text: 'आज का मौसम कैसा है क्रिकेट मैच के लिए?' }
@@ -76,12 +77,13 @@ export default function VoiceCopilotPage() {
     setLoading(true);
 
     try {
+      // Pass the current global language ISO code to the backend
       const res = await fetch('http://127.0.0.1:8000/api/copilot/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           query: textToSend,
-          language: selectedLanguage,
+          language: language, // Tied to global single source of truth
           user_id: user?.uid || 'farmer_session',
           location: 'Karnal, Haryana'
         })
@@ -89,17 +91,32 @@ export default function VoiceCopilotPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setDetectedLangInfo(data.language);
+        const detected = data.language;
+        setDetectedLangInfo(detected);
+
+        // Check if detected language differs from global app language
+        if (detected?.code && detected.code !== language && detected.code !== 'hi-Latn' && detected.confidence > 0.8) {
+          const matchedLang = languages.find(l => l.code === detected.code);
+          if (matchedLang) {
+            setSuggestLanguageSwitch({
+              code: matchedLang.code,
+              name: matchedLang.native || matchedLang.name
+            });
+          }
+        } else {
+          setSuggestLanguageSwitch(null);
+        }
 
         const newCopilotMsg = {
           id: Date.now() + 1,
           sender: 'copilot',
           text: data.response_text,
-          langName: data.language?.name || 'English',
-          langCode: data.language?.code || 'en',
-          script: data.language?.script || 'Latin',
+          langName: detected?.name || currentLanguageObj.name,
+          langCode: detected?.code || language,
+          script: detected?.script || 'Latin',
           isAgri: data.domain?.is_agri ?? true,
-          category: data.action_title || 'कृषि सलाह • Farm Advisory',
+          category: data.domain?.detected_category || 'Agronomy Advice',
+          actionTitle: data.action_title,
           actionDetails: data.action_details,
           keyStats: data.key_stats || [],
           followups: data.suggested_followups || []
@@ -107,42 +124,62 @@ export default function VoiceCopilotPage() {
 
         setMessages((prev) => [...prev, newCopilotMsg]);
 
-        // Auto-play speech for hands-free voice interaction
-        if (isListening || isPlayingAudio) {
-          speakText(data.response_text, data.language?.code);
+        // Auto-TTS if available
+        if (data.response_text) {
+          speakText(data.response_text, detected?.code || language);
         }
       }
     } catch (err) {
-      console.warn('Copilot query error:', err);
+      console.error('Copilot request failed:', err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: 'copilot',
+          text: language === 'mr'
+            ? 'सर्व्हरशी संपर्क होऊ शकला नाही. कृपया थोड्या वेळाने प्रयत्न करा.'
+            : (language === 'hi'
+                ? 'सर्वर से संपर्क नहीं हो सका। कृपया पुनः प्रयास करें।'
+                : 'Unable to reach advisory server. Please try again shortly.'),
+          langName: currentLanguageObj.name,
+          langCode: language,
+          isAgri: true,
+          category: 'Connection Warning',
+          followups: ['Try again']
+        }
+      ]);
     } finally {
       setLoading(false);
-      setIsListening(false);
     }
   };
 
+  /**
+   * DYNAMIC SPEECH SYNTHESIS
+   * Sets utterance.lang dynamically per speech event based on response language.
+   */
   const speakText = (text, langCode) => {
-    if (!('speechSynthesis' in window)) return;
+    if (!('speechSynthesis' in window) || !text) return;
 
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+    const cleanText = text.replace(/[*#_`]/g, '').slice(0, 240);
+    const utterance = new SpeechSynthesisUtterance(cleanText);
     
-    // Map ISO code to BCP 47
-    const langMap = {
-      'hi': 'hi-IN',
-      'mr': 'mr-IN',
-      'pa': 'pa-IN',
-      'gu': 'gu-IN',
-      'te': 'te-IN',
-      'ta': 'ta-IN',
-      'kn': 'kn-IN',
-      'bn': 'bn-IN',
-      'ml': 'ml-IN',
-      'or': 'or-IN',
-      'hi-Latn': 'hi-IN',
-      'en': 'en-IN'
+    // Dynamic mapping of ISO codes to TTS locales
+    const ttsMap = {
+      en: 'en-IN',
+      hi: 'hi-IN',
+      mr: 'mr-IN',
+      pa: 'pa-IN',
+      gu: 'gu-IN',
+      te: 'te-IN',
+      ta: 'ta-IN',
+      kn: 'kn-IN',
+      bn: 'bn-IN',
+      ml: 'ml-IN',
+      or: 'or-IN',
+      'hi-Latn': 'hi-IN'
     };
-
-    utterance.lang = langMap[langCode] || 'en-IN';
+    utterance.lang = ttsMap[langCode] || currentLanguageObj.speechLang || 'hi-IN';
     utterance.rate = 0.95;
 
     utterance.onstart = () => setIsPlayingAudio(true);
@@ -152,242 +189,264 @@ export default function VoiceCopilotPage() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const handleToggleVoice = () => {
+  /**
+   * DYNAMIC SPEECH RECOGNITION (CRITICAL FIX)
+   * KNOWN PAST FAILURE POINT: SpeechRecognition.lang MUST be dynamically configured
+   * at the exact moment of listening invocation, using current active global/detected language.
+   */
+  const toggleVoiceListening = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Speech Recognition is not supported on this browser. Please type your query.');
+      return;
+    }
+
     if (isListening) {
       setIsListening(false);
       return;
     }
 
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Speech recognition is not supported in this browser. Please type your question.');
-      return;
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      
+      // Dynamic Speech Recognition locale assignment
+      const sttMap = {
+        en: 'en-IN',
+        hi: 'hi-IN',
+        mr: 'mr-IN',
+        pa: 'pa-IN',
+        gu: 'gu-IN',
+        te: 'te-IN',
+        ta: 'ta-IN',
+        kn: 'kn-IN',
+        bn: 'bn-IN',
+        ml: 'ml-IN',
+        or: 'or-IN'
+      };
+      recognition.lang = sttMap[language] || currentLanguageObj.speechLang || 'hi-IN';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInputText(transcript);
+        setIsListening(false);
+        handleSendMessage(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.warn('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } catch (e) {
+      console.error('Speech recognition start failed:', e);
+      setIsListening(false);
     }
+  };
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    // Use selected language or default to Indian English / Hindi auto
-    const langMap = {
-      'hi': 'hi-IN',
-      'mr': 'mr-IN',
-      'pa': 'pa-IN',
-      'gu': 'gu-IN',
-      'te': 'te-IN',
-      'ta': 'ta-IN',
-      'kn': 'kn-IN',
-      'bn': 'bn-IN',
-      'ml': 'ml-IN',
-      'or': 'or-IN',
-      'en': 'en-IN'
-    };
-    recognition.lang = selectedLanguage !== 'auto' ? (langMap[selectedLanguage] || 'hi-IN') : 'hi-IN';
-
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
-    recognition.onresult = (event) => {
-      const transcriptText = event.results[0][0].transcript;
-      setInputText(transcriptText);
-      handleSendMessage(transcriptText);
-    };
-
-    recognition.onerror = (e) => {
-      console.warn('Speech recognition notice:', e);
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognition.start();
+  const handleApplyLanguageSwitch = () => {
+    if (suggestLanguageSwitch?.code) {
+      setLanguage(suggestLanguageSwitch.code);
+      setSuggestLanguageSwitch(null);
+    }
   };
 
   return (
-    <div className="space-y-5 max-w-5xl mx-auto">
-      {/* Editorial Masthead */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-[#e7e5e4]">
+    <div className="space-y-4 sm:space-y-6 max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[#e7e5e4]">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#14532d] animate-pulse"></span>
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#14532d]">
-              Domain-Restricted Multilingual Kisan Mitra
-            </span>
-            <span className="text-[10px] bg-[#fef3c7] text-[#92400e] font-bold px-2 py-0.2 rounded-md">
-              11+ Indian Languages
+              Domain-Restricted Agronomy AI • 11 Indian Languages
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-[#1c1917] tracking-tight font-editorial mt-0.5">
-            किसान मित्र • AI Agronomy & Mandi Voice Assistant
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1c1917] tracking-tight font-editorial mt-0.5">
+            {t('copilot.title')}
           </h2>
+          <p className="text-xs sm:text-sm text-[#57534e] max-w-2xl mt-1">
+            {t('copilot.subtitle')}
+          </p>
         </div>
 
-        {/* Language Mode Selector */}
-        <div className="flex items-center gap-2">
-          <label className="text-[11px] font-bold text-[#78716c]">Language Mode:</label>
-          <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="p-2 bg-white border border-[#e7e5e4] rounded-xl text-xs font-bold text-[#1c1917] focus:outline-[#14532d] shadow-2xs"
-          >
-            {languages.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.label}
-              </option>
-            ))}
-          </select>
+        {/* Active Global Language Badge */}
+        <div className="flex items-center gap-2 self-start md:self-auto bg-[#f5f2eb] px-3 py-1.5 rounded-xl border border-[#e7e5e4]">
+          <span className="material-symbols-outlined text-[16px] text-[#14532d]">language</span>
+          <span className="text-xs font-bold text-[#1c1917]">
+            Active App Language: <strong className="text-[#14532d]">{currentLanguageObj.native} ({currentLanguageObj.name})</strong>
+          </span>
         </div>
       </div>
 
-      {/* Auto-Detection Indicator Banner */}
-      {detectedLangInfo && (
-        <div className="p-3 bg-[#f5fdf7] border border-[#bbf7d0] rounded-2xl flex items-center justify-between text-xs text-[#14532d] font-bold animate-in zoom-in-95">
+      {/* 1-Tap Language Switch Confirmation Banner */}
+      {suggestLanguageSwitch && (
+        <div className="paper-card p-3.5 bg-[#fefce8] border-l-4 border-l-[#ca8a04] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[18px]">translate</span>
-            <span>
-              Auto-Detected Input: <strong>{detectedLangInfo.name}</strong> ({detectedLangInfo.script} Script)
-            </span>
+            <span className="material-symbols-outlined text-[#ca8a04] text-[20px]">translate</span>
+            <p className="text-xs font-bold text-[#854d0e]">
+              We noticed your query in <strong>{suggestLanguageSwitch.name}</strong>. Would you like to switch the whole app to {suggestLanguageSwitch.name}?
+            </p>
           </div>
-          <span className="text-[10px] bg-[#14532d] text-white px-2 py-0.5 rounded-full font-sans">
-            100% Strict Agri Scope Enforced
-          </span>
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <button
+              onClick={() => setSuggestLanguageSwitch(null)}
+              className="px-2.5 py-1 text-[11px] font-bold text-[#78716c] hover:bg-[#fef9c3] rounded-lg"
+            >
+              {t('copilot.dismiss')}
+            </button>
+            <button
+              onClick={handleApplyLanguageSwitch}
+              className="px-3 py-1 bg-[#14532d] hover:bg-[#052e16] text-white text-[11px] font-extrabold rounded-lg shadow-2xs btn-tap"
+            >
+              ✓ {t('copilot.switchConfirm')}
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Main Chat Interface */}
-      <div className="paper-card p-4 sm:p-6 min-h-[460px] flex flex-col justify-between space-y-4">
+      {/* Main Chat Container */}
+      <div className="paper-card flex flex-col h-[520px] sm:h-[580px] p-0 overflow-hidden">
         {/* Messages Scroll Area */}
-        <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1 text-xs sm:text-sm">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
+              className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} max-w-full`}
             >
               {/* Sender Label & Language Tag */}
-              <div className="flex items-center gap-2 mb-1 px-1">
-                <span className="text-[10px] font-extrabold text-[#78716c] uppercase">
-                  {msg.sender === 'user' ? '👨‍🌾 Farmer Question' : '🌱 Kisan Mitra AI'}
-                </span>
-                {msg.langName && (
-                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#f5f2eb] text-[#57534e] border border-[#e7e5e4]">
-                    {msg.langName}
-                  </span>
-                )}
-                {msg.sender === 'copilot' && (
-                  <span
-                    className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                      msg.isAgri
-                        ? 'bg-emerald-100 text-emerald-950 border border-emerald-300'
-                        : 'bg-amber-100 text-amber-950 border border-amber-300'
-                    }`}
-                  >
-                    {msg.isAgri ? '🌾 Agriculture Query' : '⚠️ Off-Topic Redirect'}
-                  </span>
+              <div className="flex items-center gap-2 mb-1 px-1 text-[10px] font-extrabold">
+                {msg.sender === 'user' ? (
+                  <span className="text-[#78716c]">You (Farmer)</span>
+                ) : (
+                  <>
+                    <span className="text-[#14532d] flex items-center gap-1 font-editorial">
+                      <span className="material-symbols-outlined text-[14px]">psychology</span>
+                      AgriPulse Copilot
+                    </span>
+                    <span className="px-2 py-0.2 rounded-full bg-[#f5fdf7] text-[#14532d] border border-[#bbf7d0]">
+                      {t('copilot.replyingIn')}: {msg.langName} ({msg.langCode})
+                    </span>
+                    {!msg.isAgri && (
+                      <span className="px-2 py-0.2 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                        Off-Domain Refusal
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
 
-              {/* Chat Bubble */}
+              {/* Message Bubble */}
               <div
-                className={`p-4 rounded-3xl max-w-2xl leading-relaxed shadow-xs ${
+                className={`p-4 rounded-2xl max-w-[92%] sm:max-w-[85%] text-xs sm:text-sm leading-relaxed ${
                   msg.sender === 'user'
-                    ? 'bg-[#14532d] text-white rounded-tr-xs font-semibold'
+                    ? 'bg-[#14532d] text-white font-medium shadow-xs rounded-tr-xs'
                     : msg.isAgri
                     ? 'bg-[#faf8f5] border border-[#e7e5e4] text-[#1c1917] rounded-tl-xs'
-                    : 'bg-[#fffbeb] border border-[#fef3c7] text-[#92400e] rounded-tl-xs'
+                    : 'bg-rose-50 border border-rose-200 text-rose-900 rounded-tl-xs'
                 }`}
               >
-                {/* Category Header for Copilot Response */}
-                {msg.category && msg.sender === 'copilot' && (
-                  <h4 className="text-xs font-extrabold pb-1.5 mb-2 border-b border-[#e7e5e4]/80 font-editorial flex items-center justify-between">
-                    <span>{msg.category}</span>
-                    <button
-                      onClick={() => speakText(msg.text, msg.langCode)}
-                      className="text-[#14532d] hover:opacity-80 p-0.5 flex items-center gap-1 text-[11px] font-sans font-bold"
-                      title="Listen Audio Readout"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">volume_up</span>
-                      Listen
-                    </button>
-                  </h4>
-                )}
+                <p className="whitespace-pre-line">{msg.text}</p>
 
-                <p className="whitespace-pre-line text-xs sm:text-sm font-medium">{msg.text}</p>
+                {/* Structured Advisory Cards */}
+                {msg.actionTitle && (
+                  <div className="mt-3 pt-3 border-t border-black/10">
+                    <h5 className="font-extrabold text-[#14532d] font-editorial text-xs mb-1">
+                      {msg.actionTitle}
+                    </h5>
+                    {msg.actionDetails && (
+                      <p className="text-[11px] text-[#57534e]">{msg.actionDetails}</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Key Stats Chips */}
                 {msg.keyStats && msg.keyStats.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3 pt-3 border-t border-[#e7e5e4]">
-                    {msg.keyStats.map((stat, sIdx) => (
-                      <div key={sIdx} className="p-2 rounded-xl bg-white border border-[#e7e5e4] text-center">
-                        <span className="text-[9px] text-[#78716c] block font-bold uppercase">{stat.label}</span>
-                        <span className="text-xs font-extrabold text-[#14532d]">{stat.val}</span>
-                      </div>
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    {msg.keyStats.map((st, sIdx) => (
+                      <span
+                        key={sIdx}
+                        className="bg-white/90 border border-[#e7e5e4] px-2 py-0.5 rounded-lg text-[10px] font-bold text-[#1c1917]"
+                      >
+                        {st.label}: <strong className="text-[#14532d]">{st.val}</strong>
+                      </span>
                     ))}
                   </div>
                 )}
-              </div>
 
-              {/* Suggested Followups */}
-              {msg.followups && msg.followups.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1.5 max-w-xl">
-                  {msg.followups.map((fText, fIdx) => (
-                    <button
-                      key={fIdx}
-                      onClick={() => handleSendMessage(fText)}
-                      className="px-2.5 py-1 bg-[#faf8f5] hover:bg-[#f5f2eb] border border-[#e7e5e4] text-[11px] font-bold text-[#44403c] rounded-xl transition text-left active:scale-98"
-                    >
-                      💬 {fText}
-                    </button>
-                  ))}
-                </div>
-              )}
+                {/* Suggested Followups */}
+                {msg.followups && msg.followups.length > 0 && (
+                  <div className="mt-3 pt-2.5 border-t border-black/10">
+                    <span className="text-[9px] uppercase tracking-wider font-extrabold text-[#78716c] block mb-1.5">
+                      {t('copilot.suggestedQueries')}:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {msg.followups.map((f, fIdx) => (
+                        <button
+                          key={fIdx}
+                          onClick={() => handleSendMessage(f)}
+                          className="text-[10px] font-bold bg-white border border-[#e7e5e4] hover:border-[#14532d] hover:bg-[#f5fdf7] text-[#14532d] px-2.5 py-1 rounded-xl transition text-left"
+                        >
+                          💬 {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
 
           {loading && (
-            <div className="flex items-center gap-2 p-3 bg-[#faf8f5] border border-[#e7e5e4] rounded-2xl max-w-xs text-xs font-bold text-[#78716c]">
-              <span className="w-2 h-2 rounded-full bg-[#14532d] animate-ping"></span>
-              <span>Detecting language & analyzing agronomy...</span>
+            <div className="flex items-center gap-2 text-xs font-bold text-[#14532d] p-2 bg-[#f5fdf7] rounded-xl border border-[#bbf7d0] w-fit animate-pulse">
+              <span className="material-symbols-outlined text-[18px] animate-spin">sync</span>
+              <span>Analyzing agronomy & detecting language...</span>
             </div>
           )}
 
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Sample 1-Tap Queries */}
-        <div className="pt-2 border-t border-[#f5f2eb]">
-          <span className="text-[10px] font-bold text-[#a8a29e] uppercase tracking-wider block mb-1.5">
-            Test Queries (Auto-Detect in Action)
+        {/* Quick Prompts Strip */}
+        <div className="px-4 py-2 bg-[#faf8f5] border-t border-[#f5f2eb] flex gap-2 overflow-x-auto no-scrollbar">
+          <span className="text-[10px] font-extrabold uppercase text-[#78716c] self-center shrink-0">
+            Quick Prompts:
           </span>
-          <div className="flex gap-1.5 overflow-x-auto pb-1">
-            {quickPrompts.map((p, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSendMessage(p.text)}
-                className="px-2.5 py-1 bg-[#faf8f5] hover:bg-[#f5f2eb] border border-[#e7e5e4] rounded-xl text-[11px] font-semibold text-[#1c1917] whitespace-nowrap transition"
-              >
-                {p.title}
-              </button>
-            ))}
-          </div>
+          {quickPrompts.map((p, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSendMessage(p.text)}
+              className="text-[11px] font-bold whitespace-nowrap bg-white border border-[#e7e5e4] hover:bg-[#f5f2eb] text-[#1c1917] px-2.5 py-1 rounded-xl transition shrink-0 shadow-2xs"
+            >
+              {p.title}
+            </button>
+          ))}
         </div>
 
         {/* Input Bar */}
-        <div className="flex items-center gap-2 pt-1">
-          {/* Voice Mic Button */}
+        <div className="p-3 sm:p-4 bg-white border-t border-[#e7e5e4] flex items-center gap-2">
+          {/* Voice Input Button */}
           <button
-            onClick={handleToggleVoice}
-            className={`p-3 rounded-2xl transition shadow-xs flex items-center justify-center ${
+            onClick={toggleVoiceListening}
+            className={`p-3 rounded-2xl transition flex items-center justify-center shrink-0 ${
               isListening
-                ? 'bg-rose-600 text-white animate-pulse ring-4 ring-rose-200'
-                : 'bg-[#14532d] hover:bg-[#052e16] text-white'
+                ? 'bg-rose-600 text-white shadow-md animate-ping'
+                : 'bg-[#f5fdf7] border border-[#bbf7d0] text-[#14532d] hover:bg-[#bbf7d0]'
             }`}
-            title="Speak Question"
+            title={t('copilot.voiceInputTooltip')}
           >
-            <span className="material-symbols-outlined text-[22px]">
-              {isListening ? 'graphic_eq' : 'mic'}
+            <span className="material-symbols-outlined text-[20px]">
+              {isListening ? 'mic_off' : 'mic'}
             </span>
           </button>
 
@@ -396,19 +455,19 @@ export default function VoiceCopilotPage() {
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(inputText)}
-            placeholder="Type or speak in Hindi, Punjabi, Marathi, Gujarati, Telugu, Tamil, Bengali, English..."
-            className="flex-1 p-3 bg-[#faf8f5] border border-[#e7e5e4] rounded-2xl text-xs sm:text-sm font-bold text-[#1c1917] focus:outline-[#14532d]"
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            placeholder={t('copilot.typePlaceholder')}
+            className="flex-1 p-2.5 sm:p-3 bg-[#faf8f5] border border-[#e7e5e4] rounded-2xl text-xs sm:text-sm font-semibold text-[#1c1917] focus:outline-[#14532d]"
           />
 
           {/* Send Button */}
           <button
-            onClick={() => handleSendMessage(inputText)}
-            disabled={loading || !inputText.trim()}
-            className="px-5 py-3 bg-[#14532d] hover:bg-[#052e16] disabled:opacity-50 text-white text-xs font-extrabold rounded-2xl shadow-xs transition btn-tap flex items-center gap-1"
+            onClick={() => handleSendMessage()}
+            disabled={!inputText.trim() || loading}
+            className="p-3 bg-[#14532d] hover:bg-[#052e16] disabled:opacity-40 text-white rounded-2xl transition shrink-0 font-extrabold shadow-xs btn-tap flex items-center justify-center"
+            title={t('copilot.send')}
           >
-            <span>Ask</span>
-            <span className="material-symbols-outlined text-[16px]">send</span>
+            <span className="material-symbols-outlined text-[20px]">send</span>
           </button>
         </div>
       </div>
