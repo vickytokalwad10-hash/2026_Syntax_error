@@ -4,8 +4,9 @@ import json
 import logging
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
+from services.gemini_client import call_gemini, is_gemini_configured
 
-logger = logging.getLogger("agripulse.copilot")
+logger = logging.getLogger("agripulse.copilot_service")
 
 # ============================================================================
 # DATA MODELS
@@ -74,7 +75,7 @@ DEFAULT_AGRI_SUGGESTIONS: Dict[str, List[str]] = {
 }
 
 # ============================================================================
-# STEP 1: LIGHTWEIGHT MULTILINGUAL LANGUAGE & SCRIPT DETECTION
+# STEP 1: LANGUAGE & SCRIPT DETECTION (FAST HEURISTICS + GEMINI AI FALLBACK)
 # ============================================================================
 
 def detect_language(query: str, manual_override: Optional[str] = None) -> LanguageInfo:
@@ -214,7 +215,7 @@ AGRI_CORE_KEYWORDS = [
     "गेहूं", "गहू", "धान", "तांदूळ", "चावल", "कपास", "कापूस", "सरसों", "सोयाबीन", "गन्ना",
     "उस", "मक्का", "प्याज", "कांदा", "टमाटर", "टोमॅटो", "आलू", "बटाटा", "मिर्च", "चना",
     "मूंग", "उड़द", "अरहर", "तूर", "मूंगफली", "लहसुन", "अदरक", "बाजरा", "ज्वार", "रागी",
-    "ਕਣਕ", "ਮੱਕੀ", "ਝੋਨਾ", "ਨਰਮਾ", "ਸਰ੍ਹੋਂ", "મગફળી", "કપાસ", "ડાંગર", "ઘઉં", "બાજરી",
+    "ਕਣਕ", "ਮੱਕੀ", "ਝੋਨਾ", "ਨਰਮਾ", "ਸਰ੍ਹੋਂ", "ਮਗਫળી", "કપાસ", "ડાંગર", "ઘઉં", "બાજરી",
     "వరి", "పత్తి", "మిరప", "వేరుశనగ", "మొక్కజొన్న", "நெல்", "பருத்தி", "கரும்பு", "மஞ்சள்",
     "ಭತ್ತ", "ಹತ್ತಿ", "ಕಬ್ಬು", "ರಾಗಿ", "ধান", "গম", "আলু", "পাট", "നെല്ല്", "റബ്ബർ",
     "ଖତ", "ସାର", "ଚାଷ",
@@ -228,7 +229,7 @@ AGRI_CORE_KEYWORDS = [
     # Schemes & Finance
     "pm-kisan", "pmkisan", "kisan", "pmfby", "fasal bima", "crop insurance",
     "kcc", "kisan credit card", "loan", "subsidy", "subsidies", "soil health card", "nabard",
-    "dbt", "fpo", "cooperative", "योजना", "किस्त", "बीमा", "कर्ज", "अनुदान", "ಸಾಲ", "రుణం",
+    "dbt", "fpo", "cooperative", "योजना", "किस्त", "बीमा", "कर्ज", "अनुदान", "ಸಾಲ", "రుణಂ",
 
     # Equipment & Livestock
     "tractor", "harvester", "sprayer", "tiller", "plough", "drone", "rotavator",
@@ -314,7 +315,7 @@ def generate_response(
 ) -> CopilotResponse:
     """
     Generates tailored agricultural advisory strictly in the user's detected
-    language and script.
+    language and script. Uses Gemini API client with hard safety prompts.
     """
     # 1. Domain Check
     domain_result = classify_domain(query, lang_info)
@@ -334,7 +335,50 @@ def generate_response(
             audio_tts_text=domain_result.refusal_message
         )
 
-    # 2. Localized Agronomy Response
+    # 2. Call Gemini via shared client if API key is active
+    if is_gemini_configured():
+        system_instruction = f"""
+You are AgriPulse AI, an expert Indian Agricultural Copilot and Agronomist.
+
+HARD RULES:
+1. Scope: Answer ONLY questions related to farming, crops, pest/disease control, fertilizers (NPK/Urea/DAP dosage), irrigation, mandi spot prices, MSP, PM-KISAN, PMFBY crop insurance, KCC loans, farm machinery, or livestock/dairy.
+2. Language Constraint: You MUST write your entire response ONLY in {lang_info.name} (Code: {lang_info.code}) using the {lang_info.script} script.
+{'3. SCRIPT: Use Romanized / Hinglish text matching user input.' if lang_info.is_romanized else '3. SCRIPT: Use authentic native script for this language (e.g. Devanagari for Hindi/Marathi, Gurmukhi for Punjabi, Telugu, Tamil, Kannada, Gujarati, Bengali, Malayalam, Odia).'}
+4. Context & Tone: Use practical Indian farming terms (ICAR guidelines, quintals, acres, Kharif/Rabi, MSP, Mandi). Keep it concise, helpful, and direct for a farmer.
+
+Output ONLY valid JSON in this exact structure:
+{{
+  "response_text": "Detailed, practical answer in {lang_info.name} (3-4 sentences max)",
+  "action_title": "Short title in {lang_info.name}",
+  "action_details": "Bullet-style actionable steps in {lang_info.name}",
+  "key_stats": [
+    {{"label": "Metric 1 in {lang_info.name}", "val": "Value 1"}},
+    {{"label": "Metric 2 in {lang_info.name}", "val": "Value 2"}}
+  ],
+  "suggested_followups": [
+    "Follow-up 1 in {lang_info.name}",
+    "Follow-up 2 in {lang_info.name}",
+    "Follow-up 3 in {lang_info.name}"
+  ]
+}}
+"""
+        prompt = f"User Farming Query: {query}\nProvide response strictly as JSON:"
+        gemini_result = call_gemini(prompt=prompt, system_instruction=system_instruction)
+
+        if gemini_result and isinstance(gemini_result, dict):
+            return CopilotResponse(
+                query=query,
+                language=lang_info,
+                domain=domain_result,
+                response_text=gemini_result.get("response_text", ""),
+                action_title=gemini_result.get("action_title", "कृषि सलाह • Advisory"),
+                action_details=gemini_result.get("action_details", ""),
+                key_stats=gemini_result.get("key_stats", []),
+                suggested_followups=gemini_result.get("suggested_followups", DEFAULT_AGRI_SUGGESTIONS.get(lang_info.code, [])),
+                audio_tts_text=gemini_result.get("response_text", "")
+            )
+
+    # 3. Localized Agronomy Response Fallback
     return get_localized_agronomy_fallback(query, lang_info, domain_result)
 
 
@@ -366,7 +410,7 @@ def get_localized_agronomy_fallback(query: str, lang_info: LanguageInfo, domain:
             "mr": "गहू खत व्यवस्थापन (ICAR मार्गदर्शक)",
             "pa": "ਕਣਕ ਖਾਦ ਪ੍ਰਬੰਧਨ (PAU ਸਿਫਾਰਸ਼ਾਂ)",
             "gu": "ખાતર વ્યવસ્થાપન માર્ગદર્શન",
-            "te": "వరి ఎరువుల యాజమాన్యం",
+            "te": "వరి ఎరువుల యాजమాన్యం",
             "ta": "நெல் உர மேலாண்மை",
             "kn": "ಬೆಳೆ ಗೊಬ್ಬರ ನಿರ್ವಹಣೆ",
             "bn": "ফসল সার ব্যবস্থাপনা",

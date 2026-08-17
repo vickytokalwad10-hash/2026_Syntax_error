@@ -39,8 +39,13 @@ from routers import (
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: seed the test accounts into in-memory DB
+    # Startup: seed the test accounts into in-memory DB & verify Gemini API key
     await seed_test_accounts()
+    try:
+        from services.gemini_client import verify_gemini_startup
+        verify_gemini_startup()
+    except Exception as e:
+        logger.warning(f"Gemini verification note: {e}")
     yield
     # Shutdown: nothing to clean up
 
