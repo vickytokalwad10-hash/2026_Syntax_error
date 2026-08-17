@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useNetwork } from '../context/NetworkContext';
 
 export default function PaymentPage() {
+  const { t } = useLanguage();
   const { user, role } = useAuth();
   const { isOnline } = useNetwork();
 
@@ -125,10 +127,10 @@ export default function PaymentPage() {
       <div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
           <span className="material-symbols-outlined text-brand-600 text-[32px]">payments</span>
-          Payment Gateway & Escrow Settlement Hub
+          {t('payment.title')}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 max-w-3xl mt-1">
-          Multi-rail checkout supporting Razorpay, Instant UPI QR, and Smart Agricultural Escrow protection with 2FA high-value authorization.
+          {t('payment.subtitle')}
         </p>
       </div>
 
@@ -138,7 +140,7 @@ export default function PaymentPage() {
           <div className="glass-card p-5 space-y-4 border-l-4 border-l-brand-600">
             <h3 className="text-sm font-extrabold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2">
               <span className="material-symbols-outlined text-brand-600">point_of_sale</span>
-              Payment Dispatch Terminal
+              {t('payment.escrowCheckout')}
             </h3>
 
             {/* Payment Method Selector */}
@@ -236,7 +238,7 @@ export default function PaymentPage() {
                     <span className="material-symbols-outlined text-[16px] text-emerald-600">verified_user</span>
                     AgriPulse Escrow Lock Protocol
                   </p>
-                  <p>Funds remain securely locked in an RBI-compliant escrow account until NABL moisture and quality assay certificate is verified by both parties.</p>
+                  <p>{t('payment.rbiEscrowNotice')}</p>
                 </div>
               )}
 
@@ -326,7 +328,7 @@ export default function PaymentPage() {
                 maxLength="6"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
-                placeholder="Sandbox PIN: 123456"
+                placeholder={t('payment.sandboxPin')}
                 className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-extrabold text-center tracking-widest text-base focus:outline-brand-600"
               />
 

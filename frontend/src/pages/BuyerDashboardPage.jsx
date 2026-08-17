@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
 export default function BuyerDashboardPage() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [selectedLotForEscrow, setSelectedLotForEscrow] = useState(null);
   const [lockedLots, setLockedLots] = useState([]);
@@ -68,10 +70,10 @@ export default function BuyerDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-            Institutional Buyer Procurement Hub
+            {t('buyerDashboard.title')}
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Direct institutional sourcing from verified FPOs with NABL assays and WDRA warehouse escrow settlement.
+            {t('buyerDashboard.subtitle')}
           </p>
         </div>
 

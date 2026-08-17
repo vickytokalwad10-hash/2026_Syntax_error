@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNetwork } from '../context/NetworkContext';
 import { cacheData, getCachedData } from '../services/offlineDb';
 
 export default function CalendarPage() {
+  const { t } = useLanguage();
   const { isOnline } = useNetwork();
   const [cropName, setCropName] = useState('Sharbati Wheat');
   const [region, setRegion] = useState('Haryana / Punjab');
@@ -84,10 +86,10 @@ export default function CalendarPage() {
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
             <span className="material-symbols-outlined text-brand-600 text-[32px]">calendar_month</span>
-            Crop Calendar & Farmer Almanac
+            {t('calendar.title')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-3xl mt-1">
-            Personalized sowing-to-harvest advisory timeline with automated browser reminders for critical crop interventions.
+            {t('calendar.subtitle')}
           </p>
         </div>
 

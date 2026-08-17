@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -20,6 +21,7 @@ ChartJS.register(
 );
 
 export default function CropPlanningPage() {
+  const { t } = useLanguage();
   const [locationState, setLocationState] = useState('Haryana');
   const [locationDistrict, setLocationDistrict] = useState('Karnal');
   const [soilType, setSoilType] = useState('Alluvial Loam');
@@ -137,7 +139,7 @@ export default function CropPlanningPage() {
         titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' },
         bodyFont: { family: 'Plus Jakarta Sans', size: 12 },
         callbacks: {
-          label: (context) => `${context.dataset.label}: ₹${context.raw.toLocaleString('en-IN')}`
+          label: (context) => `${context.dataset.label}: ₹${context.raw?.toLocaleString('en-IN') || 0}`
         }
       }
     },
@@ -163,10 +165,10 @@ export default function CropPlanningPage() {
       <div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1c1917] tracking-tight font-editorial flex items-center gap-2.5">
           <span className="material-symbols-outlined text-[#14532d] text-[32px]">psychology</span>
-          फसल योजना सलाहकार • Next Season Crop Planner
+          {t('cropPlanning.title')}
         </h2>
         <p className="text-xs sm:text-sm text-[#57534e] max-w-3xl mt-1 leading-relaxed">
-          Matches your soil type, water sources, and expected weather against forward mandi futures to recommend: <strong>“Next season kaunsa crop lagana sabse profitable rahega?”</strong>
+          {t('cropPlanning.subtitle')}
         </p>
       </div>
 
@@ -174,12 +176,12 @@ export default function CropPlanningPage() {
       <div className="paper-card p-5 space-y-4">
         <h3 className="text-sm font-extrabold text-[#1c1917] pb-3 border-b border-[#f5f2eb] flex items-center gap-2 font-editorial text-base">
           <span className="material-symbols-outlined text-[#14532d]">tune</span>
-          Farm Parameters & Agro-Climatic Profile
+          {t('cropPlanning.title')}
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
           <div>
-            <label className="block font-bold text-[#44403c] mb-1">State</label>
+            <label className="block font-bold text-[#44403c] mb-1">{t('cropPlanning.selectState')}</label>
             <select
               value={locationState}
               onChange={(e) => {
@@ -196,7 +198,7 @@ export default function CropPlanningPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-[#44403c] mb-1">District / Mandi Zone</label>
+            <label className="block font-bold text-[#44403c] mb-1">{t('cropPlanning.selectDistrict')}</label>
             <select
               value={locationDistrict}
               onChange={(e) => setLocationDistrict(e.target.value)}
@@ -209,7 +211,7 @@ export default function CropPlanningPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-[#44403c] mb-1">Soil Texture / Profile</label>
+            <label className="block font-bold text-[#44403c] mb-1">{t('cropPlanning.selectSoil')}</label>
             <select
               value={soilType}
               onChange={(e) => setSoilType(e.target.value)}
@@ -222,7 +224,7 @@ export default function CropPlanningPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-[#44403c] mb-1">Target Farming Season</label>
+            <label className="block font-bold text-[#44403c] mb-1">{t('cropPlanning.selectSeason')}</label>
             <select
               value={targetSeason}
               onChange={(e) => setTargetSeason(e.target.value)}
@@ -235,7 +237,7 @@ export default function CropPlanningPage() {
           </div>
 
           <div>
-            <label className="block font-bold text-[#44403c] mb-1">Expected Weather Outlook</label>
+            <label className="block font-bold text-[#44403c] mb-1">{t('cropPlanning.weatherOutlook')}</label>
             <select
               value={weatherOutlook}
               onChange={(e) => setWeatherOutlook(e.target.value)}
@@ -311,19 +313,19 @@ export default function CropPlanningPage() {
 
                   <div className="mt-3 p-3 rounded-xl bg-[#faf8f5] border border-[#f5f2eb] space-y-1.5 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-[#78716c]">Estimated Net Profit</span>
-                      <span className="font-extrabold text-[#14532d]">₹{crop.estimated_net_profit_per_acre.toLocaleString('en-IN')}/acre</span>
+                      <span className="text-[#78716c]">{t('cropPlanning.expectedMargin')}</span>
+                      <span className="font-extrabold text-[#14532d]">₹{crop.estimated_net_profit_per_acre?.toLocaleString('en-IN') || 0}/acre</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#78716c]">Cultivation Cost</span>
-                      <span className="font-bold text-[#b45309]">₹{crop.input_cost_per_acre.toLocaleString('en-IN')}/acre</span>
+                      <span className="text-[#78716c]">{t('simulator.costOfCultivation')}</span>
+                      <span className="font-bold text-[#b45309]">₹{crop.input_cost_per_acre?.toLocaleString('en-IN') || 0}/acre</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#78716c]">Projected Mandi Rate</span>
+                      <span className="text-[#78716c]">{t('simulator.mandiPriceAssumption')}</span>
                       <span className="font-bold text-[#1c1917]">₹{crop.projected_mandi_price}/qtl</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#78716c]">Estimated Return (ROI)</span>
+                      <span className="text-[#78716c]">{t('simulator.roi')}</span>
                       <span className="font-extrabold text-emerald-900">{crop.roi_percentage}%</span>
                     </div>
                   </div>

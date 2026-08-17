@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNetwork } from '../context/NetworkContext';
 import { cacheData, getCachedData, enqueueOfflineAction } from '../services/offlineDb';
 
 export default function SchemesPage() {
+  const { t } = useLanguage();
   const { isOnline, refreshPendingCount } = useNetwork();
   const [activeTab, setActiveTab] = useState('pmkisan'); // pmkisan, pmfby, soil, subsidies
 
@@ -213,7 +215,7 @@ export default function SchemesPage() {
       <div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
           <span className="material-symbols-outlined text-brand-600 text-[32px]">account_balance</span>
-          Government Schemes & Subsidy Hub
+          {t('schemes.title')}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 max-w-3xl mt-1">
           Direct DBT installment tracker, PMFBY crop insurance claim filing, official Soil Health Card analysis, and verified state subsidy alerts.
@@ -223,10 +225,10 @@ export default function SchemesPage() {
       {/* Segmented Navigation Tabs */}
       <div className="flex gap-2 border-b border-[#e7e5e4] pb-2.5 overflow-x-auto no-scrollbar">
         {[
-          { id: 'pmkisan', label: 'PM-KISAN Status', icon: 'payments' },
-          { id: 'pmfby', label: 'PMFBY Crop Insurance', icon: 'shield' },
-          { id: 'soil', label: 'Soil Health Card (NPK)', icon: 'science' },
-          { id: 'subsidies', label: 'State Subsidies Feed', icon: 'campaign' }
+          { id: 'pmkisan', label: t('schemes.pmKisan'), icon: 'payments' },
+          { id: 'pmfby', label: t('schemes.pmfby'), icon: 'shield' },
+          { id: 'soil', label: t('schemes.soilHealth'), icon: 'science' },
+          { id: 'subsidies', label: t('schemes.subsidies'), icon: 'campaign' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -257,7 +259,7 @@ export default function SchemesPage() {
                 type="text"
                 value={kisanId}
                 onChange={(e) => setKisanId(e.target.value)}
-                placeholder="Enter Registered Mobile or 12-digit Aadhaar"
+                placeholder={t('schemes.searchPlaceholder')}
                 className="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-brand-600"
               />
               <button
@@ -283,7 +285,7 @@ export default function SchemesPage() {
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-brand-200 uppercase tracking-wider block">Total Credited</span>
                     <span className="text-3xl font-extrabold text-white">₹{kisanData.total_amount_credited.toLocaleString('en-IN')}</span>
-                    <span className="text-[11px] text-brand-200 block">{kisanData.total_installments_received} Installments Received</span>
+                    <span className="text-[11px] text-brand-200 block">{kisanData.total_installments_received} {t('schemes.installments')}</span>
                   </div>
                 </div>
 
@@ -305,7 +307,7 @@ export default function SchemesPage() {
 
               {/* Installment History */}
               <div className="glass-card p-5">
-                <h4 className="text-sm font-extrabold text-slate-900 mb-3">Recent DBT Credit History</h4>
+                <h4 className="text-sm font-extrabold text-slate-900 mb-3">{t('schemes.dbtHistory')}</h4>
                 <div className="space-y-2">
                   {kisanData.recent_history.map((h, idx) => (
                     <div key={idx} className="flex justify-between items-center p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
@@ -330,7 +332,7 @@ export default function SchemesPage() {
         </div>
       )}
 
-      {/* TAB 2: PMFBY Crop Insurance & Claim Tracker */}
+      {/* TAB 2: {t('schemes.pmfby')} & Claim Tracker */}
       {activeTab === 'pmfby' && (
         <div className="space-y-5">
           <div className="flex justify-between items-center">
@@ -589,7 +591,7 @@ export default function SchemesPage() {
         </div>
       )}
 
-      {/* TAB 4: State Subsidies Feed */}
+      {/* TAB 4: {t('schemes.subsidies')} */}
       {activeTab === 'subsidies' && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">

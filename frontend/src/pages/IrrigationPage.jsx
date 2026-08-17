@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNetwork } from '../context/NetworkContext';
 import { cacheData, getCachedData } from '../services/offlineDb';
 
 export default function IrrigationPage() {
+  const { t } = useLanguage();
   const { isOnline } = useNetwork();
   const [sensorMode, setSensorMode] = useState('connected'); // 'connected' or 'manual'
 
@@ -92,7 +94,7 @@ export default function IrrigationPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-100 gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-extrabold text-slate-900">Real-Time Soil Moisture Telemetry</h3>
+              <h3 className="text-sm font-extrabold text-slate-900">{t('irrigation.soilMoistureRealtime')}</h3>
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
                 {sensorData?.device_id || 'AGRI-IOT-402'}
@@ -125,13 +127,13 @@ export default function IrrigationPage() {
         {/* Sensor Gauges */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Topsoil (15cm)</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{t('irrigation.topsoil15cm')}</span>
             <span className="text-2xl font-extrabold text-brand-700">{sensorData?.telemetry.soil_moisture_depth_15cm || 38.4}%</span>
             <span className="text-[10px] text-slate-500 block">Volumetric Water</span>
           </div>
 
           <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Rootzone (45cm)</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{t('irrigation.rootzone45cm')}</span>
             <span className="text-2xl font-extrabold text-blue-700">{sensorData?.telemetry.soil_moisture_depth_45cm || 46.2}%</span>
             <span className="text-[10px] text-slate-500 block">Deep Moisture</span>
           </div>

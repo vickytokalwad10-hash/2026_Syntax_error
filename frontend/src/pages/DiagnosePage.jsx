@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNetwork } from '../context/NetworkContext';
 import { enqueueOfflineAction, cacheData, getCachedData } from '../services/offlineDb';
 
 export default function DiagnosePage() {
+  const { t } = useLanguage();
   const { isOnline, refreshPendingCount } = useNetwork();
   const [selectedCrop, setSelectedCrop] = useState('Wheat');
   const [farmerNotes, setFarmerNotes] = useState('');
@@ -138,15 +140,15 @@ export default function DiagnosePage() {
               {imagePreview ? (
                 <div className="relative">
                   <img src={imagePreview} alt="Crop sample" className="max-h-48 mx-auto rounded-xl shadow-xs" />
-                  <span className="text-[10px] font-bold text-slate-500 block mt-2">Tap to retake photo</span>
+                  <span className="text-[10px] font-bold text-slate-500 block mt-2">{t('diagnose.retakePhoto')}</span>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center mx-auto text-2xl">
                     📸
                   </div>
-                  <p className="text-xs font-bold text-slate-800">Tap Camera to Snap Photo</p>
-                  <p className="text-[11px] text-slate-400">or browse from gallery (JPEG, PNG)</p>
+                  <p className="text-xs font-bold text-slate-800">{t('diagnose.takePhoto')}</p>
+                  <p className="text-[11px] text-slate-400">{t('diagnose.orBrowseGallery')}</p>
                 </div>
               )}
             </div>
@@ -174,7 +176,7 @@ export default function DiagnosePage() {
                   value={farmerNotes}
                   onChange={(e) => setFarmerNotes(e.target.value)}
                   rows="2"
-                  placeholder="e.g. Yellow stripes appearing after rainfall on upper leaves..."
+                  placeholder={t('diagnose.symptomPlaceholder')}
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl resize-none font-medium"
                 />
               </div>

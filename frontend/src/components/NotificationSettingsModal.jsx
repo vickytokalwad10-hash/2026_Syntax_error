@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNotifications } from '../context/NotificationContext';
 
 export default function NotificationSettingsModal() {
@@ -52,7 +53,7 @@ export default function NotificationSettingsModal() {
               <h3 className="font-extrabold text-base text-[#1c1917] font-editorial">
                 अलर्ट प्राथमिकताएं • Notification Preferences
               </h3>
-              <p className="text-[11px] text-[#78716c]">Customise weather and mandi price alert thresholds</p>
+              <p className="text-[11px] text-[#78716c]">{t('notifications.alertSettingsSubtitle')}</p>
             </div>
           </div>
           <button
@@ -72,7 +73,7 @@ export default function NotificationSettingsModal() {
 
             <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e5e4] cursor-pointer hover:bg-[#f5f2eb]">
               <div>
-                <span className="font-bold text-[#1c1917] block">🌦️ Weather & Rain Alerts</span>
+                <span className="font-bold text-[#1c1917] block">{t('notifications.weatherAlerts')}</span>
                 <span className="text-[11px] text-[#78716c]">Alert when rain & heatwave exceed safety limits</span>
               </div>
               <input
@@ -85,7 +86,7 @@ export default function NotificationSettingsModal() {
 
             <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e5e4] cursor-pointer hover:bg-[#f5f2eb]">
               <div>
-                <span className="font-bold text-[#1c1917] block">📈 Mandi Price Volatility Alerts</span>
+                <span className="font-bold text-[#1c1917] block">{t('notifications.mandiAlerts')}</span>
                 <span className="text-[11px] text-[#78716c]">Alert on sudden spot spikes or MSP divergences</span>
               </div>
               <input
@@ -98,7 +99,7 @@ export default function NotificationSettingsModal() {
 
             <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e5e4] cursor-pointer hover:bg-[#f5f2eb]">
               <div>
-                <span className="font-bold text-[#1c1917] block">🏛️ PM-KISAN & PMFBY Scheme Deadlines</span>
+                <span className="font-bold text-[#1c1917] block">{t('notifications.schemeAlerts')}</span>
                 <span className="text-[11px] text-[#78716c]">Direct benefit release & claim intimation alerts</span>
               </div>
               <input
@@ -118,7 +119,7 @@ export default function NotificationSettingsModal() {
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <span>Rainfall Probability Threshold</span>
+                <span>{t('notifications.weatherThreshold')}</span>
                 <span className="font-extrabold text-[#14532d]">{formState.rain_probability_threshold}%</span>
               </div>
               <input

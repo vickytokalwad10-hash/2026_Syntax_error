@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNetwork } from '../context/NetworkContext';
 import { cacheData, getCachedData, enqueueOfflineAction } from '../services/offlineDb';
 
 export default function CommunityPage() {
+  const { t } = useLanguage();
   const { isOnline, refreshPendingCount } = useNetwork();
   const [posts, setPosts] = useState([]);
   const [selectedCrop, setSelectedCrop] = useState('All');
@@ -142,10 +144,10 @@ export default function CommunityPage() {
         <div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
             <span className="material-symbols-outlined text-brand-600 text-[32px]">groups</span>
-            Farmer Peer Community & Success Stories
+            {t('community.title')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-3xl mt-1">
-            Exchange local crop experiences, ask agronomists agronomy queries, and read verified farmer trade milestones.
+            {t('community.subtitle')}
           </p>
         </div>
 
@@ -154,7 +156,7 @@ export default function CommunityPage() {
           className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1.5"
         >
           <span className="material-symbols-outlined text-[16px]">edit_square</span>
-          Start Discussion
+          {t('community.startDiscussion')}
         </button>
       </div>
 
@@ -253,7 +255,7 @@ export default function CommunityPage() {
                 type="text"
                 value={commentInputs[post.id] || ''}
                 onChange={(e) => setCommentInputs({ ...commentInputs, [post.id]: e.target.value })}
-                placeholder="Write a helpful reply or agronomic tip..."
+                placeholder={t('community.replyPlaceholder')}
                 className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-brand-600"
               />
               <button
@@ -271,7 +273,7 @@ export default function CommunityPage() {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-floating border border-slate-200 animate-in zoom-in-95">
-            <h4 className="text-base font-extrabold text-slate-900 mb-3">Start Farmer Discussion</h4>
+            <h4 className="text-base font-extrabold text-slate-900 mb-3">{t('community.startDiscussion')}</h4>
             <form onSubmit={handleCreatePost} className="space-y-3 text-xs">
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Related Crop</label>
@@ -305,7 +307,7 @@ export default function CommunityPage() {
                   value={postContent}
                   onChange={(e) => setPostContent(e.target.value)}
                   rows="4"
-                  placeholder="Share your practical experience or ask for agronomic help..."
+                  placeholder={t('community.questionPlaceholder')}
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl resize-none font-medium"
                   required
                 />

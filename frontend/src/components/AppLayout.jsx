@@ -132,7 +132,7 @@ export default function AppLayout() {
                 <span className="text-xs font-extrabold text-[#1c1917] truncate leading-tight">
                   {urgentToast.title}
                 </span>
-                <span className="text-[9px] font-bold text-[#ea580c] uppercase">Live Alert</span>
+                <span className="text-[9px] font-bold text-[#ea580c] uppercase">{t('common.warning')}</span>
               </div>
               <p className="text-[11px] text-[#44403c] line-clamp-2 mt-0.5 leading-snug">
                 {urgentToast.desc}
@@ -270,7 +270,7 @@ export default function AppLayout() {
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
                 <span className="text-[11px] font-bold text-[#57534e] truncate">Karnal APMC District Node</span>
-                <span className="text-[10px] text-[#a8a29e] hidden sm:inline">• Live Mandi Feed</span>
+                <span className="text-[10px] text-[#a8a29e] hidden sm:inline">{t('common.liveFeed')}</span>
               </div>
               <p className="text-xs sm:text-sm font-extrabold text-[#1c1917] truncate">
                 Today: Tuesday, 18 August 2026

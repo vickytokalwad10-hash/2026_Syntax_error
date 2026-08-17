@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNetwork } from '../context/NetworkContext';
 import { cacheData, getCachedData } from '../services/offlineDb';
 
 export default function FinancePage() {
+  const { t } = useLanguage();
   const { isOnline } = useNetwork();
   const [activeTab, setActiveTab] = useState('kcc'); // kcc, marketplace, literacy
 
@@ -96,19 +98,19 @@ export default function FinancePage() {
       <div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
           <span className="material-symbols-outlined text-brand-600 text-[32px]">credit_score</span>
-          Credit & Financial Inclusion Hub
+          {t('finance.title')}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 max-w-3xl mt-1">
-          Kisan Credit Card (KCC) limit estimator, institutional loan & microfinance marketplace, and anti-predatory borrowing guides.
+          {t('finance.subtitle')}
         </p>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-[#e7e5e4] pb-2.5 overflow-x-auto no-scrollbar">
         {[
-          { id: 'kcc', label: 'KCC Limit Estimator', icon: 'calculate' },
-          { id: 'marketplace', label: 'Loan Comparison', icon: 'account_balance' },
-          { id: 'literacy', label: 'Financial Literacy Tips', icon: 'lightbulb' }
+          { id: 'kcc', label: t('finance.eligibilityCalc'), icon: 'calculate' },
+          { id: 'marketplace', label: t('finance.kccLimit'), icon: 'account_balance' },
+          { id: 'literacy', label: t('finance.requiredDocs'), icon: 'lightbulb' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -131,7 +133,7 @@ export default function FinancePage() {
           <div className="lg:col-span-5 glass-card p-5 space-y-4">
             <h3 className="text-sm font-extrabold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2">
               <span className="material-symbols-outlined text-brand-600">tune</span>
-              Scale of Finance Calculator Inputs
+              {t('finance.scaleOfFinance')}
             </h3>
 
             <div className="space-y-3.5 text-xs">

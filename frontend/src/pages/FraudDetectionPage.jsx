@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function FraudDetectionPage() {
+  const { t } = useLanguage();
   const [buyers, setBuyers] = useState([]);
   const [selectedBuyer, setSelectedBuyer] = useState(null);
   const [scannerGstin, setScannerGstin] = useState('');
@@ -237,7 +239,7 @@ export default function FraudDetectionPage() {
               type="text"
               value={scannerCompany}
               onChange={(e) => setScannerCompany(e.target.value)}
-              placeholder="e.g. Apex Global Traders"
+              placeholder={t('fraudDetection.placeholdersName')}
               className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-emerald-600"
             />
           </div>
@@ -248,7 +250,7 @@ export default function FraudDetectionPage() {
               type="text"
               value={scannerGstin}
               onChange={(e) => setScannerGstin(e.target.value)}
-              placeholder="e.g. 06AAAAA0000A1Z5"
+              placeholder={t('fraudDetection.placeholdersGstin')}
               className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-emerald-600"
             />
           </div>

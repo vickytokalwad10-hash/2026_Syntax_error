@@ -127,7 +127,7 @@ export default function FarmerDashboard() {
                 padding: '2px 8px',
                 borderRadius: '6px'
               }}>
-                Verified Producer
+                {t('common.verified')}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px', fontSize: '0.85rem', color: '#64748B' }}>
@@ -158,7 +158,7 @@ export default function FarmerDashboard() {
               boxShadow: '0 2px 6px rgba(217, 119, 6, 0.2)'
             }}
           >
-            <Plus size={18} /> List New Crop Lot
+            <Plus size={18} /> {t('marketplace.listHarvest')}
           </button>
           <button
             onClick={logout}
@@ -173,7 +173,7 @@ export default function FarmerDashboard() {
               cursor: 'pointer'
             }}
           >
-            Sign Out
+            {t('common.signOut')}
           </button>
         </div>
       </div>

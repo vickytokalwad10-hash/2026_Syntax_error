@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNetwork } from '../context/NetworkContext';
 import { cacheData, getCachedData } from '../services/offlineDb';
 
 export default function RentalsPage() {
+  const { t } = useLanguage();
   const { isOnline } = useNetwork();
   const [activeTab, setActiveTab] = useState('equipment'); // 'equipment' or 'labor'
 
@@ -135,10 +137,10 @@ export default function RentalsPage() {
       <div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
           <span className="material-symbols-outlined text-brand-600 text-[32px]">agriculture</span>
-          Farm Machinery & Labor Sharing
+          {t('rentals.title')}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 max-w-3xl mt-1">
-          Peer-to-peer tractor, combine harvester, and drone sprayer rentals, plus seasonal labor team hiring boards.
+          {t('rentals.subtitle')}
         </p>
       </div>
 
@@ -152,7 +154,7 @@ export default function RentalsPage() {
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">precision_manufacturing</span>
-            Machinery & Tractors ({equipmentList.length})
+            {t('rentals.tractors')} ({equipmentList.length})
           </button>
           <button
             onClick={() => setActiveTab('labor')}
@@ -199,7 +201,7 @@ export default function RentalsPage() {
                     <p className="text-xs text-slate-500 mt-0.5">📍 {eq.village_district}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Daily Rate</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{t('rentals.dailyRate')}</span>
                     <span className="text-xl font-extrabold text-brand-700">₹{eq.daily_rate_inr.toLocaleString()}</span>
                     <span className="text-[10px] text-slate-400 block">/ day</span>
                   </div>
@@ -207,7 +209,7 @@ export default function RentalsPage() {
 
                 <div className="grid grid-cols-2 gap-2 my-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Hourly / Acre Rate</span>
+                    <span className="text-[10px] text-slate-400 block">{t('rentals.hourlyRate')}</span>
                     <span className="font-bold text-slate-800">₹{eq.hourly_rate_inr}/hr</span>
                   </div>
                   <div>

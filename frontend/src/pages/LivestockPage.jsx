@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNetwork } from '../context/NetworkContext';
 import { cacheData, getCachedData } from '../services/offlineDb';
 
 export default function LivestockPage() {
+  const { t } = useLanguage();
   const { isOnline } = useNetwork();
   const [activeTab, setActiveTab] = useState('vet'); // 'vet' or 'dairy'
 
@@ -82,10 +84,10 @@ export default function LivestockPage() {
       <div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
           <span className="material-symbols-outlined text-brand-600 text-[32px]">pets</span>
-          Livestock & Dairy Management Hub
+          {t('livestock.title')}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 max-w-3xl mt-1">
-          Veterinary AI emergency first-aid advisory and live cooperative milk procurement rate tickers (Fat% & SNF% matrix).
+          {t('livestock.subtitle')}
         </p>
       </div>
 
@@ -98,7 +100,7 @@ export default function LivestockPage() {
           }`}
         >
           <span className="material-symbols-outlined text-[18px]">medical_services</span>
-          Veterinary Doctor AI
+          {t('livestock.vetAdvisory')}
         </button>
         <button
           onClick={() => setActiveTab('dairy')}
@@ -107,7 +109,7 @@ export default function LivestockPage() {
           }`}
         >
           <span className="material-symbols-outlined text-[18px]">water_full</span>
-          Dairy Milk Rate Ticker
+          {t('livestock.milkYieldTracker')}
         </button>
       </div>
 

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
+  const { t } = useLanguage();
   const { loginWithSupabase, signupWithSupabase, sendSupabaseOtp, verifySupabaseOtp, loginDemo } = useAuth();
   const navigate = useNavigate();
 
@@ -146,7 +148,7 @@ export default function LoginPage() {
               }`}
             >
               <span>🌾</span>
-              <span>Farmer / FPO</span>
+              <span>{t('login.farmerOption')}</span>
             </button>
             <button
               onClick={() => {
@@ -159,7 +161,7 @@ export default function LoginPage() {
               }`}
             >
               <span>🏢</span>
-              <span>Institutional Buyer</span>
+              <span>{t('login.buyerOption')}</span>
             </button>
           </div>
 
