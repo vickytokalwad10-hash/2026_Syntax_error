@@ -72,7 +72,14 @@ EN_LOCALE = {
         "advisoryTitle": "Today's Agronomic Advisories",
         "sprayingWindow": "Spraying Window: 06:00 AM — 09:30 AM",
         "nitrogenDeficit": "Low Nitrogen detected in North Field 4 (SE Quadrant)",
-        "quickActions": "Quick Farmer Actions"
+        "quickActions": "Quick Farmer Actions",
+        "priceSourceAgriPulse": "AgriPulse Intelligence",
+        "priceSourceGovt": "Govt. Verified (Agmarknet)",
+        "govtAttribution": "Source: Agmarknet, Ministry of Agriculture & Farmers Welfare, Government of India (via data.gov.in)",
+        "arrivalDate": "Arrival Date",
+        "modalPrice": "Modal Price",
+        "minMaxPrice": "Min / Max",
+        "noGovtData": "No verified data reported for this market today"
     },
     "marketplace": {
         "title": "B2B Direct Trading Floor",
@@ -158,7 +165,10 @@ EN_LOCALE = {
         "spotPrice": "Spot Price",
         "freightCost": "Freight Cost",
         "netGain": "Net Gain",
-        "optimalRoute": "Optimal Route Recommendation"
+        "optimalRoute": "Optimal Route Recommendation",
+        "compareGovt": "AgriPulse vs Agmarknet Government Comparison",
+        "priceDelta": "Price Delta",
+        "govtModal": "Govt. Modal (Agmarknet)"
     },
     "schemes": {
         "title": "Government Schemes & Subsidy Hub",
@@ -275,7 +285,14 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "advisoryTitle": "आज की मुख्य कृषि सलाह",
             "sprayingWindow": "छिड़काव समय: सुबह 06:00 से 09:30 बजे",
             "nitrogenDeficit": "उत्तर खेत 4 (SE भाग) में नाइट्रोजन की कमी",
-            "quickActions": "त्वरित किसान कार्य"
+            "quickActions": "त्वरित किसान कार्य",
+            "priceSourceAgriPulse": "एग्रीपल्स भाव",
+            "priceSourceGovt": "सरकारी सत्यापित (Agmarknet)",
+            "govtAttribution": "स्रोत: एगमार्कनेट, कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार (data.gov.in)",
+            "arrivalDate": "आवक तिथि",
+            "modalPrice": "मॉडल भाव",
+            "minMaxPrice": "न्यूनतम / अधिकतम",
+            "noGovtData": "आज इस मंडी के लिए कोई सत्यापित डेटा दर्ज नहीं है"
         },
         "marketplace": {
             "title": "सीधा व्यापार मंडी (B2B Floor)",
@@ -361,7 +378,10 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "spotPrice": "स्पॉट भाव",
             "freightCost": "ढुलाई खर्च",
             "netGain": "शुद्ध अतिरिक्त लाभ",
-            "optimalRoute": "सर्वोत्तम मंडी सिफारिश"
+            "optimalRoute": "सर्वोत्तम मंडी सिफारिश",
+            "compareGovt": "एग्रीपल्स बनाम एगमार्कनेट सरकारी मूल्य तुलना",
+            "priceDelta": "भाव अंतर",
+            "govtModal": "सरकारी मॉडल भाव"
         },
         "schemes": {
             "title": "सरकारी योजनाएं व सब्सिडी हब",
@@ -475,7 +495,14 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "advisoryTitle": "आजचा मुख्य कृषी सल्ला",
             "sprayingWindow": "फवारणी वेळ: सकाळी ०६:०० ते ०९:३०",
             "nitrogenDeficit": "उत्तर शेत ४ (SE भाग) मध्ये नत्राची कमतरता",
-            "quickActions": "त्वरित शेतकरी कृती"
+            "quickActions": "त्वरित शेतकरी कृती",
+            "priceSourceAgriPulse": "ॲग्रीपल्स भाव",
+            "priceSourceGovt": "शासकीय सत्यापित (Agmarknet)",
+            "govtAttribution": "स्रोत: ॲगमार्कनेट, कृषी व शेतकरी कल्याण मंत्रालय, भारत सरकार (data.gov.in)",
+            "arrivalDate": "आवक तारीख",
+            "modalPrice": "मॉडेल भाव",
+            "minMaxPrice": "किमान / कमाल",
+            "noGovtData": "आज या बाजारासाठी कोणतीही नोंद उपलब्ध नाही"
         },
         "marketplace": {
             "title": "थेट व्यापार मंडी (B2B Floor)",
@@ -561,7 +588,10 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "spotPrice": "सध्याचा भाव",
             "freightCost": "वाहतूक खर्च",
             "netGain": "निव्वळ अतिरिक्त नफा",
-            "optimalRoute": "सर्वोत्तम बाजार समिती शिफारस"
+            "optimalRoute": "सर्वोत्तम बाजार समिती शिफारस",
+            "compareGovt": "ॲग्रीपल्स विरुद्ध ॲगमार्कनेट शासकीय दर तुलना",
+            "priceDelta": "भाव फरक",
+            "govtModal": "शासकीय मॉडेल भाव"
         },
         "schemes": {
             "title": "शासकीय योजना व अनुदान हब",

@@ -290,6 +290,9 @@ export default function MarketplacePage() {
                       <span className="text-[9px] font-bold px-2 py-0.2 rounded-full bg-[#fef3c7] text-[#92400e] border border-[#fde68a]">
                         {lot.badge}
                       </span>
+                      <span className="text-[9px] font-black px-2 py-0.2 rounded-full bg-[#f0fdf4] text-[#14532d] border border-[#bbf7d0] flex items-center gap-1">
+                        🏛️ Agmarknet Benchmark
+                      </span>
                     </div>
                     <span className="text-xs text-[#57534e] block mt-0.5 truncate">
                       📍 {lot.seller} • {lot.location}
@@ -339,6 +342,17 @@ export default function MarketplacePage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Official NDSAP Open Data Attribution Banner */}
+          <div className="p-3.5 bg-[#faf8f5] border border-[#e7e5e4] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-[#57534e]">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#14532d] text-[18px]">verified</span>
+              <span>Source: Agmarknet, Ministry of Agriculture & Farmers Welfare, Government of India (via data.gov.in)</span>
+            </div>
+            <span className="text-[10px] font-bold text-[#78716c] shrink-0 bg-white px-2 py-1 rounded-lg border border-[#e7e5e4]">
+              NDSAP Open Data • Updated Daily
+            </span>
           </div>
         </div>
       </div>

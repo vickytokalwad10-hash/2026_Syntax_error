@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { useLanguage } from '../context/LanguageContext';
@@ -8,6 +8,27 @@ export default function ArbitragePage() {
   const [selectedCrop, setSelectedCrop] = useState('wheat');
   const [freightRatePerKm, setFreightRatePerKm] = useState(4.5); // ₹ / km / ton
   const [cargoWeightTons, setCargoWeightTons] = useState(25); // 250 Quintals
+  const [govComparisons, setGovComparisons] = useState([]);
+  const [govtAttribution, setGovtAttribution] = useState('Source: Agmarknet, Ministry of Agriculture & Farmers Welfare, Government of India (via data.gov.in)');
+
+  useEffect(() => {
+    fetchGovtComparison(selectedCrop);
+  }, [selectedCrop]);
+
+  const fetchGovtComparison = async (crop) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/markets/compare?crop_id=${crop}`);
+      if (res.ok) {
+        const data = await res.json();
+        setGovComparisons(data.comparison || []);
+        if (data.attribution) {
+          setGovtAttribution(data.attribution);
+        }
+      }
+    } catch (e) {
+      console.warn('Agmarknet comparison fetch note:', e);
+    }
+  };
 
   const mandis = [
     { name: 'Karnal Mandi (Base)', state: 'Haryana', distanceKm: 0, spotPrice: 2840, lat: 29.6857, lng: 76.9905, isBase: true },
@@ -194,6 +215,92 @@ export default function ArbitragePage() {
               Transporting 25 Tons to Khanna Mandi yields a net realization of +₹105/qtl after deducting ₹65/qtl in freight logistics, resulting in a total net gain of +₹26,250 over local Karnal sale.
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Side-by-Side Government (Agmarknet) vs AgriPulse Intelligence Verification Table */}
+      <div className="paper-card p-4 sm:p-5 space-y-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-2 border-b border-[#f5f2eb]">
+          <div>
+            <h3 className="text-sm font-extrabold text-[#1c1917] font-editorial flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#14532d] text-[18px]">balance</span>
+              <span>{t('arbitrage.compareGovt')}</span>
+            </h3>
+            <p className="text-[11px] text-[#78716c]">
+              Side-by-side validation of private market spot bids against daily official e-NAM / Agmarknet modal rates
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {['wheat', 'paddy', 'mustard', 'soybean', 'cotton', 'onion'].map((c) => (
+              <button
+                key={c}
+                onClick={() => setSelectedCrop(c)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition ${
+                  selectedCrop === c
+                    ? 'bg-[#14532d] text-white shadow-2xs'
+                    : 'bg-[#f5f2eb] text-[#57534e] hover:bg-[#e7e5e4]'
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-left text-xs min-w-[600px]">
+            <thead>
+              <tr className="border-b border-[#e7e5e4] text-[#78716c] uppercase tracking-wider font-extrabold text-[10px]">
+                <th className="pb-2">APMC Mandi</th>
+                <th className="pb-2">AgriPulse Network</th>
+                <th className="pb-2">{t('arbitrage.govtModal')}</th>
+                <th className="pb-2">Govt Range (Min - Max)</th>
+                <th className="pb-2">{t('arbitrage.priceDelta')}</th>
+                <th className="pb-2 text-right">Arrival Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#f5f2eb]">
+              {govComparisons.map((row, idx) => (
+                <tr key={idx} className="hover:bg-[#faf8f5] transition">
+                  <td className="py-2.5 font-bold text-[#1c1917]">
+                    {row.mandi_name}
+                    <span className="text-[10px] text-[#78716c] font-normal block">{row.state}</span>
+                  </td>
+                  <td className="py-2.5 font-extrabold text-[#14532d]">
+                    ₹{row.agripulse_spot_price}/qtl
+                  </td>
+                  <td className="py-2.5 font-bold text-[#1c1917]">
+                    ₹{row.gov_modal_price}/qtl
+                  </td>
+                  <td className="py-2.5 text-[#78716c]">
+                    ₹{row.gov_min_price} – ₹{row.gov_max_price}
+                  </td>
+                  <td className="py-2.5">
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                      row.is_agripulse_premium ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'
+                    }`}>
+                      {row.is_agripulse_premium ? `+₹${row.priceDelta}` : `-₹${Math.abs(row.priceDelta)}`} ({row.price_delta_pct}%)
+                    </span>
+                  </td>
+                  <td className="py-2.5 text-right text-[#78716c]">
+                    📅 {row.gov_arrival_date}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* NDSAP Mandatory Attribution Footer */}
+        <div className="pt-2 border-t border-[#f5f2eb] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[10px] text-[#78716c]">
+          <span className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[#14532d] text-[16px]">verified</span>
+            {govtAttribution}
+          </span>
+          <span className="font-semibold bg-[#f5f2eb] px-2 py-0.5 rounded border border-[#e7e5e4]">
+            Official Open Government Data (data.gov.in)
+          </span>
         </div>
       </div>
     </div>

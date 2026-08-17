@@ -64,23 +64,23 @@ def build_apk():
     info_content = f"""🌾 AgriPulse AI — Android Build Information
 ==================================================
 Version:        v{version} (Phase 2 Pro)
-Build Code:     5
+Build Code:     6
 Built On:       {build_time}
 File Size:      {size_mb:.2f} MB
 Standard APK:   AgriPulse_AI.apk
 Versioned APK:  AgriPulse_AI_v{version}.apk
 
 Key Features in v{version}:
-1. Android Hardware & Gesture Back Button Navigation Engine (@capacitor/app)
-2. Modal & Drawer Priority Close Stack (closes open overlays before route back navigation)
-3. Non-Root Route History Back Stepping (`navigate(-1)`)
-4. Home / Overview Double-Tap Exit Confirmation (2-Second Reset Cycle)
-5. Hand-Drawn Papercraft Exit Toast Notification (`t('common.pressBackToExit')`)
-6. Unified Single Source of Truth Multilingual System (react-i18next)
-7. 100% Translation Key Parity Across All 11 Indian Regional Languages (en, hi, mr, pa, gu, te, ta, kn, bn, ml, or)
-8. Shared Backend Language Engine & Centralized build_language_instruction()
-9. Kisan Mitra Copilot with 3-Step Per-Message Script Detection & 1-Tap App Language Switching
-10. Persistent In-App Notification Center & Auto-Alert Engine (Weather & Price Volatility)
+1. Official Government Mandi Prices Integration (Agmarknet via data.gov.in OGD API)
+2. Daily Verified Price Feed with Modal, Min, Max Rates & Arrival Dates
+3. Side-by-Side Market Comparison on Arbitrage Floor (AgriPulse Spot vs Agmarknet Modal)
+4. Official NDSAP Open Government Data Attribution & Badges Across All Mandi Surfaces
+5. High-Performance Multi-Tier Caching (Memory + Disk JSON) to Protect Government API
+6. Scheduled Background Daily Sync Engine with Reliability Logging
+7. Android Hardware & Gesture Back Button Navigation Engine (@capacitor/app)
+8. Modal & Drawer Priority Close Stack (LIFO overlay management)
+9. Home / Overview Double-Tap Exit Confirmation with 2-Second Reset Cycle
+10. Unified Multilingual System Across 11 Indian Languages with 100% Key Parity
 ==================================================
 """
     with open(info_file, "w", encoding="utf-8") as f:

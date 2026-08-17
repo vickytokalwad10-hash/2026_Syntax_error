@@ -57,7 +57,14 @@
     "advisoryTitle": "आज की मुख्य कृषि सलाह",
     "sprayingWindow": "छिड़काव समय: सुबह 06:00 से 09:30 बजे",
     "nitrogenDeficit": "उत्तर खेत 4 (SE भाग) में नाइट्रोजन की कमी",
-    "quickActions": "त्वरित किसान कार्य"
+    "quickActions": "त्वरित किसान कार्य",
+    "priceSourceAgriPulse": "एग्रीपल्स भाव",
+    "priceSourceGovt": "सरकारी सत्यापित (Agmarknet)",
+    "govtAttribution": "स्रोत: एगमार्कनेट, कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार (data.gov.in)",
+    "arrivalDate": "आवक तिथि",
+    "modalPrice": "मॉडल भाव",
+    "minMaxPrice": "न्यूनतम / अधिकतम",
+    "noGovtData": "आज इस मंडी के लिए कोई सत्यापित डेटा दर्ज नहीं है"
   },
   "marketplace": {
     "title": "सीधा व्यापार मंडी (B2B Floor)",
@@ -143,7 +150,10 @@
     "spotPrice": "स्पॉट भाव",
     "freightCost": "ढुलाई खर्च",
     "netGain": "शुद्ध अतिरिक्त लाभ",
-    "optimalRoute": "सर्वोत्तम मंडी सिफारिश"
+    "optimalRoute": "सर्वोत्तम मंडी सिफारिश",
+    "compareGovt": "एग्रीपल्स बनाम एगमार्कनेट सरकारी मूल्य तुलना",
+    "priceDelta": "भाव अंतर",
+    "govtModal": "सरकारी मॉडल भाव"
   },
   "schemes": {
     "title": "सरकारी योजनाएं व सब्सिडी हब",

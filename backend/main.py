@@ -35,7 +35,8 @@ from routers import (
     community,
     livestock,
     enam,
-    notifications
+    notifications,
+    agmarknet
 )
 
 @asynccontextmanager
@@ -95,6 +96,7 @@ app.include_router(community.router)
 app.include_router(livestock.router)
 app.include_router(enam.router)
 app.include_router(notifications.router)
+app.include_router(agmarknet.router)
 
 @app.get("/api/health")
 def health_check():

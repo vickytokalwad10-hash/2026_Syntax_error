@@ -57,7 +57,14 @@
     "advisoryTitle": "Today's Agronomic Advisories",
     "sprayingWindow": "Spraying Window: 06:00 AM — 09:30 AM",
     "nitrogenDeficit": "Low Nitrogen detected in North Field 4 (SE Quadrant)",
-    "quickActions": "Quick Farmer Actions"
+    "quickActions": "Quick Farmer Actions",
+    "priceSourceAgriPulse": "AgriPulse Intelligence",
+    "priceSourceGovt": "Govt. Verified (Agmarknet)",
+    "govtAttribution": "Source: Agmarknet, Ministry of Agriculture & Farmers Welfare, Government of India (via data.gov.in)",
+    "arrivalDate": "Arrival Date",
+    "modalPrice": "Modal Price",
+    "minMaxPrice": "Min / Max",
+    "noGovtData": "No verified data reported for this market today"
   },
   "marketplace": {
     "title": "B2B Direct Trading Floor",
@@ -143,7 +150,10 @@
     "spotPrice": "Spot Price",
     "freightCost": "Freight Cost",
     "netGain": "Net Gain",
-    "optimalRoute": "Optimal Route Recommendation"
+    "optimalRoute": "Optimal Route Recommendation",
+    "compareGovt": "AgriPulse vs Agmarknet Government Comparison",
+    "priceDelta": "Price Delta",
+    "govtModal": "Govt. Modal (Agmarknet)"
   },
   "schemes": {
     "title": "Government Schemes & Subsidy Hub",

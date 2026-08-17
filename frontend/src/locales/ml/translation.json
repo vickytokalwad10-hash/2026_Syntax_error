@@ -57,7 +57,14 @@
     "advisoryTitle": "आजचा मुख्य कृषी सल्ला",
     "sprayingWindow": "फवारणी वेळ: सकाळी ०६:०० ते ०९:३०",
     "nitrogenDeficit": "उत्तर शेत ४ (SE भाग) मध्ये नत्राची कमतरता",
-    "quickActions": "त्वरित शेतकरी कृती"
+    "quickActions": "त्वरित शेतकरी कृती",
+    "priceSourceAgriPulse": "ॲग्रीपल्स भाव",
+    "priceSourceGovt": "शासकीय सत्यापित (Agmarknet)",
+    "govtAttribution": "स्रोत: ॲगमार्कनेट, कृषी व शेतकरी कल्याण मंत्रालय, भारत सरकार (data.gov.in)",
+    "arrivalDate": "आवक तारीख",
+    "modalPrice": "मॉडेल भाव",
+    "minMaxPrice": "किमान / कमाल",
+    "noGovtData": "आज या बाजारासाठी कोणतीही नोंद उपलब्ध नाही"
   },
   "marketplace": {
     "title": "थेट व्यापार मंडी (B2B Floor)",
@@ -143,7 +150,10 @@
     "spotPrice": "सध्याचा भाव",
     "freightCost": "वाहतूक खर्च",
     "netGain": "निव्वळ अतिरिक्त नफा",
-    "optimalRoute": "सर्वोत्तम बाजार समिती शिफारस"
+    "optimalRoute": "सर्वोत्तम बाजार समिती शिफारस",
+    "compareGovt": "ॲग्रीपल्स विरुद्ध ॲगमार्कनेट शासकीय दर तुलना",
+    "priceDelta": "भाव फरक",
+    "govtModal": "शासकीय मॉडेल भाव"
   },
   "schemes": {
     "title": "शासकीय योजना व अनुदान हब",

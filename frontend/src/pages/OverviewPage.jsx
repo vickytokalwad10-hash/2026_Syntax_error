@@ -34,8 +34,9 @@ export default function OverviewPage() {
   const navigate = useNavigate();
   const [selectedCrop, setSelectedCrop] = useState('wheat');
   const [activeTab, setActiveTab] = useState('1M');
-  const [priceSource, setPriceSource] = useState('agripulse'); // 'agripulse' or 'enam'
+  const [priceSource, setPriceSource] = useState('agripulse'); // 'agripulse' or 'agmarknet'
   const [enamPrices, setEnamPrices] = useState([]);
+  const [govtAttribution, setGovtAttribution] = useState('Source: Agmarknet, Ministry of Agriculture & Farmers Welfare, Government of India (via data.gov.in)');
 
   const [fieldNotes, setFieldNotes] = useState([
     { id: 1, text: 'Karnal APMC: Heavy arrival pressure expected from Friday. Consider listing on B2B Escrow.', done: true, tag: 'Mandi' },
@@ -56,18 +57,21 @@ export default function OverviewPage() {
   }, [showNoteModal, registerOverlay, unregisterOverlay]);
 
   useEffect(() => {
-    fetchEnamPrices();
+    fetchAgmarknetPrices();
   }, []);
 
-  const fetchEnamPrices = async () => {
+  const fetchAgmarknetPrices = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/markets/enam');
+      const res = await fetch('http://127.0.0.1:8000/api/markets/agmarknet?limit=50');
       if (res.ok) {
         const data = await res.json();
-        setEnamPrices(data.data || []);
+        setEnamPrices(data.records || []);
+        if (data.attribution) {
+          setGovtAttribution(data.attribution);
+        }
       }
     } catch (e) {
-      console.warn('e-NAM fetch fallback:', e);
+      console.warn('Agmarknet data.gov.in fetch note:', e);
     }
   };
 
@@ -202,33 +206,38 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* Mandi Price Strip with e-NAM Government Toggle */}
+      {/* Mandi Price Strip with data.gov.in Agmarknet Government Toggle */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 px-1">
           <div>
             <h2 className="font-extrabold text-[#1c1917] flex items-center gap-2 font-editorial text-sm sm:text-base">
-              <span>दैनिक मंडी भाव • Live Mandi Spot Benchmarks</span>
+              <span className="material-symbols-outlined text-[#14532d] text-[20px]">storefront</span>
+              <span>{t('overview.liveMandiPrices')} • {priceSource === 'agripulse' ? t('overview.priceSourceAgriPulse') : t('overview.priceSourceGovt')}</span>
             </h2>
-            <p className="text-[11px] text-[#78716c]">Live arrivals and modal spot rates across 14 Haryana & Punjab APMCs</p>
+            <p className="text-[11px] text-[#78716c]">
+              {priceSource === 'agripulse'
+                ? 'Real-time FPO & APMC direct trade intelligence across major North Indian agricultural nodes'
+                : 'Official daily modal spot rates from Ministry of Agriculture (Agmarknet via data.gov.in)'}
+            </p>
           </div>
 
-          {/* Toggle Button */}
+          {/* Source Toggle */}
           <div className="flex items-center bg-[#f5f2eb] p-1 rounded-xl text-xs font-bold border border-[#e7e5e4] w-full sm:w-auto justify-between sm:justify-start">
             <button
               onClick={() => setPriceSource('agripulse')}
               className={`flex-1 sm:flex-none px-3 py-1 rounded-lg transition text-center ${
-                priceSource === 'agripulse' ? 'bg-white text-[#14532d] shadow-2xs' : 'text-[#78716c]'
+                priceSource === 'agripulse' ? 'bg-white text-[#14532d] shadow-2xs font-extrabold' : 'text-[#78716c]'
               }`}
             >
-              🌾 Direct Network
+              🌾 {t('overview.priceSourceAgriPulse')}
             </button>
             <button
-              onClick={() => setPriceSource('enam')}
+              onClick={() => setPriceSource('agmarknet')}
               className={`flex-1 sm:flex-none px-3 py-1 rounded-lg transition text-center ${
-                priceSource === 'enam' ? 'bg-white text-[#14532d] shadow-2xs' : 'text-[#78716c]'
+                priceSource === 'agmarknet' ? 'bg-white text-[#14532d] shadow-2xs font-extrabold' : 'text-[#78716c]'
               }`}
             >
-              🏛️ e-NAM Official
+              🏛️ {t('overview.priceSourceGovt')}
             </button>
           </div>
         </div>
@@ -270,30 +279,64 @@ export default function OverviewPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {enamPrices.map((item, idx) => (
-              <div key={idx} className="paper-card p-4 border-l-4 border-l-[#14532d] space-y-1 text-xs">
-                <div className="flex justify-between items-start">
-                  <div className="min-w-0 pr-2">
-                    <h4 className="font-extrabold text-[#1c1917] truncate">{item.commodity} ({item.variety})</h4>
-                    <span className="text-[11px] text-[#78716c] truncate block">🏛️ {item.mandi_name}</span>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {enamPrices.map((item, idx) => (
+                <div key={idx} className="paper-card p-4 border-l-4 border-l-[#14532d] space-y-2 text-xs">
+                  <div className="flex justify-between items-start">
+                    <div className="min-w-0 pr-2">
+                      <h4 className="font-extrabold text-[#1c1917] truncate text-sm">
+                        {item.commodity} <span className="text-[11px] font-normal text-[#78716c]">({item.variety})</span>
+                      </h4>
+                      <span className="text-[11px] text-[#57534e] font-semibold truncate block mt-0.5">
+                        📍 {item.market}, {item.district} ({item.state})
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-black bg-[#f0fdf4] text-[#14532d] border border-[#bbf7d0] px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#14532d]"></span>
+                      Govt Verified
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold bg-[#fef3c7] text-[#92400e] px-2 py-0.5 rounded-full shrink-0">
-                    e-NAM
-                  </span>
+
+                  <div className="flex justify-between items-end pt-2 border-t border-[#f5f2eb]">
+                    <div>
+                      <span className="text-[10px] text-[#78716c] block font-bold uppercase">{t('overview.modalPrice')}</span>
+                      <span className="text-lg font-black text-[#14532d]">₹{item.modal_price}</span>
+                      <span className="text-[10px] text-[#78716c] font-normal block">Range: ₹{item.min_price} – ₹{item.max_price}/qtl</span>
+                    </div>
+
+                    <div className="text-right space-y-0.5">
+                      {item.msp_benchmark ? (
+                        <div>
+                          <span className="text-[10px] text-[#78716c] block">MSP: ₹{item.msp_benchmark}</span>
+                          {item.msp_spread !== null && item.msp_spread !== undefined && (
+                            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md inline-block ${
+                              item.msp_spread >= 0 ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'
+                            }`}>
+                              {item.msp_spread >= 0 ? `+₹${item.msp_spread} over MSP` : `-₹${Math.abs(item.msp_spread)} below MSP`}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-[#a8a29e] block">Commercial Crop</span>
+                      )}
+                      <span className="text-[10px] text-[#78716c] block">📅 {item.arrival_date}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center pt-2">
-                  <div>
-                    <span className="text-[10px] text-[#78716c] block">Modal Spot Rate</span>
-                    <span className="text-base font-extrabold text-[#1c1917]">₹{item.modal_price}/qtl</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-[#78716c] block">Govt MSP Reference</span>
-                    <span className="text-xs font-bold text-emerald-800">₹{item.msp_benchmark}/qtl</span>
-                  </div>
-                </div>
+              ))}
+            </div>
+
+            {/* Official NDSAP Mandatory Attribution Banner */}
+            <div className="p-3 bg-[#faf8f5] border border-[#e7e5e4] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-[#57534e]">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#14532d] text-[18px]">verified</span>
+                <span>{govtAttribution}</span>
               </div>
-            ))}
+              <span className="text-[10px] font-bold text-[#78716c] shrink-0 bg-white px-2 py-1 rounded-lg border border-[#e7e5e4]">
+                NDSAP Open Data • Updated Daily
+              </span>
+            </div>
           </div>
         )}
       </div>
