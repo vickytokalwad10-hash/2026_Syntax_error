@@ -2,9 +2,13 @@ import os
 import logging
 import asyncio
 from datetime import datetime
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
-load_dotenv()
+
 logger = logging.getLogger("agripulse.database")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://agripulse-demo.supabase.co")
