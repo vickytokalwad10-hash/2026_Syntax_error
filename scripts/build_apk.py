@@ -64,22 +64,22 @@ def build_apk():
     info_content = f"""🌾 AgriPulse AI — Android Build Information
 ==================================================
 Version:        v{version} (Phase 2 Pro)
-Build Code:     7
+Build Code:     8
 Built On:       {build_time}
 File Size:      {size_mb:.2f} MB
 Standard APK:   AgriPulse_AI.apk
 Versioned APK:  AgriPulse_AI_v{version}.apk
 
 Key Features in v{version}:
-1. Multi-Source Government Mandi Integration (Agmarknet Spot & e-NAM Electronic Auction)
-2. 3-Way Source Toggle on Overview (AgriPulse Network / Agmarknet / e-NAM Electronic)
-3. Dynamic Reporting Mandis Telemetry (no hardcoded coverage claims)
-4. 3-Way Cross-Verification Table on Arbitrage Floor (Spot vs Agmarknet vs e-NAM)
-5. Multi-Source Attribution under NDSAP & SFAC Terms
-6. Two-Tier e-NAM Architecture with Documented Service Provider Empanelment Roadmap
-7. High-Performance Multi-Tier Caching (Memory + Disk JSON) with 4-Hour TTL
-8. Android Hardware & Gesture Back Button Navigation Engine (@capacitor/app)
-9. Modal & Drawer Priority Close Stack (LIFO overlay management)
+1. Official Android Adaptive App Icon Set (Foreground + Background + Legacy Densities)
+2. Custom Brand Asset Preparation (1024x1024 Master + Play Store 512 + PWA Web Icons)
+3. Multi-Density Support (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) with Safe-Zone Geometry
+4. Multi-Source Government Mandi Integration (Agmarknet Spot & e-NAM Electronic Auction)
+5. 3-Way Source Toggle on Overview (AgriPulse Network / Agmarknet / e-NAM Electronic)
+6. Dynamic Reporting Mandis Telemetry (no hardcoded coverage claims)
+7. 3-Way Cross-Verification Table on Arbitrage Floor (Spot vs Agmarknet vs e-NAM)
+8. Multi-Source Attribution under NDSAP & SFAC Terms
+9. Android Hardware & Gesture Back Button Navigation Engine (@capacitor/app)
 10. Unified Multilingual System Across 11 Indian Languages with 100% Key Parity
 ==================================================
 """
