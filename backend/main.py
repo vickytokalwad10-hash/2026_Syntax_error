@@ -22,20 +22,32 @@ from routers import (
     weather,
     auth,
     chatbot,
-    payment
+    payment,
+    crop_planning,
+    fraud_detection,
+    schemes,
+    finance,
+    diagnose,
+    irrigation,
+    sms_gateway,
+    rentals,
+    calendar,
+    community,
+    livestock,
+    enam
 )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: seed the 2 test accounts into in-memory DB
+    # Startup: seed the test accounts into in-memory DB
     await seed_test_accounts()
     yield
     # Shutdown: nothing to clean up
 
 app = FastAPI(
-    title="AgriPulse AI Backend",
-    description="AI-Powered Global Crop Price Prediction & Agricultural Decision-Support Platform",
-    version="1.0.0",
+    title="AgriPulse AI Backend — Phase 2 Platform",
+    description="AI-Powered Agricultural Decision-Support, Scheme Tracking, Supabase Auth & Payment Gateway",
+    version="2.1.0",
     lifespan=lifespan
 )
 
@@ -48,7 +60,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register API routers for all core modules
+# Register API routers for all modules
 app.include_router(overview.router)
 app.include_router(heatmap.router)
 app.include_router(what_if.router)
@@ -62,28 +74,28 @@ app.include_router(weather.router)
 app.include_router(auth.router)
 app.include_router(chatbot.router)
 app.include_router(payment.router)
+app.include_router(crop_planning.router)
+app.include_router(fraud_detection.router)
+
+# Phase 2 Module Routers
+app.include_router(schemes.router)
+app.include_router(finance.router)
+app.include_router(diagnose.router)
+app.include_router(irrigation.router)
+app.include_router(sms_gateway.router)
+app.include_router(rentals.router)
+app.include_router(calendar.router)
+app.include_router(community.router)
+app.include_router(livestock.router)
+app.include_router(enam.router)
 
 @app.get("/api/health")
 def health_check():
     return {
         "status": "healthy",
-        "service": "AgriPulse AI Core Engine",
+        "service": "AgriPulse AI Core Engine Phase 2",
         "timestamp": datetime.now().isoformat(),
-        "routes": [
-            "/api/overview",
-            "/api/heatmap",
-            "/api/what-if",
-            "/api/markets",
-            "/api/trends",
-            "/api/alerts",
-            "/api/copilot",
-            "/api/crop-health",
-            "/api/direct-trade",
-            "/api/weather",
-            "/api/auth",
-            "/api/chatbot",
-            "/api/payment"
-        ]
+        "modules_active": 25
     }
 
 if __name__ == "__main__":

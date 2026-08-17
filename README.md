@@ -1,145 +1,116 @@
-# 🌾 AgriPulse AI — Global Crop Price Prediction & Agricultural Decision-Support Platform
+# 🌾 AgriPulse AI — Agricultural Intelligence & Direct Trading Platform (v2.1.0)
 
+[![Version](https://img.shields.io/badge/Version-2.1.0%20Pro-14532D?style=for-the-badge)](https://github.com/vickytokalwad10-hash/2026_Syntax_error)
 [![React](https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%2B%20Python%203.13-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Leaflet](https://img.shields.io/badge/Remote%20Sensing-Google%20Satellite%20%2B%20Leaflet-199900?logo=leaflet&logoColor=white)](https://leafletjs.com/)
-[![Chart.js](https://img.shields.io/badge/Visualization-Chart.js-FF6384?logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
+[![Supabase](https://img.shields.io/badge/Database%20%26%20Auth-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Android](https://img.shields.io/badge/Mobile-Native%20Android%20APK-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**AgriPulse AI** is an advanced agritech and commodity market intelligence platform engineered to empower **Farmers**, **Agricultural Cooperatives (FPOs)**, and **Institutional Buyers / Millers / Exporters** with real-time price forecasting, satellite canopy health tracking, mandi arbitrage optimization, and direct B2B escrow trade.
+**AgriPulse AI** is a comprehensive agricultural decision-support, B2B trading floor, and farmer-first fintech ecosystem. Built with a human-crafted design system tailored for Indian agricultural realities, it bridges farmers, FPOs, and institutional buyers through transparent market discovery, government scheme access, and bank-backed smart escrow.
 
 ---
 
-## 🌟 Key Platform Modules
+## 🌟 Key Platform Capabilities
 
-### 1. 🤖 AI Voice & Text Copilot (English & हिंदी)
-- Dual-role reasoning engine tailored for **Farmers** and **Institutional Buyers**.
-- Answers complex queries regarding **15 & 30-Day Forward Price Projections**, **WDRA Storage ROI vs Sell Now**, **Statutory MSP Norms & Moisture Limits**, **Zero-Brokerage Direct Selling**, and **Quality Fair Average Quality (FAQ) Specs**.
-- Integrated Web Speech API audio synthesis for natural Indian English and Hindi voice readouts.
+### 🌾 1. Core Mandi Intelligence & Trading
+- **Mandi Spot Radar**: Real-time modal price feeds, arrivals in MT, and official government **e-NAM benchmark integration**.
+- **Crop Planning AI**: Agro-climatic profit optimizer predicting optimal next-season crop combinations based on soil, monsoon forecasts, and mandi futures.
+- **Buyer Trust Shield**: 100-point KYC, GST verification, and default risk audit on institutional commodity buyers.
+- **Direct B2B Trading Floor**: Farmgate listing exchange with NABL quality assay certification and zero middleman brokerage.
+- **Multilingual Kisan Mitra (Voice AI)**: Voice copilot supporting Hindi, Punjabi, Marathi, Gujarati, and Indian English with ICAR agronomy recommendations.
 
-### 2. 🤝 Direct B2B Farmgate Marketplace & Escrow Portal
-- **Farmer Portal**: List harvested commodities directly with quality assay specs and 0% brokerage commission.
-- **Buyer Portal**: Source 500+ MT bulk aggregated lots directly from verified FPOs with digital weighbridge verification and 100% bank-backed escrow safety.
-- **Interactive Margin Calculator**: Real-time comparison between APMC mandi deductions vs. direct farmgate margins.
+### 🏛️ 2. Schemes & Farmer Fintech
+- **Govt Schemes & Subsidies**: PM-KISAN 18-installment tracker, PMFBY crop loss claim workflow, and Soil Health Card NPK analyzer.
+- **KCC Credit Estimator**: Subsidized 4% Kisan Credit Card loan calculator aligned with NABARD District Scale of Finance.
+- **Payment & Smart Escrow Vault**: Multi-rail payments (Razorpay sandbox, UPI QR intent with `agripulse.escrow@icici`, and 100% advance deposit escrow with mandatory 2FA OTP for high-value orders $\ge$ ₹50,000).
 
-### 3. 📈 Multi-Commodity Price Forecasting Curves (`/trends` & `/overview`)
-- 30-day forward price trajectories with confidence bands and historical regression across 10 tracked crops:
-  - *Wheat (शरबती), Paddy/Rice (बासमती), Cotton (शंकर-6), Soybean (पीला), Mustard (सरसों), Onion (नासिक), Tomato (हाइब्रिड), Potato (कुफरी), Sugarcane (गन्ना), Maize (मक्का)*.
-
-### 4. 🌤️ Live Weather & Agricultural Microclimate Radar (`/weather`)
-- Live meteorological observations synced with OpenWeatherMap and Open-Meteo high-resolution feeds.
-- Calculates agronomic indices: **Root Zone Soil Moisture (0-7cm)**, **Evapotranspiration ($ET_0$)**, **Thermal Heatwave Stress**, **Pesticide Spraying Suitability Window**, and **Harvesting Window Dry Index**.
-
-### 5. 🗺️ Satellite Remote Sensing Heatmap (`/heatmap`)
-- Google Satellite View + Copernicus Sentinel-2 MSI Multi-Spectral Vegetation Indices (**NDVI**, **EVI**, **Soil Moisture %**).
-- State-wise vegetative health monitoring across all major Indian agricultural zones.
-
-### 6. ⚖️ Mandi Profit Arbitrage & Storage ROI Matrix (`/markets`)
-- APMC mandi optimizer calculating highest net realization after transit and freight deductions.
-- **Sell Now vs. 60-Day WDRA Warehouse Storage Matrix** incorporating e-NWR 7% pledge financing.
-
-### 7. 🧪 What-If Scenario Simulator (`/what-if`)
-- Simulate macro shocks: yield fluctuations, export demand surges, diesel freight shifts, and unseasonal weather anomalies.
-
-### 8. 🌱 Sentinel-2 Canopy Health & Thermal Anomaly Radar (`/crop-health`)
-- 10-meter spatial resolution spectral analysis, chlorophyll absorption, and night irrigation alerts.
+### 🚜 3. Farm Operations & Offline Resilience
+- **Camera Crop Doctor**: Instant pest/disease recognition with ICAR-approved chemical and bio-control prescriptions.
+- **Smart Irrigation & IoT Telemetry**: Critical growth-stage irrigation calendar paired with real-time topsoil moisture sensors.
+- **Farm Machinery & Labor Sharing**: Tractor/harvester rental exchange and seasonal farm labor availability board.
+- **Dynamic Crop Almanac**: Sowing-to-harvest milestone tracking with browser push notifications.
+- **Offline-First Resilience**: Dexie.js IndexedDB storage ensuring 100% functionality without internet in rural fields.
 
 ---
 
-## 🎨 Design & Palette
-Designed with a curated agritech dark aesthetic:
-- **Dark Forest Green**: `#0A3323`
-- **Moss Green**: `#839958`
-- **Warm Beige**: `#F7F4D5`
-- **Rosy Brown**: `#D3968C`
-- **Midnight Green**: `#105666`
+## 🏗️ Architecture & Tech Stack
 
----
-
-## 🚀 Quick Start Guide
-
-### Prerequisites
-- **Python 3.10+**
-- **Node.js 18+** & `npm`
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/vickytokalwad10-hash/2026_Syntax_error.git
-cd 2026_Syntax_error
+```
+agripulse-ai/
+├── backend/                  # FastAPI 0.141+ Python Backend
+│   ├── database.py           # Supabase PostgreSQL + Resilient Fallback Layer
+│   ├── main.py               # API Entrypoint & Lifespan Hooks
+│   ├── models.py             # Pydantic Schemas & Data Contracts
+│   ├── requirements.txt      # Python Dependencies
+│   └── routers/              # 15+ Specialized Service Routers
+│       ├── crop_planning.py  ├── schemes.py         ├── payment.py
+│       ├── fraud_detection.py├── finance.py         ├── community.py
+│       ├── diagnose.py       ├── irrigation.py      ├── livestock.py
+│       ├── rentals.py        ├── calendar.py        └── enam.py
+├── frontend/                 # React 19 + Vite Frontend & Capacitor
+│   ├── src/
+│   │   ├── components/       # Layouts, Navigation & Shared Components
+│   │   ├── context/          # AuthContext (Supabase) & NetworkContext (Offline)
+│   │   ├── pages/            # 16 Full-Featured Application Screens
+│   │   └── services/         # Supabase Client & Dexie Offline DB
+│   └── android/              # Native Capacitor Android Project (Gradle)
+└── scripts/
+    └── build_apk.py          # Automated APK Build & Packaging Script
 ```
 
-### 2. Backend Setup (FastAPI)
+---
+
+## 🚀 Quick Setup & Local Run
+
+### 1. Prerequisites
+- **Node.js 18+** & `npm`
+- **Python 3.10+**
+- **Android SDK & OpenJDK 21** (for building Android APK)
+
+### 2. Backend Setup
 ```bash
 cd backend
-python -m venv venv
-# On Windows:
-.\venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
-
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+cp .env.example .env
 python main.py
 ```
-> Backend runs at `http://127.0.0.1:8000` (Swagger UI at `/docs`).
+*Backend runs at `http://127.0.0.1:8000` (Swagger docs at `/docs`)*
 
-### 3. Frontend Setup (React + Vite)
+### 3. Frontend Setup
 ```bash
-cd ../frontend
+cd frontend
 npm install
+cp .env.example .env
 npm run dev
 ```
-> Frontend runs at `http://127.0.0.1:5173`.
+*Frontend runs at `http://127.0.0.1:5173`*
 
 ---
 
-## 📁 Project Architecture
+## 📱 Compiling Native Android APK
 
-```
-2026_Syntax_error/
-├── backend/
-│   ├── main.py                  # FastAPI root application & CORS configuration
-│   ├── requirements.txt         # Python dependencies (fastapi, uvicorn, pydantic)
-│   ├── services/
-│   │   └── weather_service.py   # Live OpenWeather & agro-meteorology calculation engine
-│   └── routers/
-│       ├── overview.py          # Summary snapshot & 15-day price projections
-│       ├── direct_trade.py      # B2B direct farmer/buyer marketplace & escrow contracts
-│       ├── weather.py           # Real-time agro-weather & microclimate radar
-│       ├── heatmap.py           # India satellite NDVI vegetation indices
-│       ├── markets.py           # APMC mandi profit optimizer & WDRA storage ROI
-│       ├── trends.py            # 30-day commodity price forecast curves
-│       ├── alerts.py            # Anomaly, volatility & weather alert feed
-│       ├── copilot.py           # Multi-intent multilingual AI Copilot engine
-│       ├── crop_health.py       # Sentinel-2 multispectral canopy health
-│       └── what_if.py           # Macroeconomic & climate scenario simulator
-│
-└── frontend/
-    ├── package.json             # React 19, Vite, Chart.js, Lucide, Leaflet
-    ├── vite.config.js
-    └── src/
-        ├── App.jsx              # Application router & language context
-        ├── index.css            # Dark mode design system & tokens
-        ├── components/
-        │   ├── AppLayout.jsx    # Topbar + responsive sidebar layout
-        │   ├── Sidebar.jsx      # Navigation sidebar with status badges
-        │   ├── Header.jsx       # Global header with language toggle
-        │   └── MetricCard.jsx   # Microclimate & market KPI card component
-        ├── pages/
-        │   ├── OverviewView.jsx
-        │   ├── DirectMarketView.jsx
-        │   ├── WeatherView.jsx
-        │   ├── HeatmapView.jsx
-        │   ├── MarketsView.jsx
-        │   ├── TrendsView.jsx
-        │   ├── AlertsView.jsx
-        │   ├── CopilotView.jsx
-        │   ├── CropHealthView.jsx
-        │   └── WhatIfView.jsx
-        └── services/
-            └── api.js           # Client API connector with offline fallbacks
+To build and package the native Android APK (`v2.1.0`):
+```bash
+# From repository root
+python scripts/build_apk.py
+
+# Or from frontend directory
+cd frontend
+npm run build:apk
 ```
 
 ---
 
-## 📜 License
-Distributed under the MIT License. Built for farmers and agricultural trade modernization.
+## 🔑 Authentication Sandbox Credentials
+
+- **Farmer Role**: `farmer@agripulse.ai` / `Farmer@123`
+- **Buyer Role**: `buyer@agripulse.ai` / `Buyer@123`
+- **Magic OTP PIN**: `123456`
+
+---
+
+## 📄 License
+Released under the [MIT License](LICENSE).

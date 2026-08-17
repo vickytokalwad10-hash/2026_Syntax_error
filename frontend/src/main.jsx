@@ -33,6 +33,13 @@ ChartJS.register(
   Filler
 );
 
+// Register Service Worker for mobile phone installability
+if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

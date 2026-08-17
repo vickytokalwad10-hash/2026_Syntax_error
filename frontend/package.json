@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.1.0",
   "homepage": "https://vickytokalwad10-hash.github.io/2026_Syntax_error",
   "type": "module",
   "scripts": {
@@ -9,12 +9,18 @@
     "deploy": "gh-pages -d dist",
     "dev": "vite",
     "build": "vite build",
+    "build:apk": "python ../scripts/build_apk.py",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@supabase/supabase-js": "^2.112.3",
     "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.1",
+    "dexie": "^4.4.5",
     "firebase": "^12.17.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.30.0",

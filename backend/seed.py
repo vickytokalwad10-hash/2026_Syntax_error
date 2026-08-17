@@ -9,20 +9,27 @@ TEST ACCOUNTS:
 """
 
 import uuid
-import bcrypt
+import hashlib
+import os
 from datetime import datetime, timezone
 from database import get_db
 
+def hash_pw(password: str, salt: str = "agripulse_salt_2026") -> str:
+    try:
+        import bcrypt
+        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=10)).decode("utf-8")
+    except Exception:
+        return hashlib.sha256(f"{salt}:{password}".encode("utf-8")).hexdigest()
 
 # ─── Fixed Test Credentials ──────────────────────────────────────────────────
 TEST_ACCOUNTS = [
     {
         "role": "farmer",
         "user_id": "test_farmer_001",
-        "name": "Ramesh Devidas Patil",
+        "name": "Ram Lal Patel",
         "phone": "9800000001",
-        "village_district": "Dindori, Nashik (Maharashtra)",
-        "crops_grown": ["Wheat (Sharbati)", "Red Onion", "Soybean", "Grapes"],
+        "village_district": "Karnal West, Haryana",
+        "crops_grown": ["Wheat (Sharbati)", "Mustard", "Soybean", "Basmati Rice"],
         "aadhar_id": "1234-5678-9001",
         "password": "Farmer@123",
         "collection": "farmers",
@@ -30,11 +37,11 @@ TEST_ACCOUNTS = [
     {
         "role": "buyer",
         "user_id": "test_buyer_001",
-        "name": "Vikram Sharma",
+        "name": "Rajesh Mehta (ITC Agri Procurements)",
         "phone": "9900000001",
-        "email": "vikram@agrotradelogistics.com",
-        "company_name": "AgroTrade Logistics Pvt Ltd",
-        "gstin": "27AAACA9900A1Z5",
+        "email": "rajesh@itcagriprocurements.com",
+        "company_name": "ITC Agri-Business Division",
+        "gstin": "07AAAAA0000A1Z5",
         "password": "Buyer@123",
         "collection": "buyers",
     },
@@ -54,11 +61,7 @@ async def seed_test_accounts():
             seeded.append(f"[SKIP] {acct['role'].upper()} {acct['phone']} already exists")
             continue
 
-        # Hash password
-        hashed_pw = bcrypt.hashpw(
-            acct["password"].encode("utf-8"),
-            bcrypt.gensalt(rounds=10)
-        ).decode("utf-8")
+        hashed_pw = hash_pw(acct["password"])
 
         if acct["role"] == "farmer":
             doc = {

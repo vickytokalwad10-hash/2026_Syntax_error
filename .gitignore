@@ -14,11 +14,25 @@ backend/services/__pycache__/
 *$py.class
 venv/
 .venv/
+backend/.venv/
 env/
 
 # Environment and secrets
 .env
 *.env
+backend/.env
+frontend/.env
+
+# Android Gradle & Build Artifacts
+frontend/android/.gradle/
+frontend/android/build/
+frontend/android/app/build/
+frontend/android/capacitor-cordova-android-plugins/build/
+frontend/android/.idea/
+frontend/android/local.properties
+frontend/android/.cxx/
+*.apk
+*.aab
 
 # IDE & OS files
 .DS_Store

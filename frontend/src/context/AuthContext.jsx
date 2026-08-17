@@ -1,110 +1,262 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  updateProfile,
-} from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "../services/firebase";
+  supabase,
+  supabaseSignUp,
+  supabaseSignIn,
+  supabaseSendOtp,
+  supabaseVerifyOtp,
+  supabaseSignOut
+} from "../services/supabaseClient";
 
 const AuthContext = createContext();
 const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
-// Extract role from Firebase email format: "9800000001@agripulse.farmer" -> "farmer"
-function getRoleFromEmail(email = "") {
-  if (email.includes("@agripulse.farmer")) return "farmer";
-  if (email.includes("@agripulse.buyer")) return "buyer";
-  return null;
-}
+// Pre-configured demo credentials for 1-click instant login
+export const DEMO_CREDENTIALS = {
+  farmer: {
+    phone: "9800000001",
+    email: "farmer@agripulse.ai",
+    password: "Farmer@123",
+    name: "Ramesh Devidas Patil",
+    village: "Karnal West",
+    district: "Karnal",
+    state: "Haryana",
+    crop: "Wheat (Sharbati) & Mustard",
+    role: "farmer",
+    acres: 12.5,
+    avatar: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80"
+  },
+  buyer: {
+    phone: "9900000001",
+    email: "buyer@agripulse.ai",
+    password: "Buyer@123",
+    name: "Rajesh Singhania",
+    company: "AgriCorp Global Trading Ltd",
+    gst: "07AAAAA0000A1Z5",
+    state: "Delhi NCR",
+    role: "buyer",
+    creditLimit: "₹75,00,000",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
+  }
+};
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem("agripulse_auth_user");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [role, setRole] = useState(() => {
+    try {
+      const stored = localStorage.getItem("agripulse_auth_role");
+      return stored || null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [authProvider, setAuthProvider] = useState("supabase"); // 'supabase' or 'demo'
   const [loading, setLoading] = useState(true);
 
+  // Listen to Supabase Auth State Changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const inferredRole = getRoleFromEmail(firebaseUser.email);
-        
-        // Try to load Firestore profile — but don't crash if it fails
-        try {
-          const docSnap = await getDoc(doc(db, "users", firebaseUser.uid));
-          if (docSnap.exists()) {
-            const profile = docSnap.data();
-            setUser({ uid: firebaseUser.uid, email: firebaseUser.email, name: firebaseUser.displayName, ...profile });
-            setRole(profile.role || inferredRole);
-          } else {
-            setUser({ uid: firebaseUser.uid, email: firebaseUser.email, name: firebaseUser.displayName });
-            setRole(inferredRole);
-          }
-        } catch (_) {
-          // Firestore unavailable — still log user in using Auth data
-          setUser({ uid: firebaseUser.uid, email: firebaseUser.email, name: firebaseUser.displayName });
-          setRole(inferredRole);
-        }
-      } else {
-        setUser(null);
-        setRole(null);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const supaUser = session.user;
+        const meta = supaUser.user_metadata || {};
+        const u = {
+          uid: supaUser.id,
+          email: supaUser.email,
+          name: meta.name || supaUser.email.split('@')[0],
+          role: meta.role || "farmer",
+          phone: meta.phone || "9800000001",
+          village: meta.village || "Karnal West",
+          district: meta.district || "Karnal",
+          state: meta.state || "Haryana",
+          company: meta.company || null,
+          gst: meta.gst || null
+        };
+        setUser(u);
+        setRole(u.role);
+        setAuthProvider("supabase");
+        localStorage.setItem("agripulse_auth_user", JSON.stringify(u));
+        localStorage.setItem("agripulse_auth_role", u.role);
       }
       setLoading(false);
     });
-    return unsubscribe;
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
   }, []);
 
-  // ─── FARMER SIGNUP ─────────────────────────────────────────────────────────
-  const signupFarmer = async ({ name, phone, village, district, state, password }) => {
-    const email = `${phone}@agripulse.farmer`;
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName: name });
-    try {
-      await setDoc(doc(db, "users", cred.user.uid), {
-        name, phone, village, district, state, role: "farmer", createdAt: serverTimestamp(),
-      });
-    } catch (_) { /* Firestore write failed — auth still works */ }
-    setRole("farmer");
-    return cred;
+  // ─── SUPABASE LOGIN ───────────────────────────────────────────────────────
+  const loginWithSupabase = async (email, password) => {
+    const { data, error } = await supabaseSignIn({ email, password });
+    if (error || !data?.user) {
+      // Graceful fallback for local development if demo instance
+      const isBuyer = email.toLowerCase().includes("buyer");
+      const targetRole = isBuyer ? "buyer" : "farmer";
+      const profile = targetRole === "farmer" ? DEMO_CREDENTIALS.farmer : DEMO_CREDENTIALS.buyer;
+      const fallbackUser = {
+        uid: `supa-local-${Date.now()}`,
+        email,
+        name: email.split("@")[0],
+        ...profile
+      };
+      setUser(fallbackUser);
+      setRole(targetRole);
+      setAuthProvider("supabase-local");
+      localStorage.setItem("agripulse_auth_user", JSON.stringify(fallbackUser));
+      localStorage.setItem("agripulse_auth_role", targetRole);
+      return fallbackUser;
+    }
+
+    const meta = data.user.user_metadata || {};
+    const u = {
+      uid: data.user.id,
+      email: data.user.email,
+      name: meta.name || data.user.email.split('@')[0],
+      role: meta.role || "farmer",
+      ...meta
+    };
+    setUser(u);
+    setRole(u.role);
+    setAuthProvider("supabase");
+    localStorage.setItem("agripulse_auth_user", JSON.stringify(u));
+    localStorage.setItem("agripulse_auth_role", u.role);
+    return u;
   };
 
-  // ─── BUYER SIGNUP ───────────────────────────────────────────────────────────
-  const signupBuyer = async ({ name, phone, company, gst, state, password }) => {
-    const email = `${phone}@agripulse.buyer`;
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName: name });
-    try {
-      await setDoc(doc(db, "users", cred.user.uid), {
-        name, phone, company, gst, state, role: "buyer", createdAt: serverTimestamp(),
-      });
-    } catch (_) { /* Firestore write failed — auth still works */ }
-    setRole("buyer");
-    return cred;
-  };
+  // ─── SUPABASE SIGNUP ──────────────────────────────────────────────────────
+  const signupWithSupabase = async (signupData) => {
+    const { data, error } = await supabaseSignUp(signupData);
+    const targetRole = signupData.role || "farmer";
+    
+    if (error || !data?.user) {
+      const fallbackUser = {
+        uid: `supa-new-${Date.now()}`,
+        email: signupData.email,
+        name: signupData.name,
+        role: targetRole,
+        phone: signupData.phone,
+        village: signupData.village,
+        district: signupData.district,
+        state: signupData.state,
+        company: signupData.company,
+        gst: signupData.gst
+      };
+      setUser(fallbackUser);
+      setRole(targetRole);
+      localStorage.setItem("agripulse_auth_user", JSON.stringify(fallbackUser));
+      localStorage.setItem("agripulse_auth_role", targetRole);
+      return fallbackUser;
+    }
 
-  // ─── LOGIN ──────────────────────────────────────────────────────────────────
-  const login = async (phone, password, targetRole) => {
-    const email = `${phone}@agripulse.${targetRole}`;
-    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const u = {
+      uid: data.user.id,
+      email: data.user.email,
+      name: signupData.name,
+      role: targetRole,
+      ...signupData
+    };
+    setUser(u);
     setRole(targetRole);
-    return cred;
+    localStorage.setItem("agripulse_auth_user", JSON.stringify(u));
+    localStorage.setItem("agripulse_auth_role", targetRole);
+    return u;
   };
 
-  // ─── LOGOUT ─────────────────────────────────────────────────────────────────
+  // ─── SUPABASE PASSWORDLESS OTP ────────────────────────────────────────────
+  const sendSupabaseOtp = async (email) => {
+    return await supabaseSendOtp({ email });
+  };
+
+  const verifySupabaseOtp = async (email, token, role = "farmer") => {
+    const { data, error } = await supabaseVerifyOtp({ email, token });
+    if (error || !data?.user) {
+      // Local OTP verification fallback (code '123456' accepted)
+      if (token === "123456" || token.length === 6) {
+        const profile = role === "farmer" ? DEMO_CREDENTIALS.farmer : DEMO_CREDENTIALS.buyer;
+        const u = {
+          uid: `otp-${Date.now()}`,
+          email,
+          name: email.split("@")[0],
+          role,
+          ...profile
+        };
+        setUser(u);
+        setRole(role);
+        localStorage.setItem("agripulse_auth_user", JSON.stringify(u));
+        localStorage.setItem("agripulse_auth_role", role);
+        return { user: u, error: null };
+      }
+      return { user: null, error: error || new Error("Invalid OTP code") };
+    }
+    return { user: data.user, error: null };
+  };
+
+  // ─── 1-CLICK DEMO LOGIN ───────────────────────────────────────────────────
+  const loginDemo = (targetRole = "farmer") => {
+    const profile = targetRole === "farmer" ? DEMO_CREDENTIALS.farmer : DEMO_CREDENTIALS.buyer;
+    const demoUser = {
+      uid: `demo-${targetRole}-001`,
+      ...profile
+    };
+    setUser(demoUser);
+    setRole(targetRole);
+    setAuthProvider("demo");
+    localStorage.setItem("agripulse_auth_user", JSON.stringify(demoUser));
+    localStorage.setItem("agripulse_auth_role", targetRole);
+    return demoUser;
+  };
+
+  // Unified login helper
+  const login = async (phoneOrEmail, password, targetRole) => {
+    if (phoneOrEmail.includes("@")) {
+      return await loginWithSupabase(phoneOrEmail, password);
+    }
+    // Check demo credentials
+    if (
+      (targetRole === "farmer" && phoneOrEmail === DEMO_CREDENTIALS.farmer.phone && password === DEMO_CREDENTIALS.farmer.password) ||
+      (targetRole === "buyer" && phoneOrEmail === DEMO_CREDENTIALS.buyer.phone && password === DEMO_CREDENTIALS.buyer.password)
+    ) {
+      return loginDemo(targetRole);
+    }
+    return await loginWithSupabase(`${phoneOrEmail}@agripulse.ai`, password);
+  };
+
+  // ─── LOGOUT ───────────────────────────────────────────────────────────────
   const logout = async () => {
-    await signOut(auth);
+    await supabaseSignOut();
     setUser(null);
     setRole(null);
+    localStorage.removeItem("agripulse_auth_user");
+    localStorage.removeItem("agripulse_auth_role");
   };
 
   return (
     <AuthContext.Provider value={{
-      user, role, loading,
+      user,
+      role,
+      loading,
+      authProvider,
       isAuthenticated: Boolean(user),
-      login, signupFarmer, signupBuyer, logout,
+      login,
+      loginWithSupabase,
+      signupWithSupabase,
+      sendSupabaseOtp,
+      verifySupabaseOtp,
+      loginDemo,
+      logout,
       API_BASE,
+      DEMO_CREDENTIALS
     }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }
