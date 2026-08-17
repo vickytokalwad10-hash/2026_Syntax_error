@@ -1,6 +1,6 @@
-# 🌾 AgriPulse AI — Agricultural Intelligence & Direct Trading Platform (v2.1.0)
+# 🌾 AgriPulse AI — Agricultural Intelligence & Direct Trading Platform (v2.5.0)
 
-[![Version](https://img.shields.io/badge/Version-2.1.0%20Pro-14532D?style=for-the-badge)](https://github.com/vickytokalwad10-hash/2026_Syntax_error)
+[![Version](https://img.shields.io/badge/Version-2.5.0%20Pro-14532D?style=for-the-badge)](https://github.com/vickytokalwad10-hash/Agripulse)
 [![React](https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%2B%20Python%203.13-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Supabase](https://img.shields.io/badge/Database%20%26%20Auth-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)

@@ -2,7 +2,7 @@
   "name": "frontend",
   "private": true,
   "version": "2.5.0",
-  "homepage": "https://vickytokalwad10-hash.github.io/2026_Syntax_error",
+  "homepage": "https://vickytokalwad10-hash.github.io/Agripulse",
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",
