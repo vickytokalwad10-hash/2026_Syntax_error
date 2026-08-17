@@ -149,7 +149,7 @@ export default function MarketplacePage() {
   const filteredLots = activeCategory === 'All' ? lots : lots.filter((l) => l.category === activeCategory);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Toast Alert */}
       {toastMessage && (
         <div className="bg-[#14532d] text-white px-4 py-3 rounded-2xl shadow-floating flex items-center justify-between text-xs font-bold animate-in zoom-in-95">
@@ -159,9 +159,14 @@ export default function MarketplacePage() {
       )}
 
       {/* Editorial Header */}
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1c1917] tracking-tight font-editorial flex items-center gap-2.5">
-          <span className="material-symbols-outlined text-[#14532d] text-[32px]">storefront</span>
+      <div className="pb-3 border-b border-[#e7e5e4]">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#14532d] animate-pulse"></span>
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#14532d]">
+            Direct Farmgate B2B Floor
+          </span>
+        </div>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1c1917] tracking-tight font-editorial mt-0.5 flex items-center gap-2">
           सीधा व्यापार मंडी • B2B Direct Trading Floor
         </h2>
         <p className="text-xs sm:text-sm text-[#57534e] max-w-3xl mt-1 leading-relaxed">
@@ -169,11 +174,11 @@ export default function MarketplacePage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         {/* Left Column: Post Harvest Lot */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="paper-card p-5 space-y-4 border-l-4 border-l-[#14532d]">
-            <h3 className="text-sm font-extrabold text-[#1c1917] pb-3 border-b border-[#f5f2eb] flex items-center gap-2 font-editorial text-base">
+          <div className="paper-card p-4 sm:p-5 space-y-3.5 border-l-4 border-l-[#14532d]">
+            <h3 className="font-extrabold text-[#1c1917] pb-2.5 border-b border-[#f5f2eb] flex items-center gap-2 font-editorial text-sm sm:text-base">
               <span className="material-symbols-outlined text-[#14532d]">add_business</span>
               फसल लॉट बनाएं • List Verified Harvest
             </h3>
@@ -243,7 +248,7 @@ export default function MarketplacePage() {
         {/* Right Column: Live Trading Floor Lots */}
         <div className="lg:col-span-8 space-y-4">
           {/* Category Filter */}
-          <div className="flex gap-2 border-b border-[#e7e5e4] pb-3 overflow-x-auto">
+          <div className="flex gap-2 border-b border-[#e7e5e4] pb-2.5 overflow-x-auto no-scrollbar">
             {['All', 'Grains', 'Oilseeds', 'Pulses'].map((cat) => (
               <button
                 key={cat}
@@ -260,41 +265,41 @@ export default function MarketplacePage() {
           </div>
 
           {/* Lots Grid */}
-          <div className="space-y-4">
+          <div className="space-y-3.5 sm:space-y-4">
             {filteredLots.map((lot) => (
-              <div key={lot.id} className="paper-card p-5 space-y-4">
+              <div key={lot.id} className="paper-card p-4 sm:p-5 space-y-3 sm:space-y-4">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-[#f5f2eb] gap-2">
-                  <div>
-                    <div className="flex items-center gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-[#78716c] font-mono">{lot.id}</span>
-                      <h4 className="text-base font-extrabold text-[#1c1917] font-editorial">{lot.commodity}</h4>
-                      <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-[#fef3c7] text-[#92400e] border border-[#fde68a]">
+                      <h4 className="text-base font-extrabold text-[#1c1917] font-editorial truncate">{lot.commodity}</h4>
+                      <span className="text-[9px] font-bold px-2 py-0.2 rounded-full bg-[#fef3c7] text-[#92400e] border border-[#fde68a]">
                         {lot.badge}
                       </span>
                     </div>
-                    <span className="text-xs text-[#57534e] block mt-0.5">
+                    <span className="text-xs text-[#57534e] block mt-0.5 truncate">
                       📍 {lot.seller} • {lot.location}
                     </span>
                   </div>
 
-                  <div className="text-right">
-                    <span className="text-[10px] text-[#78716c] font-bold uppercase tracking-wider block">Reserve Price</span>
-                    <span className="text-xl font-extrabold text-[#14532d]">{lot.price}</span>
-                    <span className="text-[10px] text-[#78716c] block">/ quintal ({lot.quantity})</span>
+                  <div className="text-left sm:text-right shrink-0">
+                    <span className="text-[9px] text-[#78716c] font-bold uppercase tracking-wider block">Reserve Price</span>
+                    <span className="text-lg sm:text-xl font-extrabold text-[#14532d]">{lot.price}</span>
+                    <span className="text-[10px] text-[#78716c] block">/ qtl ({lot.quantity})</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#faf8f5] p-3 rounded-2xl border border-[#f5f2eb]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs bg-[#faf8f5] p-3 rounded-2xl border border-[#f5f2eb]">
                   <div>
-                    <span className="text-[10px] text-[#78716c] block font-bold uppercase tracking-wider">Active Highest Bid</span>
+                    <span className="text-[9px] text-[#78716c] block font-bold uppercase tracking-wider">Active Highest Bid</span>
                     <span className="font-extrabold text-sm text-[#1c1917]">{lot.topBid}</span>
-                    <span className="text-[11px] text-[#57534e] block mt-0.5">Bidder: {lot.topBidder}</span>
+                    <span className="text-[10px] sm:text-[11px] text-[#57534e] block mt-0.5 truncate">Bidder: {lot.topBidder}</span>
                   </div>
 
                   <div className="flex flex-col justify-center">
-                    <span className="text-[10px] text-[#78716c] block font-bold uppercase tracking-wider">Buyer Trust Audit</span>
+                    <span className="text-[9px] text-[#78716c] block font-bold uppercase tracking-wider">Buyer Trust Audit</span>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold ${
+                      <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold ${
                         lot.bidderTrust === 'TRUSTED'
                           ? 'bg-emerald-100 text-emerald-950 border border-emerald-300'
                           : 'bg-amber-100 text-amber-950 border border-amber-300'
@@ -307,13 +312,13 @@ export default function MarketplacePage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-1 text-xs">
-                  <span className="text-[#78716c] text-[11px] font-medium">📋 {lot.specs}</span>
+                  <span className="text-[#78716c] text-[11px] font-medium truncate max-w-md">📋 {lot.specs}</span>
                   <button
                     onClick={() => {
                       setBiddingLot(lot);
                       setBidAmount(lot.priceRaw + 20);
                     }}
-                    className="px-4 py-2 bg-[#14532d] hover:bg-[#052e16] text-white text-xs font-bold rounded-xl shadow-xs transition btn-tap"
+                    className="w-full sm:w-auto px-4 py-2 bg-[#14532d] hover:bg-[#052e16] text-white text-xs font-bold rounded-xl shadow-xs transition btn-tap text-center"
                   >
                     Place Direct Escrow Bid ➔
                   </button>
@@ -327,7 +332,7 @@ export default function MarketplacePage() {
       {/* Bidding Modal */}
       {biddingLot && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-floating border border-[#e7e5e4] animate-in zoom-in-95 space-y-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-floating border border-[#e7e5e4] animate-in zoom-in-95 space-y-4">
             <h4 className="text-base font-extrabold text-[#1c1917] font-editorial">
               Place B2B Bid: {biddingLot.commodity}
             </h4>

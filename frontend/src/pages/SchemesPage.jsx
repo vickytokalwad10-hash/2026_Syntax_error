@@ -221,7 +221,7 @@ export default function SchemesPage() {
       </div>
 
       {/* Segmented Navigation Tabs */}
-      <div className="flex gap-2 border-b border-slate-200 pb-3 overflow-x-auto">
+      <div className="flex gap-2 border-b border-[#e7e5e4] pb-2.5 overflow-x-auto no-scrollbar">
         {[
           { id: 'pmkisan', label: 'PM-KISAN Status', icon: 'payments' },
           { id: 'pmfby', label: 'PMFBY Crop Insurance', icon: 'shield' },

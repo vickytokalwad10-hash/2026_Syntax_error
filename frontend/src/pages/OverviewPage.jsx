@@ -124,12 +124,12 @@ export default function OverviewPage() {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { font: { family: 'Plus Jakarta Sans', size: 11 }, color: '#78716c' }
+        ticks: { font: { family: 'Plus Jakarta Sans', size: 10 }, color: '#78716c' }
       },
       y: {
         grid: { color: 'rgba(231, 229, 228, 0.7)', borderDash: [3, 3] },
         ticks: {
-          font: { family: 'Plus Jakarta Sans', size: 11 },
+          font: { family: 'Plus Jakarta Sans', size: 10 },
           color: '#78716c',
           callback: (val) => `₹${val}`
         }
@@ -150,36 +150,36 @@ export default function OverviewPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Editorial Farm Briefing Banner */}
-      <div className="hero-gradient-card p-6 sm:p-7 relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+      <div className="hero-gradient-card p-5 sm:p-7 relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-5">
           <div className="space-y-1.5 max-w-2xl">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-emerald-100 border border-white/20 uppercase tracking-wider">
                 🌾 Seasonal Realization Briefing
               </span>
               <span className="text-xs text-emerald-200">Karnal APMC District Node #489</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-editorial leading-tight">
-              ₹12,45,800 <span className="text-base font-sans font-normal text-emerald-200">Estimated Harvest Revenue</span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight font-editorial leading-tight">
+              ₹12,45,800 <span className="text-sm sm:text-base font-sans font-normal text-emerald-200">Estimated Harvest Revenue</span>
             </h1>
             <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
               Your direct-trade realization is trending <strong>+₹140/qtl (+5.2%) above local APMC mandi average</strong>, backed by verified institutional escrow bids from ITC & Adani Wilmar.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap gap-2 sm:gap-2.5 w-full md:w-auto">
             <button
               onClick={() => navigate('/crop-planning')}
-              className="px-4 py-2.5 bg-[#ffffff] text-[#14532d] hover:bg-[#f5f2eb] text-xs font-bold rounded-xl shadow-xs transition btn-tap flex items-center gap-1.5"
+              className="flex-1 md:flex-none px-3.5 sm:px-4 py-2.5 bg-[#ffffff] text-[#14532d] hover:bg-[#f5f2eb] text-xs font-bold rounded-xl shadow-xs transition btn-tap flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-[18px]">psychology</span>
               Crop Planning AI
             </button>
             <button
               onClick={() => navigate('/marketplace')}
-              className="px-4 py-2.5 bg-[#b45309] hover:bg-[#92400e] text-white text-xs font-bold rounded-xl shadow-xs transition btn-tap flex items-center gap-1.5"
+              className="flex-1 md:flex-none px-3.5 sm:px-4 py-2.5 bg-[#b45309] hover:bg-[#92400e] text-white text-xs font-bold rounded-xl shadow-xs transition btn-tap flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-[18px]">storefront</span>
               B2B Trading Floor
@@ -192,62 +192,65 @@ export default function OverviewPage() {
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 px-1">
           <div>
-            <h2 className="text-sm font-extrabold text-[#1c1917] flex items-center gap-2 font-editorial text-base">
+            <h2 className="font-extrabold text-[#1c1917] flex items-center gap-2 font-editorial text-sm sm:text-base">
               <span>दैनिक मंडी भाव • Live Mandi Spot Benchmarks</span>
             </h2>
             <p className="text-[11px] text-[#78716c]">Live arrivals and modal spot rates across 14 Haryana & Punjab APMCs</p>
           </div>
 
           {/* Toggle Button */}
-          <div className="flex items-center bg-[#f5f2eb] p-1 rounded-xl text-xs font-bold border border-[#e7e5e4]">
+          <div className="flex items-center bg-[#f5f2eb] p-1 rounded-xl text-xs font-bold border border-[#e7e5e4] w-full sm:w-auto justify-between sm:justify-start">
             <button
               onClick={() => setPriceSource('agripulse')}
-              className={`px-3 py-1 rounded-lg transition ${
+              className={`flex-1 sm:flex-none px-3 py-1 rounded-lg transition text-center ${
                 priceSource === 'agripulse' ? 'bg-white text-[#14532d] shadow-2xs' : 'text-[#78716c]'
               }`}
             >
-              🌾 Direct Network Rates
+              🌾 Direct Network
             </button>
             <button
               onClick={() => setPriceSource('enam')}
-              className={`px-3 py-1 rounded-lg transition ${
+              className={`flex-1 sm:flex-none px-3 py-1 rounded-lg transition text-center ${
                 priceSource === 'enam' ? 'bg-white text-[#14532d] shadow-2xs' : 'text-[#78716c]'
               }`}
             >
-              🏛️ e-NAM Official Prices
+              🏛️ e-NAM Official
             </button>
           </div>
         </div>
 
         {priceSource === 'agripulse' ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          /* Responsive: Smooth Horizontal Scroll on Mobile (<640px) and Clean Grid on Tablet/Desktop */
+          <div className="flex sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
             {commodities.map((c) => (
               <div
                 key={c.id}
                 onClick={() => setSelectedCrop(c.id)}
-                className={`paper-card p-3.5 cursor-pointer transition ${
+                className={`paper-card p-3 sm:p-3.5 cursor-pointer transition shrink-0 w-[240px] sm:w-auto ${
                   selectedCrop === c.id
                     ? 'border-2 border-[#14532d] bg-[#f5fdf7] shadow-sm'
                     : 'hover:border-[#d6d3d1]'
                 }`}
               >
                 <div className="flex justify-between items-start mb-1">
-                  <div>
+                  <div className="min-w-0 pr-1">
                     <span className="text-xs font-extrabold text-[#1c1917] block truncate">{c.name}</span>
-                    <span className="text-[10px] text-[#78716c]">{c.hindi}</span>
+                    <span className="text-[10px] text-[#78716c] truncate block">{c.hindi}</span>
                   </div>
                   <span
-                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
                       c.change.startsWith('+') ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'
                     }`}
                   >
                     {c.change}
                   </span>
                 </div>
-                <div className="text-lg font-extrabold text-[#1c1917] mt-1">{c.price} <span className="text-[10px] font-normal text-[#78716c]">/qtl</span></div>
+                <div className="text-base sm:text-lg font-extrabold text-[#1c1917] mt-1">
+                  {c.price} <span className="text-[10px] font-normal text-[#78716c]">/qtl</span>
+                </div>
                 <div className="pt-2 mt-2 border-t border-[#f5f2eb] flex justify-between items-center text-[10px] text-[#78716c]">
-                  <span>Govt MSP: {c.msp}</span>
-                  <span className="font-bold text-[#14532d]">{c.status}</span>
+                  <span className="truncate">MSP: {c.msp}</span>
+                  <span className="font-bold text-[#14532d] truncate ml-1">{c.status}</span>
                 </div>
               </div>
             ))}
@@ -257,12 +260,12 @@ export default function OverviewPage() {
             {enamPrices.map((item, idx) => (
               <div key={idx} className="paper-card p-4 border-l-4 border-l-[#14532d] space-y-1 text-xs">
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-extrabold text-[#1c1917]">{item.commodity} ({item.variety})</h4>
-                    <span className="text-[11px] text-[#78716c]">🏛️ {item.mandi_name}</span>
+                  <div className="min-w-0 pr-2">
+                    <h4 className="font-extrabold text-[#1c1917] truncate">{item.commodity} ({item.variety})</h4>
+                    <span className="text-[11px] text-[#78716c] truncate block">🏛️ {item.mandi_name}</span>
                   </div>
-                  <span className="text-[10px] font-bold bg-[#fef3c7] text-[#92400e] px-2 py-0.5 rounded-full">
-                    e-NAM Verified
+                  <span className="text-[10px] font-bold bg-[#fef3c7] text-[#92400e] px-2 py-0.5 rounded-full shrink-0">
+                    e-NAM
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-2">
@@ -281,16 +284,16 @@ export default function OverviewPage() {
         )}
       </div>
 
-      {/* Human-Crafted Farmer Operations & Tools Grid */}
+      {/* Human-Crafted Farmer Operations & Tools Grid (4 -> 2 -> 1 Responsive Breakdown) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-extrabold text-[#1c1917] uppercase tracking-wider font-editorial text-sm">
+          <span className="font-extrabold text-[#1c1917] uppercase tracking-wider font-editorial text-xs sm:text-sm">
             कृषि सुविधाएं • Farmer Operations & Tools
           </span>
-          <span className="text-[11px] text-[#78716c]">8 Practical Agronomy Modules</span>
+          <span className="text-[11px] text-[#78716c] hidden sm:inline">8 Practical Agronomy Modules</span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
           {[
             { title: 'Govt Schemes', sub: 'PM-KISAN & फसल बीमा', icon: 'account_balance', route: '/schemes', tag: 'DBT Active' },
             { title: 'KCC Loans', sub: '4% ब्याज दर पर ऋण', icon: 'credit_score', route: '/finance', tag: 'NABARD Scale' },
@@ -304,19 +307,19 @@ export default function OverviewPage() {
             <button
               key={idx}
               onClick={() => navigate(tile.route)}
-              className="paper-card p-4 text-left hover:border-[#b45309] transition btn-tap flex flex-col justify-between space-y-3 group"
+              className="paper-card p-3 sm:p-4 text-left hover:border-[#b45309] transition btn-tap flex flex-col justify-between space-y-2.5 sm:space-y-3 group min-w-0"
             >
               <div className="flex justify-between items-start">
-                <div className="w-10 h-10 rounded-2xl bg-[#faf8f5] border border-[#e7e5e4] text-[#14532d] flex items-center justify-center group-hover:bg-[#14532d] group-hover:text-white transition">
-                  <span className="material-symbols-outlined text-[22px]">{tile.icon}</span>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#faf8f5] border border-[#e7e5e4] text-[#14532d] flex items-center justify-center group-hover:bg-[#14532d] group-hover:text-white transition shrink-0">
+                  <span className="material-symbols-outlined text-[20px] sm:text-[22px]">{tile.icon}</span>
                 </div>
-                <span className="text-[9px] font-bold text-[#78716c] bg-[#f5f2eb] px-1.5 py-0.5 rounded-md">
+                <span className="text-[9px] font-bold text-[#78716c] bg-[#f5f2eb] px-1.5 py-0.5 rounded-md truncate max-w-[80px]">
                   {tile.tag}
                 </span>
               </div>
-              <div>
-                <h4 className="text-xs font-extrabold text-[#1c1917] group-hover:text-[#14532d] transition">{tile.title}</h4>
-                <p className="text-[11px] text-[#78716c] font-medium mt-0.5">{tile.sub}</p>
+              <div className="min-w-0">
+                <h4 className="text-xs font-extrabold text-[#1c1917] group-hover:text-[#14532d] transition truncate">{tile.title}</h4>
+                <p className="text-[10px] sm:text-[11px] text-[#78716c] font-medium mt-0.5 truncate">{tile.sub}</p>
               </div>
             </button>
           ))}
@@ -324,21 +327,21 @@ export default function OverviewPage() {
       </div>
 
       {/* Main Analysis Grid: Price Trend Chart & Field Tasks */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         {/* Spot Price Trend Chart */}
-        <div className="lg:col-span-8 paper-card p-5 space-y-4">
+        <div className="lg:col-span-8 paper-card p-4 sm:p-5 space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[#f5f2eb]">
             <div>
-              <h3 className="text-sm font-extrabold text-[#1c1917] flex items-center gap-2 font-editorial text-base">
-                <span>{currentCommodity.name} • 30-Day Spot Price Trend</span>
+              <h3 className="font-extrabold text-[#1c1917] flex items-center gap-2 font-editorial text-sm sm:text-base">
+                <span>{currentCommodity.name} • 30-Day Spot Price</span>
                 <span className="text-xs font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded-full font-sans">
                   {currentCommodity.change}
                 </span>
               </h3>
-              <p className="text-[11px] text-[#78716c]">Weighted average realized spot prices across North India trading hubs</p>
+              <p className="text-[11px] text-[#78716c]">Weighted average realized spot prices across North India APMCs</p>
             </div>
 
-            <div className="flex gap-1 bg-[#f5f2eb] p-1 rounded-xl text-xs font-bold">
+            <div className="flex gap-1 bg-[#f5f2eb] p-1 rounded-xl text-xs font-bold self-end sm:self-auto">
               {['7D', '1M', '3M', '1Y'].map((t) => (
                 <button
                   key={t}
@@ -353,18 +356,18 @@ export default function OverviewPage() {
             </div>
           </div>
 
-          <div className="h-64 w-full">
+          <div className="h-60 sm:h-72 lg:h-80 w-full">
             <Line data={chartData} options={chartOptions} />
           </div>
         </div>
 
         {/* Tactile Farmer Field Task Notebook */}
-        <div className="lg:col-span-4 paper-card p-5 space-y-3 flex flex-col justify-between">
+        <div className="lg:col-span-4 paper-card p-4 sm:p-5 space-y-3 flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center pb-2 border-b border-[#f5f2eb]">
-              <h3 className="text-sm font-extrabold text-[#1c1917] flex items-center gap-1.5 font-editorial text-base">
+              <h3 className="font-extrabold text-[#1c1917] flex items-center gap-1.5 font-editorial text-sm sm:text-base">
                 <span className="material-symbols-outlined text-[#14532d] text-[18px]">checklist</span>
-                खेत डायरी • Field Action Notes
+                खेत डायरी • Field Tasks
               </h3>
               <button
                 onClick={() => setShowNoteModal(true)}
@@ -379,16 +382,16 @@ export default function OverviewPage() {
                 <div
                   key={note.id}
                   onClick={() => toggleNote(note.id)}
-                  className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-[#faf8f5] cursor-pointer text-xs font-medium text-[#44403c] transition border border-transparent hover:border-[#e7e5e4]"
+                  className="flex items-start gap-2.5 p-2 sm:p-2.5 rounded-xl hover:bg-[#faf8f5] cursor-pointer text-xs font-medium text-[#44403c] transition border border-transparent hover:border-[#e7e5e4]"
                 >
                   <input
                     type="checkbox"
                     checked={note.done}
                     readOnly
-                    className="mt-0.5 rounded accent-[#14532d]"
+                    className="mt-0.5 rounded accent-[#14532d] shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <span className={note.done ? 'line-through text-[#a8a29e]' : 'text-[#1c1917]'}>
+                    <span className={`block break-words ${note.done ? 'line-through text-[#a8a29e]' : 'text-[#1c1917]'}`}>
                       {note.text}
                     </span>
                     <span className="block text-[10px] text-[#a8a29e] mt-0.5">Category: {note.tag}</span>
@@ -400,7 +403,7 @@ export default function OverviewPage() {
 
           <button
             onClick={() => navigate('/calendar')}
-            className="w-full py-2 bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#1c1917] text-xs font-bold rounded-xl transition mt-3"
+            className="w-full py-2.5 bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#1c1917] text-xs font-bold rounded-xl transition mt-3"
           >
             Open Complete Sowing Almanac ➔
           </button>

@@ -64,21 +64,23 @@ def build_apk():
     info_content = f"""🌾 AgriPulse AI — Android Build Information
 ==================================================
 Version:        v{version} (Phase 2 Pro)
-Build Code:     2
+Build Code:     3
 Built On:       {build_time}
 File Size:      {size_mb:.2f} MB
 Standard APK:   AgriPulse_AI.apk
 Versioned APK:  AgriPulse_AI_v{version}.apk
 
 Key Features in v{version}:
-1. Domain-Restricted Multilingual Kisan Mitra Copilot (11+ Indian Languages)
-2. Pre-LLM Domain Refusal for Off-Topic Queries (Cricket, Movies, Songs, Coding)
-3. Shared Google Gemini API Integration via secure GEMINI_API_KEY
-4. Supabase Authentication (Email/Password + Magic OTP + Demo 1-Click Access)
-5. Supabase Relational Database + Dexie.js Offline-First Sync
-6. Multi-Rail Payment Gateway (Razorpay Sandbox, UPI QR Intent, 100% Escrow)
-7. Human-Crafted Editorial UI with Natural Warm Linen Palette & Fraunces Serif
-8. 10 Farmer Modules: PM-KISAN/PMFBY Schemes, KCC Loans, Crop Doctor, Irrigation, Almanac
+1. Persistent Notification Center & In-App Hand-Drawn Bell Drawer
+2. Automated Weather Alert Triggers (Rain >70%, Spraying Safety, Severe Heatwave)
+3. Automated Mandi Crop Price Volatility Triggers (Watchlist >5% Delta, MSP Crossovers)
+4. Anti-Spam Deduplication Engine (4h Price Cooldown, 24h Weather Cooldown)
+5. Configurable Notification Settings (Category Toggles, Threshold Sliders, Crop Watchlist)
+6. Urgent Toast Pop-up Banners for Critical Field Alerts
+7. Responsive Proportions & Safe-Area Overhaul across all 8 Breakpoints (360px to 1920px)
+8. Domain-Restricted Multilingual Kisan Mitra Copilot (11+ Indian Regional Languages)
+9. Shared Google Gemini API Integration via server-side GEMINI_API_KEY
+10. Supabase Authentication, PostgreSQL Sync, and Multi-Rail Smart Escrow Vault
 ==================================================
 """
     with open(info_file, "w", encoding="utf-8") as f:

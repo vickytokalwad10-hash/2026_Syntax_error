@@ -34,7 +34,8 @@ from routers import (
     calendar,
     community,
     livestock,
-    enam
+    enam,
+    notifications
 )
 
 @asynccontextmanager
@@ -51,8 +52,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="AgriPulse AI Backend — Phase 2 Platform",
-    description="AI-Powered Agricultural Decision-Support, Scheme Tracking, Supabase Auth & Payment Gateway",
-    version="2.1.0",
+    description="AI-Powered Agricultural Decision-Support, Scheme Tracking, Supabase Auth, Payment Gateway & Notification Center",
+    version="2.2.0",
     lifespan=lifespan
 )
 
@@ -93,6 +94,7 @@ app.include_router(calendar.router)
 app.include_router(community.router)
 app.include_router(livestock.router)
 app.include_router(enam.router)
+app.include_router(notifications.router)
 
 @app.get("/api/health")
 def health_check():
@@ -100,7 +102,8 @@ def health_check():
         "status": "healthy",
         "service": "AgriPulse AI Core Engine Phase 2",
         "timestamp": datetime.now().isoformat(),
-        "modules_active": 25
+        "modules_active": 26,
+        "version": "2.2.0"
     }
 
 if __name__ == "__main__":

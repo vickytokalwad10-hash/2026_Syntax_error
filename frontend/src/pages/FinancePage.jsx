@@ -104,7 +104,7 @@ export default function FinancePage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-200 pb-3 overflow-x-auto">
+      <div className="flex gap-2 border-b border-[#e7e5e4] pb-2.5 overflow-x-auto no-scrollbar">
         {[
           { id: 'kcc', label: 'KCC Limit Estimator', icon: 'calculate' },
           { id: 'marketplace', label: 'Loan Comparison', icon: 'account_balance' },

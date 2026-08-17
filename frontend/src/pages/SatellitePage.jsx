@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MapContainer, TileLayer, Polygon, Popup, CircleMarker } from 'react-leaflet';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,7 +8,7 @@ export default function SatellitePage() {
   const [selectedLayer, setSelectedLayer] = useState('NDVI');
   const [treatmentScheduled, setTreatmentScheduled] = useState(false);
 
-  // Field Coordinates (Karnal / Nashik coordinates)
+  // Field Coordinates (Karnal coordinates)
   const centerPosition = [29.6857, 76.9905];
 
   const parcels = {
@@ -49,23 +49,26 @@ export default function SatellitePage() {
   const current = parcels[selectedParcel] || parcels['North Field 4'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[#e7e5e4]">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-            Satellite Crop Health & Multispectral NDVI
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#14532d] animate-pulse"></span>
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#14532d]">
+              Sentinel-2 MSI 10m Resolution
+            </span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-[#1c1917] tracking-tight font-editorial mt-0.5">
+            उपग्रह फसल निगरानी • Satellite NDVI Health Radar
           </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Sentinel-2 10m high-resolution spectral vegetation telemetry and canopy stress mapping.
-          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start md:self-auto">
           <select
             value={selectedParcel}
             onChange={(e) => setSelectedParcel(e.target.value)}
-            className="p-2 text-xs font-semibold bg-white border border-slate-300 rounded-lg text-slate-800 focus:outline-emerald-600 shadow-xs"
+            className="p-2 text-xs font-bold bg-white border border-[#e7e5e4] rounded-xl text-[#1c1917] focus:outline-[#14532d] shadow-2xs"
           >
             {Object.keys(parcels).map((p) => (
               <option key={p} value={p}>
@@ -76,27 +79,27 @@ export default function SatellitePage() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* Left / Main: Map Canvas (from Stitch Export) */}
-        <div className="flex-1 w-full bg-white border border-slate-200 rounded-xl shadow-xs p-6 flex flex-col">
-          <div className="flex justify-between items-start border-b border-slate-100 pb-4 mb-5">
+      <div className="flex flex-col lg:flex-row gap-5 sm:gap-6 items-start">
+        {/* Left / Main: Map Canvas */}
+        <div className="flex-1 w-full paper-card p-4 sm:p-6 flex flex-col">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#f5f2eb] pb-3 mb-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">{current.name}</h3>
-              <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-slate-600">schedule</span>
+              <h3 className="text-base font-extrabold text-[#1c1917] font-editorial">{current.name}</h3>
+              <p className="text-[11px] text-[#78716c] mt-0.5 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[15px] text-[#78716c]">schedule</span>
                 Acquired: {current.acquired}
               </p>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+            <div className="flex items-center gap-1 bg-[#f5f2eb] p-1 rounded-xl overflow-x-auto no-scrollbar max-w-full">
               {['NDVI', 'NDRE', 'EVI', 'MSAVI'].map((layer) => (
                 <button
                   key={layer}
                   onClick={() => setSelectedLayer(layer)}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold transition ${
+                  className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition ${
                     selectedLayer === layer
-                      ? 'bg-white text-emerald-800 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white text-[#14532d] shadow-2xs'
+                      : 'text-[#78716c] hover:text-[#1c1917]'
                   }`}
                 >
                   {layer}
@@ -105,8 +108,8 @@ export default function SatellitePage() {
             </div>
           </div>
 
-          {/* Interactive Leaflet Map Container */}
-          <div className="relative w-full h-[420px] rounded-xl overflow-hidden border border-slate-200">
+          {/* Interactive Leaflet Map Container with Explicit Responsive Height */}
+          <div className="relative w-full h-[320px] sm:h-[400px] lg:h-[460px] rounded-2xl overflow-hidden border border-[#e7e5e4]">
             <MapContainer
               center={centerPosition}
               zoom={15}
@@ -122,17 +125,17 @@ export default function SatellitePage() {
               <Polygon
                 positions={current.polygon}
                 pathOptions={{
-                  color: '#16a34a',
-                  fillColor: '#22c55e',
+                  color: '#14532d',
+                  fillColor: '#16a34a',
                   fillOpacity: 0.55,
-                  weight: 2
+                  weight: 2.5
                 }}
               >
                 <Popup>
                   <div className="font-sans text-xs">
-                    <p className="font-bold text-emerald-800">{current.name}</p>
+                    <p className="font-extrabold text-[#14532d]">{current.name}</p>
                     <p>Crop: {current.crop}</p>
-                    <p>NDVI Index: {current.ndviScore}</p>
+                    <p>NDVI Score: {current.ndviScore}</p>
                     <p>Size: {current.size}</p>
                   </div>
                 </Popup>
@@ -143,15 +146,15 @@ export default function SatellitePage() {
                 center={[29.6845, 76.9920]}
                 radius={16}
                 pathOptions={{
-                  color: '#dc2626',
-                  fillColor: '#ef4444',
+                  color: '#ea580c',
+                  fillColor: '#ea580c',
                   fillOpacity: 0.6,
                   dashArray: '4, 4'
                 }}
               >
                 <Popup>
                   <div className="font-sans text-xs">
-                    <p className="font-bold text-red-600">⚠️ Nitrogen Stress Hotspot</p>
+                    <p className="font-bold text-[#ea580c]">⚠️ Nitrogen Stress Hotspot</p>
                     <p>Chlorophyll deficit detected in SE 0.8 Acres.</p>
                   </div>
                 </Popup>
@@ -159,77 +162,77 @@ export default function SatellitePage() {
             </MapContainer>
 
             {/* In-Map Floating Badges */}
-            <div className="absolute top-4 left-4 z-[1000] bg-white/95 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-slate-200 shadow-md flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-              <span className="text-xs font-bold text-emerald-800">Healthy Canopy Zone (87%)</span>
+            <div className="absolute top-3 left-3 z-[1000] bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-xl border border-[#e7e5e4] shadow-xs flex items-center gap-1.5 text-[11px] font-bold text-[#14532d]">
+              <span className="w-2 h-2 rounded-full bg-[#14532d]"></span>
+              <span>Healthy Canopy (87%)</span>
             </div>
 
-            <div className="absolute bottom-4 right-4 z-[1000] bg-red-50/95 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-red-200 shadow-md text-red-700 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-red-600">warning</span>
-              <span className="text-xs font-bold">Nitrogen Stress (13%)</span>
+            <div className="absolute bottom-3 right-3 z-[1000] bg-[#fffbeb]/95 backdrop-blur-xs px-2.5 py-1 rounded-xl border border-[#fef3c7] shadow-xs text-[#92400e] flex items-center gap-1 text-[11px] font-bold">
+              <span className="material-symbols-outlined text-[15px] text-[#ea580c]">warning</span>
+              <span>Low Nitrogen (13%)</span>
             </div>
           </div>
 
           {/* Color Gradient Legend */}
-          <div className="mt-5 flex items-center justify-center gap-4 text-xs font-medium text-slate-600">
-            <span>Low (0.0)</span>
-            <div className="h-2.5 w-64 bg-gradient-to-r from-red-500 via-yellow-400 to-emerald-600 rounded-full shadow-inner"></div>
-            <span>High (1.0)</span>
+          <div className="mt-4 flex items-center justify-center gap-3 text-xs font-semibold text-[#78716c]">
+            <span className="text-[11px]">Low (0.0)</span>
+            <div className="h-2.5 w-48 sm:w-64 bg-gradient-to-r from-red-500 via-yellow-400 to-[#14532d] rounded-full shadow-inner"></div>
+            <span className="text-[11px]">High (1.0)</span>
           </div>
         </div>
 
-        {/* Right Column: Sticky Telemetry Notes (from Stitch Export) */}
-        <div className="w-full lg:w-[340px] flex flex-col gap-4">
+        {/* Right Column: Sticky Telemetry Notes */}
+        <div className="w-full lg:w-[320px] flex flex-col gap-3 sm:gap-4">
           {/* Canopy Score Note */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-xs p-5 hover:shadow-md transition">
-            <div className="flex justify-between items-start mb-3">
-              <h4 className="text-sm font-bold flex items-center gap-2 text-slate-800">
-                <span className="material-symbols-outlined text-emerald-700 bg-emerald-100 p-1 rounded-md text-[18px]">
+          <div className="paper-card p-4 sm:p-5">
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="text-xs font-extrabold flex items-center gap-1.5 text-[#1c1917]">
+                <span className="material-symbols-outlined text-[#14532d] bg-emerald-50 p-1 rounded-lg text-[18px]">
                   eco
                 </span>
-                Canopy Score
+                Canopy Health Index
               </h4>
-              <span className="text-2xl font-bold text-emerald-800">
-                {current.canopyScore}<span className="text-slate-600 text-sm font-normal">/100</span>
+              <span className="text-xl font-black text-[#14532d]">
+                {current.canopyScore}<span className="text-[#78716c] text-xs font-normal">/100</span>
               </span>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-[#57534e] leading-relaxed">
               Overall biomass coverage looks strong. Slight dip in the SE quadrant compared to last week.
             </p>
           </div>
 
           {/* Moisture % Note */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-xs p-5 hover:shadow-md transition">
-            <div className="flex justify-between items-start mb-3">
-              <h4 className="text-sm font-bold flex items-center gap-2 text-slate-800">
-                <span className="material-symbols-outlined text-blue-600 bg-blue-50 p-1 rounded-md text-[18px]">
+          <div className="paper-card p-4 sm:p-5">
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="text-xs font-extrabold flex items-center gap-1.5 text-[#1c1917]">
+                <span className="material-symbols-outlined text-blue-700 bg-blue-50 p-1 rounded-lg text-[18px]">
                   water_drop
                 </span>
-                Soil Moisture
+                Root Zone Soil Moisture
               </h4>
-              <span className="text-2xl font-bold text-blue-600">{current.moisture}</span>
+              <span className="text-xl font-black text-blue-700">{current.moisture}</span>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-[#57534e] leading-relaxed">
               Holding steady at root depth. No immediate irrigation needed for the next 48 hours.
             </p>
           </div>
 
           {/* Nitrogen Alert Note */}
-          <div className="bg-red-50/70 border border-red-200 rounded-xl shadow-xs p-5">
-            <div className="flex justify-between items-start mb-2">
-              <h4 className="text-sm font-bold text-red-900 flex items-center gap-2">
-                <span className="material-symbols-outlined text-red-600 text-[20px]">error</span>
-                Nitrogen Alert
+          <div className="paper-card p-4 sm:p-5 border-l-4 border-l-[#ea580c] bg-[#fffbeb]">
+            <div className="flex justify-between items-start mb-1.5">
+              <h4 className="text-xs font-extrabold text-[#92400e] flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[#ea580c] text-[18px]">error</span>
+                Nitrogen Deficit Alert
               </h4>
             </div>
-            <p className="text-xs text-red-800 leading-relaxed">
+            <p className="text-xs text-[#78350f] leading-relaxed">
               Low N detected in SE quadrant stress zone. Recommend targeted top-dress urea (18 kg/acre) before upcoming showers.
             </p>
             <button
               onClick={() => setTreatmentScheduled(true)}
-              className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg transition shadow-xs"
+              className="mt-3 w-full bg-[#14532d] hover:bg-[#052e16] text-white text-xs font-extrabold py-2.5 px-4 rounded-xl transition shadow-xs btn-tap"
             >
-              {treatmentScheduled ? '✓ Treatment Scheduled' : 'Schedule Urea Treatment'}
+              {treatmentScheduled ? '✓ Advisory Scheduled' : 'Schedule Urea Treatment'}
             </button>
           </div>
         </div>

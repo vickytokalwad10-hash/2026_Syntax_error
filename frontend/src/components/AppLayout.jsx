@@ -2,21 +2,18 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNetwork } from '../context/NetworkContext';
+import { useNotifications } from '../context/NotificationContext';
+import NotificationDrawer from './NotificationDrawer';
+import NotificationSettingsModal from './NotificationSettingsModal';
 
 export default function AppLayout() {
   const { user, role, logout } = useAuth();
   const { isOnline, pendingSyncCount, isSyncing, triggerSync } = useNetwork();
+  const { unreadCount, isDrawerOpen, setIsDrawerOpen, urgentToast, dismissToast, markAsRead } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en'); // 'en' or 'hi'
-
-  const notifications = [
-    { id: 1, title: 'PM-KISAN 19th Installment', desc: 'Expected credit on March 15, 2026 directly to bank A/C.', time: '10m ago', unread: true },
-    { id: 2, title: 'Rainfall Alert: 45mm Expected', desc: 'Heavy unseasonal showers in Karnal. Defer pesticide spraying.', time: '1h ago', unread: true },
-    { id: 3, title: 'ITC Direct Bid Received', desc: 'ITC Agri-Business placed verified bid of ₹2,860/qtl on Sharbati Wheat.', time: '2h ago', unread: false }
-  ];
 
   const navSections = [
     {
@@ -65,12 +62,79 @@ export default function AppLayout() {
     { to: '/payment', label: 'Escrow', icon: 'payments' }
   ];
 
+  const handleToastAction = (toast) => {
+    markAsRead(toast.id);
+    dismissToast();
+    if (toast.action_route) {
+      navigate(toast.action_route);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-[#1c1917] flex flex-col md:flex-row antialiased selection:bg-[#fef3c7] selection:text-[#92400e]">
+    <div className="min-h-screen bg-[#faf8f5] text-[#1c1917] flex flex-col md:flex-row antialiased selection:bg-[#fef3c7] selection:text-[#92400e] relative">
+      {/* ========================================================================= */}
+      {/* Urgent Top Toast Notification Banner (Auto-Alert Pop-up) */}
+      {/* ========================================================================= */}
+      {urgentToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92vw] max-w-md toast-animate">
+          <div
+            className={`p-3.5 sm:p-4 rounded-2xl shadow-floating border flex items-start gap-3 bg-white ${
+              urgentToast.color_type === 'crop-green'
+                ? 'border-emerald-300 notif-green'
+                : urgentToast.color_type === 'terracotta'
+                ? 'border-orange-300 notif-terracotta'
+                : 'border-amber-300 notif-wheat'
+            }`}
+          >
+            <div
+              className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                urgentToast.color_type === 'crop-green'
+                  ? 'bg-emerald-100 text-emerald-900'
+                  : urgentToast.color_type === 'terracotta'
+                  ? 'bg-orange-100 text-orange-950'
+                  : 'bg-amber-100 text-amber-950'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">{urgentToast.icon || 'warning'}</span>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-1">
+                <span className="text-xs font-extrabold text-[#1c1917] truncate leading-tight">
+                  {urgentToast.title}
+                </span>
+                <span className="text-[9px] font-bold text-[#ea580c] uppercase">Live Alert</span>
+              </div>
+              <p className="text-[11px] text-[#44403c] line-clamp-2 mt-0.5 leading-snug">
+                {urgentToast.desc}
+              </p>
+              {urgentToast.action_route && (
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    onClick={() => handleToastAction(urgentToast)}
+                    className="text-[11px] font-extrabold text-[#14532d] hover:underline"
+                  >
+                    {urgentToast.action_label || 'View Details'} ➔
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={dismissToast}
+              className="text-[#a8a29e] hover:text-[#1c1917] p-1 shrink-0"
+              title="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* Desktop / Tablet Artisanal Human-Crafted Sidebar */}
       {/* ========================================================================= */}
-      <aside className="hidden md:flex h-full w-72 border-r border-[#e7e5e4] bg-[#ffffff] shadow-[1px_0_4px_rgba(0,0,0,0.02)] fixed inset-y-0 left-0 z-50 flex-col p-4">
+      <aside className="hidden md:flex h-full w-64 lg:w-72 border-r border-[#e7e5e4] bg-[#ffffff] shadow-[1px_0_4px_rgba(0,0,0,0.02)] fixed inset-y-0 left-0 z-40 flex-col p-4">
         {/* Brand App Header */}
         <div className="mb-3 flex items-center justify-between pb-3 border-b border-[#f5f2eb]">
           <div className="flex items-center gap-2.5">
@@ -80,7 +144,7 @@ export default function AppLayout() {
             <div>
               <h1 className="font-extrabold text-base tracking-tight text-[#1c1917] leading-none font-editorial flex items-center gap-1.5">
                 AgriPulse <span className="font-sans text-[10px] font-bold text-[#b45309] bg-[#fef3c7] px-1.5 py-0.2 rounded-md">भारत</span>
-                <span className="font-sans text-[9px] font-bold text-[#14532d] bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-md">v2.1.0</span>
+                <span className="font-sans text-[9px] font-bold text-[#14532d] bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-md">v2.2.0</span>
               </h1>
               <span className="text-[11px] text-[#78716c] font-medium block mt-1">
                 {role === 'buyer' ? '🏢 Institutional Buyer Terminal' : '🌾 Farmer & FPO Network'}
@@ -160,32 +224,32 @@ export default function AppLayout() {
       {/* ========================================================================= */}
       {/* Main Human-Crafted Editorial Content Viewport */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex flex-col md:pl-72 min-w-0">
+      <div className="flex-1 flex flex-col md:pl-64 lg:pl-72 min-w-0">
         {/* Top Masthead Header */}
-        <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#e7e5e4] px-4 sm:px-6 py-2.5 flex items-center justify-between shadow-2xs">
-          <div className="flex items-center gap-3">
+        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-[#e7e5e4] px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {/* Mobile Drawer Button */}
             <button
               onClick={() => setMobileDrawerOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#44403c] transition"
+              className="md:hidden p-2 rounded-xl bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#44403c] transition shrink-0"
               aria-label="Open Navigation"
             >
               <span className="material-symbols-outlined text-[20px]">menu</span>
             </button>
 
-            <div>
+            <div className="truncate">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                <span className="text-[11px] font-bold text-[#57534e]">Karnal APMC District Node</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+                <span className="text-[11px] font-bold text-[#57534e] truncate">Karnal APMC District Node</span>
                 <span className="text-[10px] text-[#a8a29e] hidden sm:inline">• Live Mandi Feed</span>
               </div>
-              <p className="text-xs sm:text-sm font-extrabold text-[#1c1917]">
-                Today: Monday, 17 August 2026
+              <p className="text-xs sm:text-sm font-extrabold text-[#1c1917] truncate">
+                Today: Tuesday, 18 August 2026
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Language Switcher */}
             <div className="flex items-center bg-[#f5f2eb] p-0.5 rounded-lg text-[11px] font-bold">
               <button
@@ -205,7 +269,7 @@ export default function AppLayout() {
             {/* Offline/Online Persistent Signal Badge */}
             <button
               onClick={triggerSync}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
                 isOnline
                   ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
                   : 'bg-amber-100 text-amber-900 border border-amber-300'
@@ -219,42 +283,25 @@ export default function AppLayout() {
               </span>
             </button>
 
-            {/* Notification Bell */}
-            <div className="relative">
-              <button
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="p-1.5 rounded-xl bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#44403c] transition relative"
-                aria-label="Notifications"
-              >
-                <span className="material-symbols-outlined text-[19px]">notifications</span>
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#b45309]"></span>
-              </button>
-
-              {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-floating border border-[#e7e5e4] p-3 z-50 animate-in zoom-in-95">
-                  <div className="flex justify-between items-center pb-2 border-b border-[#f5f2eb] mb-2">
-                    <span className="text-xs font-extrabold text-[#1c1917]">Alerts & Advisories</span>
-                    <span className="text-[10px] text-[#b45309] font-bold cursor-pointer">Mark all read</span>
-                  </div>
-                  <div className="space-y-2">
-                    {notifications.map((n) => (
-                      <div key={n.id} className="p-2.5 rounded-xl bg-[#faf8f5] hover:bg-[#f5f2eb] transition text-xs border border-[#f5f2eb]">
-                        <div className="flex justify-between items-start">
-                          <p className="font-bold text-[#1c1917]">{n.title}</p>
-                          <span className="text-[10px] text-[#a8a29e]">{n.time}</span>
-                        </div>
-                        <p className="text-[11px] text-[#57534e] mt-0.5">{n.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            {/* Persistent Hand-Drawn Notification Bell Icon */}
+            <button
+              onClick={() => setIsDrawerOpen(true)}
+              className="p-1.5 sm:p-2 rounded-xl bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#44403c] transition relative active:scale-95"
+              aria-label="Open Notification Center"
+              title="Alerts & Advisories"
+            >
+              <span className="material-symbols-outlined text-[20px] text-[#14532d]">notifications</span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#ea580c] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs animate-pulse">
+                  {unreadCount}
+                </span>
               )}
-            </div>
+            </button>
           </div>
         </header>
 
         {/* Dynamic Route Viewport */}
-        <main className="flex-1 p-4 sm:p-6 pb-24 md:pb-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-3.5 sm:p-5 lg:p-6 pb-28 md:pb-8 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
       </div>
@@ -355,6 +402,12 @@ export default function AppLayout() {
           <div className="flex-1" onClick={() => setMobileDrawerOpen(false)}></div>
         </div>
       )}
+
+      {/* Sliding Notification Center Drawer */}
+      <NotificationDrawer />
+
+      {/* Notification Preferences Modal */}
+      <NotificationSettingsModal />
     </div>
   );
 }
