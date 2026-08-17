@@ -75,7 +75,10 @@ EN_LOCALE = {
         "quickActions": "Quick Farmer Actions",
         "priceSourceAgriPulse": "AgriPulse Intelligence",
         "priceSourceGovt": "Govt. Verified (Agmarknet)",
+        "priceSourceEnam": "e-NAM Electronic Auction",
+        "mandisReporting": "Mandis Reporting",
         "govtAttribution": "Source: Agmarknet, Ministry of Agriculture & Farmers Welfare, Government of India (via data.gov.in)",
+        "enamAttribution": "Source: National Agriculture Market (e-NAM), Ministry of Agriculture & Farmers Welfare, Government of India",
         "arrivalDate": "Arrival Date",
         "modalPrice": "Modal Price",
         "minMaxPrice": "Min / Max",
@@ -168,7 +171,8 @@ EN_LOCALE = {
         "optimalRoute": "Optimal Route Recommendation",
         "compareGovt": "AgriPulse vs Agmarknet Government Comparison",
         "priceDelta": "Price Delta",
-        "govtModal": "Govt. Modal (Agmarknet)"
+        "govtModal": "Govt. Modal (Agmarknet)",
+        "enamModal": "e-NAM Electronic Rate"
     },
     "schemes": {
         "title": "Government Schemes & Subsidy Hub",
@@ -288,7 +292,10 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "quickActions": "त्वरित किसान कार्य",
             "priceSourceAgriPulse": "एग्रीपल्स भाव",
             "priceSourceGovt": "सरकारी सत्यापित (Agmarknet)",
+            "priceSourceEnam": "ई-नाम इलेक्ट्रॉनिक नीलामी",
+            "mandisReporting": "मंडी रिपोर्टिंग",
             "govtAttribution": "स्रोत: एगमार्कनेट, कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार (data.gov.in)",
+            "enamAttribution": "स्रोत: राष्ट्रीय कृषि बाजार (e-NAM), कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार",
             "arrivalDate": "आवक तिथि",
             "modalPrice": "मॉडल भाव",
             "minMaxPrice": "न्यूनतम / अधिकतम",
@@ -381,7 +388,8 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "optimalRoute": "सर्वोत्तम मंडी सिफारिश",
             "compareGovt": "एग्रीपल्स बनाम एगमार्कनेट सरकारी मूल्य तुलना",
             "priceDelta": "भाव अंतर",
-            "govtModal": "सरकारी मॉडल भाव"
+            "govtModal": "सरकारी मॉडल भाव",
+            "enamModal": "ई-नाम इलेक्ट्रॉनिक दर"
         },
         "schemes": {
             "title": "सरकारी योजनाएं व सब्सिडी हब",
@@ -498,7 +506,10 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "quickActions": "त्वरित शेतकरी कृती",
             "priceSourceAgriPulse": "ॲग्रीपल्स भाव",
             "priceSourceGovt": "शासकीय सत्यापित (Agmarknet)",
+            "priceSourceEnam": "ई-नाम इलेक्ट्रॉनिक लिलाव",
+            "mandisReporting": "बाजार समिती नोंद",
             "govtAttribution": "स्रोत: ॲगमार्कनेट, कृषी व शेतकरी कल्याण मंत्रालय, भारत सरकार (data.gov.in)",
+            "enamAttribution": "स्रोत: राष्ट्रीय कृषी बाजार (e-NAM), कृषी व शेतकरी कल्याण मंत्रालय, भारत सरकार",
             "arrivalDate": "आवक तारीख",
             "modalPrice": "मॉडेल भाव",
             "minMaxPrice": "किमान / कमाल",
@@ -591,7 +602,8 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "optimalRoute": "सर्वोत्तम बाजार समिती शिफारस",
             "compareGovt": "ॲग्रीपल्स विरुद्ध ॲगमार्कनेट शासकीय दर तुलना",
             "priceDelta": "भाव फरक",
-            "govtModal": "शासकीय मॉडेल भाव"
+            "govtModal": "शासकीय मॉडेल भाव",
+            "enamModal": "ई-नाम इलेक्ट्रॉनिक दर"
         },
         "schemes": {
             "title": "शासकीय योजना व अनुदान हब",

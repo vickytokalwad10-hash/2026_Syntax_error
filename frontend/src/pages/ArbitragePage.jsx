@@ -218,7 +218,7 @@ export default function ArbitragePage() {
         </div>
       </div>
 
-      {/* Side-by-Side Government (Agmarknet) vs AgriPulse Intelligence Verification Table */}
+      {/* 3-Way Multi-Source Market Verification Table (AgriPulse vs Agmarknet vs e-NAM) */}
       <div className="paper-card p-4 sm:p-5 space-y-3">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-2 border-b border-[#f5f2eb]">
           <div>
@@ -227,7 +227,7 @@ export default function ArbitragePage() {
               <span>{t('arbitrage.compareGovt')}</span>
             </h3>
             <p className="text-[11px] text-[#78716c]">
-              Side-by-side validation of private market spot bids against daily official e-NAM / Agmarknet modal rates
+              3-way cross-verification: Private Network Spot vs Agmarknet Physical Modal vs e-NAM Electronic Auction Rates
             </p>
           </div>
 
@@ -249,42 +249,73 @@ export default function ArbitragePage() {
         </div>
 
         <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left text-xs min-w-[600px]">
+          <table className="w-full text-left text-xs min-w-[720px]">
             <thead>
               <tr className="border-b border-[#e7e5e4] text-[#78716c] uppercase tracking-wider font-extrabold text-[10px]">
-                <th className="pb-2">APMC Mandi</th>
-                <th className="pb-2">AgriPulse Network</th>
-                <th className="pb-2">{t('arbitrage.govtModal')}</th>
-                <th className="pb-2">Govt Range (Min - Max)</th>
+                <th className="pb-2">APMC Mandi & Source Provenance</th>
+                <th className="pb-2">🌾 AgriPulse Spot</th>
+                <th className="pb-2">🏛️ {t('arbitrage.govtModal')}</th>
+                <th className="pb-2">📊 {t('arbitrage.enamModal')}</th>
+                <th className="pb-2">Spread (e-NAM vs Agmarknet)</th>
                 <th className="pb-2">{t('arbitrage.priceDelta')}</th>
-                <th className="pb-2 text-right">Arrival Date</th>
+                <th className="pb-2 text-right">Verification Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#f5f2eb]">
               {govComparisons.map((row, idx) => (
                 <tr key={idx} className="hover:bg-[#faf8f5] transition">
                   <td className="py-2.5 font-bold text-[#1c1917]">
-                    {row.mandi_name}
-                    <span className="text-[10px] text-[#78716c] font-normal block">{row.state}</span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span>{row.mandi_name}</span>
+                      <span className="text-[10px] text-[#78716c] font-normal">({row.state})</span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-1 flex-wrap">
+                      {(row.active_sources || ['AgriPulse Network']).map((s, sidx) => (
+                        <span key={sidx} className={`text-[8px] font-black px-1.5 py-0.2 rounded ${
+                          s === 'e-NAM'
+                            ? 'bg-[#eff6ff] text-[#1e40af] border border-[#bfdbfe]'
+                            : s === 'Agmarknet'
+                            ? 'bg-[#f0fdf4] text-[#14532d] border border-[#bbf7d0]'
+                            : 'bg-[#faf8f5] text-[#78716c] border border-[#e7e5e4]'
+                        }`}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
                   </td>
                   <td className="py-2.5 font-extrabold text-[#14532d]">
                     ₹{row.agripulse_spot_price}/qtl
                   </td>
                   <td className="py-2.5 font-bold text-[#1c1917]">
-                    ₹{row.gov_modal_price}/qtl
+                    ₹{row.agmarknet_modal_price}/qtl
+                    <span className="text-[10px] text-[#78716c] block font-normal">
+                      ₹{row.agmarknet_min_price} – ₹{row.agmarknet_max_price}
+                    </span>
                   </td>
-                  <td className="py-2.5 text-[#78716c]">
-                    ₹{row.gov_min_price} – ₹{row.gov_max_price}
+                  <td className="py-2.5 font-bold text-[#1e40af]">
+                    ₹{row.enam_modal_price}/qtl
+                    {row.enam_arrivals_tonnes && (
+                      <span className="text-[10px] text-[#3b82f6] block font-medium">
+                        {row.enam_arrivals_tonnes} MT Traded
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2.5">
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                      row.enam_spread_vs_agmarknet >= 0 ? 'bg-blue-100 text-blue-900' : 'bg-amber-100 text-amber-900'
+                    }`}>
+                      {row.enam_spread_vs_agmarknet >= 0 ? `+₹${row.enam_spread_vs_agmarknet}` : `-₹${Math.abs(row.enam_spread_vs_agmarknet)}`}/qtl
+                    </span>
                   </td>
                   <td className="py-2.5">
                     <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
                       row.is_agripulse_premium ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'
                     }`}>
-                      {row.is_agripulse_premium ? `+₹${row.priceDelta}` : `-₹${Math.abs(row.priceDelta)}`} ({row.price_delta_pct}%)
+                      {row.is_agripulse_premium ? `+₹${row.price_delta}` : `-₹${Math.abs(row.price_delta)}`} ({row.price_delta_pct}%)
                     </span>
                   </td>
                   <td className="py-2.5 text-right text-[#78716c]">
-                    📅 {row.gov_arrival_date}
+                    📅 {row.agmarknet_arrival_date || row.enam_arrival_date || 'Today'}
                   </td>
                 </tr>
               ))}
@@ -292,14 +323,16 @@ export default function ArbitragePage() {
           </table>
         </div>
 
-        {/* NDSAP Mandatory Attribution Footer */}
+        {/* Multi-Source NDSAP & e-NAM Mandatory Attribution Footer */}
         <div className="pt-2 border-t border-[#f5f2eb] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[10px] text-[#78716c]">
-          <span className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[#14532d] text-[16px]">verified</span>
-            {govtAttribution}
-          </span>
-          <span className="font-semibold bg-[#f5f2eb] px-2 py-0.5 rounded border border-[#e7e5e4]">
-            Official Open Government Data (data.gov.in)
+          <div className="flex flex-col gap-0.5">
+            <span className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[#14532d] text-[15px]">verified</span>
+              <span>Source: Agmarknet (Ministry of Agriculture) & e-NAM (SFAC), Government of India (via data.gov.in)</span>
+            </span>
+          </div>
+          <span className="font-semibold bg-[#f5f2eb] px-2 py-0.5 rounded border border-[#e7e5e4] shrink-0">
+            NDSAP Open Government Data
           </span>
         </div>
       </div>

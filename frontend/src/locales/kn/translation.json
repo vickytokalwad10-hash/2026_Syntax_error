@@ -60,7 +60,10 @@
     "quickActions": "त्वरित शेतकरी कृती",
     "priceSourceAgriPulse": "ॲग्रीपल्स भाव",
     "priceSourceGovt": "शासकीय सत्यापित (Agmarknet)",
+    "priceSourceEnam": "ई-नाम इलेक्ट्रॉनिक लिलाव",
+    "mandisReporting": "बाजार समिती नोंद",
     "govtAttribution": "स्रोत: ॲगमार्कनेट, कृषी व शेतकरी कल्याण मंत्रालय, भारत सरकार (data.gov.in)",
+    "enamAttribution": "स्रोत: राष्ट्रीय कृषी बाजार (e-NAM), कृषी व शेतकरी कल्याण मंत्रालय, भारत सरकार",
     "arrivalDate": "आवक तारीख",
     "modalPrice": "मॉडेल भाव",
     "minMaxPrice": "किमान / कमाल",
@@ -153,7 +156,8 @@
     "optimalRoute": "सर्वोत्तम बाजार समिती शिफारस",
     "compareGovt": "ॲग्रीपल्स विरुद्ध ॲगमार्कनेट शासकीय दर तुलना",
     "priceDelta": "भाव फरक",
-    "govtModal": "शासकीय मॉडेल भाव"
+    "govtModal": "शासकीय मॉडेल भाव",
+    "enamModal": "ई-नाम इलेक्ट्रॉनिक दर"
   },
   "schemes": {
     "title": "शासकीय योजना व अनुदान हब",

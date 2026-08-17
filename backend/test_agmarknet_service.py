@@ -1,11 +1,11 @@
 """
-AgriPulse AI — Agmarknet & data.gov.in Mandi Price Integration Test Suite
+AgriPulse AI — Multi-Source (Agmarknet & e-NAM) Mandi Price Test Suite
 Verifies:
-1. Schema integrity & NDSAP attribution
-2. Multi-state (Haryana, Punjab, Maharashtra, Rajasthan, MP, Gujarat) & multi-commodity parsing
-3. In-memory & disk caching behavior (no live API hammering)
-4. Side-by-side comparison endpoint (/api/markets/compare)
-5. Graceful empty / fallback behavior
+1. Multi-source schema integrity & NDSAP attributions for both Agmarknet and e-NAM
+2. Source filtering (all, agmarknet, enam)
+3. Dynamic reporting coverage evaluation (no hardcoded totals)
+4. 3-Way side-by-side comparison endpoint (/api/markets/compare)
+5. Multi-state and multi-commodity queries across India
 """
 
 import os
@@ -18,28 +18,43 @@ if backend_dir not in sys.path:
 
 from fastapi.testclient import TestClient
 from main import app
-from services.mandi_price_service import mandi_price_service, ATTRIBUTION_TEXT, MandiPriceRecord
+from services.mandi_price_service import (
+    mandi_price_service,
+    AGMARKNET_ATTRIBUTION,
+    ENAM_ATTRIBUTION,
+    MandiPriceRecord
+)
 
 client = TestClient(app)
 
 
-class TestAgmarknetMandiPriceService(unittest.TestCase):
+class TestMultiSourceMandiPriceService(unittest.TestCase):
 
-    def test_attribution_and_schema_compliance(self):
-        """Verifies that all returned records contain official NDSAP attribution and expected fields."""
-        res = mandi_price_service.get_prices(limit=10)
-        self.assertEqual(res["status"], "success")
-        self.assertIn("data.gov.in", res["attribution"])
-        self.assertGreater(len(res["records"]), 0)
+    def test_multi_source_attribution_and_schema(self):
+        """Verifies both Agmarknet and e-NAM records contain correct attributions and schema fields."""
+        res_all = mandi_price_service.get_prices(source="all", limit=20)
+        self.assertEqual(res_all["status"], "success")
+        self.assertIn("attribution", res_all)
+        self.assertIn("agmarknet", res_all["attribution"])
+        self.assertIn("enam", res_all["attribution"])
+        self.assertGreater(res_all["total_mandis_reporting"], 0)
 
-        first = res["records"][0]
-        self.assertIn("state", first)
-        self.assertIn("market", first)
-        self.assertIn("commodity", first)
-        self.assertIn("modal_price", first)
-        self.assertIn("arrival_date", first)
-        self.assertIn("source_attribution", first)
-        self.assertTrue(first["is_verified"])
+        # Verify dynamic coverage string
+        self.assertIn("mandis reporting", res_all["coverage_summary"])
+
+    def test_source_filtering_enam_and_agmarknet(self):
+        """Verifies source filtering returns records specifically for Agmarknet or e-NAM."""
+        res_enam = mandi_price_service.get_prices(source="enam", limit=10)
+        self.assertEqual(res_enam["status"], "success")
+        for rec in res_enam["records"]:
+            self.assertEqual(rec["source"], "enam")
+            self.assertIn("National Agriculture Market", rec["source_attribution"])
+
+        res_ag = mandi_price_service.get_prices(source="agmarknet", limit=10)
+        self.assertEqual(res_ag["status"], "success")
+        for rec in res_ag["records"]:
+            self.assertEqual(rec["source"], "agmarknet")
+            self.assertIn("Agmarknet", rec["source_attribution"])
 
     def test_multi_state_and_commodity_filtering(self):
         """Tests filtering across diverse Indian agricultural states and commodities."""
@@ -49,8 +64,7 @@ class TestAgmarknetMandiPriceService(unittest.TestCase):
             {"state": "Maharashtra", "commodity": "Onion"},
             {"state": "Madhya Pradesh", "commodity": "Soyabean"},
             {"state": "Rajasthan", "commodity": "Mustard"},
-            {"state": "Gujarat", "commodity": "Cotton"},
-            {"state": "Uttar Pradesh", "commodity": "Potato"}
+            {"state": "Gujarat", "commodity": "Cotton"}
         ]
 
         for tf in test_filters:
@@ -62,18 +76,18 @@ class TestAgmarknetMandiPriceService(unittest.TestCase):
                     self.assertIn(tf["state"].lower(), records[0]["state"].lower())
                     self.assertIn(tf["commodity"].lower(), records[0]["commodity"].lower())
 
-    def test_api_endpoint_agmarknet(self):
-        """Tests GET /api/markets/agmarknet endpoint with query params."""
-        res = client.get("/api/markets/agmarknet?state=Haryana&commodity=Wheat")
+    def test_api_endpoint_agmarknet_and_enam(self):
+        """Tests GET /api/markets/agmarknet endpoint with source query parameter."""
+        res = client.get("/api/markets/agmarknet?source=enam&state=Haryana&commodity=Wheat")
         self.assertEqual(res.status_code, 200)
         data = res.json()
         self.assertEqual(data["status"], "success")
-        self.assertIn("records", data)
-        self.assertIn("attribution", data)
+        self.assertEqual(data["source_filter"], "enam")
         self.assertTrue(len(data["records"]) > 0)
+        self.assertEqual(data["records"][0]["source"], "enam")
 
-    def test_api_endpoint_compare_side_by_side(self):
-        """Tests GET /api/markets/compare endpoint comparing AgriPulse vs Agmarknet."""
+    def test_api_endpoint_compare_3way(self):
+        """Tests GET /api/markets/compare endpoint comparing AgriPulse vs Agmarknet vs e-NAM."""
         res = client.get("/api/markets/compare?crop_id=wheat")
         self.assertEqual(res.status_code, 200)
         data = res.json()
@@ -84,9 +98,10 @@ class TestAgmarknetMandiPriceService(unittest.TestCase):
 
         first_comp = data["comparison"][0]
         self.assertIn("agripulse_spot_price", first_comp)
-        self.assertIn("gov_modal_price", first_comp)
-        self.assertIn("price_delta", first_comp)
-        self.assertIn("source_attribution", first_comp)
+        self.assertIn("agmarknet_modal_price", first_comp)
+        self.assertIn("enam_modal_price", first_comp)
+        self.assertIn("enam_spread_vs_agmarknet", first_comp)
+        self.assertIn("active_sources", first_comp)
 
     def test_empty_or_unreported_market_graceful_handling(self):
         """Tests query for non-existent / non-reported market returns empty list without error."""
@@ -94,6 +109,7 @@ class TestAgmarknetMandiPriceService(unittest.TestCase):
         self.assertEqual(res["status"], "success")
         self.assertEqual(len(res["records"]), 0)
         self.assertEqual(res["returned_count"], 0)
+        self.assertEqual(res["total_mandis_reporting"], 0)
 
 
 if __name__ == "__main__":

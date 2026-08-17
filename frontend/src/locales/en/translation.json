@@ -60,7 +60,10 @@
     "quickActions": "Quick Farmer Actions",
     "priceSourceAgriPulse": "AgriPulse Intelligence",
     "priceSourceGovt": "Govt. Verified (Agmarknet)",
+    "priceSourceEnam": "e-NAM Electronic Auction",
+    "mandisReporting": "Mandis Reporting",
     "govtAttribution": "Source: Agmarknet, Ministry of Agriculture & Farmers Welfare, Government of India (via data.gov.in)",
+    "enamAttribution": "Source: National Agriculture Market (e-NAM), Ministry of Agriculture & Farmers Welfare, Government of India",
     "arrivalDate": "Arrival Date",
     "modalPrice": "Modal Price",
     "minMaxPrice": "Min / Max",
@@ -153,7 +156,8 @@
     "optimalRoute": "Optimal Route Recommendation",
     "compareGovt": "AgriPulse vs Agmarknet Government Comparison",
     "priceDelta": "Price Delta",
-    "govtModal": "Govt. Modal (Agmarknet)"
+    "govtModal": "Govt. Modal (Agmarknet)",
+    "enamModal": "e-NAM Electronic Rate"
   },
   "schemes": {
     "title": "Government Schemes & Subsidy Hub",

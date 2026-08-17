@@ -104,6 +104,23 @@ npm run build:apk
 
 ---
 
+## 🏛️ e-NAM & Government Mandi Integration Roadmap
+
+AgriPulse AI integrates official daily mandi spot and modal price intelligence using a Two-Tier Architecture:
+
+### Tier 1 (Active in Production): Open Government Data (data.gov.in)
+- **Agmarknet Daily Spot Dataset**: Automated queries to `data.gov.in` (`resource_id: 9ef84268-d588-465a-a308-a864a43d0070`).
+- **Multi-Tier Cache**: In-memory + disk JSON cache with 4-hour TTL preventing upstream government rate-limits.
+- **NDSAP Compliance**: Mandatory attribution displayed across all price surfaces.
+- **Dynamic Coverage**: Evaluates `"X mandis reporting for [commodity] in [state]"` from live telemetry.
+
+### Tier 2 (Enterprise Empanelment Pathway): Official e-NAM Service Provider
+- Direct write access, live trade bidding auctions, gate inward weighbridge telemetry, and e-NWR warehouse receipts require institutional empanelment with **SFAC (Small Farmers Agribusiness Consortium)** under the Ministry of Agriculture & Farmers' Welfare.
+- Reference RFQ: *"Empanelment of Service Providers for integration with National Agriculture Market (e-NAM)"* (published on `enam.gov.in/web/resources/tenders`).
+- For technical interface specifications, see [`docs/enam_integration_roadmap.md`](docs/enam_integration_roadmap.md).
+
+---
+
 ## 🔑 Authentication Sandbox Credentials
 
 - **Farmer Role**: `farmer@agripulse.ai` / `Farmer@123`

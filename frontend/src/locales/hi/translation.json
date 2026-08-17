@@ -60,7 +60,10 @@
     "quickActions": "त्वरित किसान कार्य",
     "priceSourceAgriPulse": "एग्रीपल्स भाव",
     "priceSourceGovt": "सरकारी सत्यापित (Agmarknet)",
+    "priceSourceEnam": "ई-नाम इलेक्ट्रॉनिक नीलामी",
+    "mandisReporting": "मंडी रिपोर्टिंग",
     "govtAttribution": "स्रोत: एगमार्कनेट, कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार (data.gov.in)",
+    "enamAttribution": "स्रोत: राष्ट्रीय कृषि बाजार (e-NAM), कृषि एवं किसान कल्याण मंत्रालय, भारत सरकार",
     "arrivalDate": "आवक तिथि",
     "modalPrice": "मॉडल भाव",
     "minMaxPrice": "न्यूनतम / अधिकतम",
@@ -153,7 +156,8 @@
     "optimalRoute": "सर्वोत्तम मंडी सिफारिश",
     "compareGovt": "एग्रीपल्स बनाम एगमार्कनेट सरकारी मूल्य तुलना",
     "priceDelta": "भाव अंतर",
-    "govtModal": "सरकारी मॉडल भाव"
+    "govtModal": "सरकारी मॉडल भाव",
+    "enamModal": "ई-नाम इलेक्ट्रॉनिक दर"
   },
   "schemes": {
     "title": "सरकारी योजनाएं व सब्सिडी हब",
