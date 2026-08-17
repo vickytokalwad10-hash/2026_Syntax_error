@@ -21,21 +21,55 @@ export default function DiagnosePage() {
     { name: 'Soybean (Mosaic Virus)', crop: 'Soybean', img: '🌿', desc: 'Yellow patches transmitted by whiteflies' }
   ];
 
+  const compressAndSetImage = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+        setImagePreview(compressedBase64);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (file) compressAndSetImage(file);
   };
 
   const handleQuickPreset = (preset) => {
     setSelectedCrop(preset.crop);
     setFarmerNotes(`Observed symptoms: ${preset.desc}`);
-    setImagePreview('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ecfdf5"/><text y=".9em" x="10" font-size="70">🌿</text></svg>');
+    if (preset.name.includes('Healthy')) {
+      setImagePreview('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23dcfce7"/><text y=".9em" x="15" font-size="65">🌿</text></svg>');
+    } else {
+      setImagePreview('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23fef3c7"/><text y=".9em" x="15" font-size="65">🍂</text></svg>');
+    }
   };
 
   const runDiagnosis = async () => {
@@ -44,7 +78,7 @@ export default function DiagnosePage() {
 
     const payload = {
       crop_type: selectedCrop,
-      image_base64: imagePreview ? imagePreview.substring(0, 100) : null,
+      image_base64: imagePreview || null,
       farmer_notes: farmerNotes,
       is_offline_sync: !isOnline
     };
@@ -120,92 +154,136 @@ export default function DiagnosePage() {
           <div className="glass-card p-5 space-y-4">
             <h3 className="text-sm font-extrabold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2">
               <span className="material-symbols-outlined text-brand-600">center_focus_strong</span>
-              Capture or Upload Leaf Photo
+              {t('diagnose.uploadPhoto')}
             </h3>
 
-            {/* Upload Area */}
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50 rounded-2xl p-6 text-center cursor-pointer transition active:scale-98 relative overflow-hidden"
-            >
+            {/* Upload & Camera Trigger Area */}
+            <div className="border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50 rounded-2xl p-4 text-center transition relative overflow-hidden">
               <input
                 type="file"
                 accept="image/*"
                 capture="environment"
-                ref={fileInputRef}
+                id="cameraInput"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                id="galleryInput"
                 onChange={handleImageChange}
                 className="hidden"
               />
 
               {imagePreview ? (
-                <div className="relative">
-                  <img src={imagePreview} alt="Crop sample" className="max-h-48 mx-auto rounded-xl shadow-xs" />
-                  <span className="text-[10px] font-bold text-slate-500 block mt-2">{t('diagnose.retakePhoto')}</span>
+                <div className="space-y-3">
+                  <img src={imagePreview} alt="Crop sample" className="max-h-48 mx-auto rounded-xl shadow-xs border border-slate-200" />
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('cameraInput')?.click()}
+                      className="px-3 py-1.5 bg-brand-600 text-white rounded-xl text-[11px] font-bold shadow-xs active:scale-95 flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">photo_camera</span>
+                      {t('diagnose.retakePhoto')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('galleryInput')?.click()}
+                      className="px-3 py-1.5 bg-slate-200 text-slate-800 rounded-xl text-[11px] font-bold shadow-xs active:scale-95 flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">photo_library</span>
+                      Gallery
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center mx-auto text-2xl">
                     📸
                   </div>
                   <p className="text-xs font-bold text-slate-800">{t('diagnose.takePhoto')}</p>
-                  <p className="text-[11px] text-slate-400">{t('diagnose.orBrowseGallery')}</p>
+                  <div className="flex gap-2 justify-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('cameraInput')?.click()}
+                      className="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 flex items-center gap-1.5"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">photo_camera</span>
+                      Camera
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('galleryInput')?.click()}
+                      className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold shadow-xs active:scale-95 flex items-center gap-1.5"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">photo_library</span>
+                      Gallery
+                    </button>
+                  </div>
                 </div>
               )}
+            </div>
+
+            {/* Quick Sample Presets */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Or Test With Verified Samples:</span>
+              <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                {[
+                  { name: 'Healthy Leaf (Clean)', crop: 'Wheat', img: '🌿', desc: 'Lush green foliage, zero pustules or necrosis' },
+                  { name: 'Wheat (Yellow Rust)', crop: 'Wheat', img: '🌾', desc: 'Linear yellow pustules on leaf stripes' },
+                  { name: 'Paddy (Bacterial Blight)', crop: 'Paddy', img: '🌱', desc: 'Wavy translucent leaf margin lesions' },
+                  { name: 'Mustard (Aphid Attack)', crop: 'Mustard', img: '🌼', desc: 'Black/green sucking insects on shoots' }
+                ].map((preset) => (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    onClick={() => handleQuickPreset(preset)}
+                    className="p-2 text-left rounded-xl bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-300 transition flex items-center gap-1.5"
+                  >
+                    <span>{preset.img}</span>
+                    <span className="font-bold text-slate-700 truncate">{preset.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Inputs */}
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Crop Type</label>
+                <label className="block font-bold text-slate-700 mb-1">{t('diagnose.selectCrop')}</label>
                 <select
                   value={selectedCrop}
                   onChange={(e) => setSelectedCrop(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold focus:outline-brand-600"
                 >
-                  <option value="Wheat">Wheat (Gehu)</option>
-                  <option value="Paddy">Paddy / Rice (Dhan)</option>
-                  <option value="Mustard">Mustard (Sarson)</option>
-                  <option value="Soybean">Soybean</option>
-                  <option value="Cotton">Cotton (Kapas)</option>
+                  <option value="Wheat">Wheat (गेहूं)</option>
+                  <option value="Paddy">Paddy / Rice (धान)</option>
+                  <option value="Mustard">Mustard (सरसों)</option>
+                  <option value="Soybean">Soybean (सोयाबीन)</option>
+                  <option value="Cotton">Cotton (कपास)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Field Symptoms / Notes (Optional)</label>
+                <label className="block font-bold text-slate-700 mb-1">{t('diagnose.describeSymptoms')}</label>
                 <textarea
+                  rows={2}
                   value={farmerNotes}
                   onChange={(e) => setFarmerNotes(e.target.value)}
-                  rows="2"
                   placeholder={t('diagnose.symptomPlaceholder')}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl resize-none font-medium"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:outline-brand-600"
                 />
               </div>
 
               <button
                 onClick={runDiagnosis}
                 disabled={loading}
-                className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-extrabold rounded-xl shadow-glow-green transition active:scale-95 flex items-center justify-center gap-2 text-xs"
+                className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-extrabold rounded-xl shadow-xs transition btn-tap flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-[18px]">biotech</span>
-                {loading ? 'Analyzing Plant Pathology...' : 'Diagnose Disease & Dosages'}
+                {loading ? 'Analyzing Plant Pathology...' : t('diagnose.analyzeCrop')}
               </button>
-            </div>
-          </div>
-
-          {/* Quick Demo Presets */}
-          <div className="space-y-2">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">1-Tap Demo Samples</span>
-            <div className="grid grid-cols-2 gap-2">
-              {sampleCropPresets.map((p, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleQuickPreset(p)}
-                  className="p-2.5 bg-white border border-slate-200 hover:border-brand-300 rounded-xl text-left shadow-2xs transition active:scale-95"
-                >
-                  <span className="text-base mr-1">{p.img}</span>
-                  <p className="text-[11px] font-bold text-slate-900 truncate">{p.name}</p>
-                </button>
-              ))}
             </div>
           </div>
         </div>

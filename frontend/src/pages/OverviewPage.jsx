@@ -92,16 +92,40 @@ export default function OverviewPage() {
 
   const currentCommodity = commodities.find((c) => c.id === selectedCrop) || commodities[0];
 
-  const chartLabels = ['01 Oct', '06 Oct', '11 Oct', '16 Oct', '21 Oct', '26 Oct', '31 Oct'];
-  const chartPrices = selectedCrop === 'wheat'
-    ? [2710, 2745, 2790, 2760, 2810, 2835, 2840]
-    : selectedCrop === 'rice'
-    ? [3980, 3960, 3990, 3940, 3920, 3945, 3950]
-    : selectedCrop === 'mustard'
-    ? [5650, 5680, 5710, 5700, 5740, 5760, 5780]
-    : selectedCrop === 'soybean'
-    ? [4720, 4760, 4810, 4790, 4850, 4870, 4890]
-    : [7200, 7250, 7310, 7290, 7360, 7390, 7420];
+  const getTimeframeData = () => {
+    const baseMap = {
+      wheat: 2840,
+      rice: 3950,
+      mustard: 5780,
+      soybean: 4890,
+      cotton: 7420
+    };
+    const base = baseMap[selectedCrop] || 2840;
+
+    if (activeTab === '7D') {
+      return {
+        labels: ['12 Aug', '13 Aug', '14 Aug', '15 Aug', '16 Aug', '17 Aug', 'Today (18 Aug)'],
+        prices: [base - 45, base - 25, base - 60, base - 15, base + 10, base - 5, base]
+      };
+    } else if (activeTab === '1M') {
+      return {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        prices: [base - 120, base - 80, base - 35, base]
+      };
+    } else if (activeTab === '3M') {
+      return {
+        labels: ['Jun 2026', 'Jul 2026', 'Aug 2026'],
+        prices: [base - 210, base - 95, base]
+      };
+    } else {
+      return {
+        labels: ['Q3 2025', 'Q4 2025', 'Q1 2026', 'Q2 2026', 'Q3 2026'],
+        prices: [base - 380, base - 260, base - 140, base - 40, base]
+      };
+    }
+  };
+
+  const { labels: chartLabels, prices: chartPrices } = getTimeframeData();
 
   const chartData = {
     labels: chartLabels,
@@ -111,7 +135,8 @@ export default function OverviewPage() {
         data: chartPrices,
         borderColor: '#14532d',
         backgroundColor: (context) => {
-          const ctx = context.chart.ctx;
+          const ctx = context.chart?.ctx;
+          if (!ctx) return 'rgba(20, 83, 45, 0.1)';
           const gradient = ctx.createLinearGradient(0, 0, 0, 240);
           gradient.addColorStop(0, 'rgba(20, 83, 45, 0.16)');
           gradient.addColorStop(1, 'rgba(20, 83, 45, 0.0)');

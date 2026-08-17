@@ -21,7 +21,7 @@ export default function CalendarPage() {
     if ('Notification' in window && Notification.permission === 'granted') {
       setNotificationEnabled(true);
     }
-  }, []);
+  }, [cropName, region, soilType, sowingDate]);
 
   const generateCalendar = async () => {
     setLoading(true);
@@ -121,6 +121,8 @@ export default function CalendarPage() {
             <option value="Basmati Rice">Basmati Rice</option>
             <option value="Mustard">Mustard (Sarson)</option>
             <option value="Soybean">Soybean</option>
+            <option value="Cotton">Cotton (Bt Hybrid)</option>
+            <option value="Gram (Chana)">Gram (Chana / Chickpea)</option>
           </select>
         </div>
 

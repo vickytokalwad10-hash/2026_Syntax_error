@@ -119,9 +119,54 @@ export default function SimulatorPage() {
         {/* Left Column: Sliders */}
         <div className="xl:col-span-4 space-y-3 sm:space-y-4">
           <div className="paper-card p-4 sm:p-5">
-            <h3 className="text-sm font-extrabold text-[#1c1917] font-editorial mb-4 pb-2.5 border-b border-[#f5f2eb]">
-              Input Variables & Parameters
-            </h3>
+            <div className="flex justify-between items-center mb-3 pb-2.5 border-b border-[#f5f2eb]">
+              <h3 className="text-sm font-extrabold text-[#1c1917] font-editorial">
+                Input Variables & Parameters
+              </h3>
+            </div>
+
+            {/* Quick 1-Tap Scenario Presets */}
+            <div className="mb-4">
+              <span className="text-[10px] font-bold text-[#78716c] uppercase tracking-wider block mb-1.5">Scenario Presets:</span>
+              <div className="grid grid-cols-3 gap-1.5 text-[11px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFertilizerCost(5800);
+                    setExpectedYield(18);
+                    setMarketPrice(2600);
+                    setFarmAcres(10);
+                  }}
+                  className="p-1.5 rounded-lg border border-red-200 bg-red-50 text-red-800 hover:bg-red-100 transition text-center"
+                >
+                  🌧️ Stress (-15%)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFertilizerCost(4800);
+                    setExpectedYield(24);
+                    setMarketPrice(2840);
+                    setFarmAcres(12.5);
+                  }}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-800 hover:bg-slate-200 transition text-center"
+                >
+                  ⚖️ Baseline
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFertilizerCost(4200);
+                    setExpectedYield(28);
+                    setMarketPrice(3200);
+                    setFarmAcres(15);
+                  }}
+                  className="p-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition text-center"
+                >
+                  🚀 High Yield (+20%)
+                </button>
+              </div>
+            </div>
 
             <div className="space-y-4">
               {/* Slider 1: Fertilizer Cost */}
@@ -256,7 +301,7 @@ export default function SimulatorPage() {
             </div>
 
             <div className="h-60 sm:h-72 w-full">
-              <Bar data={chartData} options={chartOptions} />
+              <Bar key={`${fertilizerCost}-${expectedYield}-${marketPrice}-${farmAcres}`} data={chartData} options={chartOptions} />
             </div>
           </div>
         </div>

@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useBackNavigation } from '../context/BackNavigationContext';
+import { useEscrow } from '../context/EscrowContext';
 
 export default function MarketplacePage() {
   const { user, role } = useAuth();
   const { t, formatCurrency } = useLanguage();
   const { registerOverlay, unregisterOverlay } = useBackNavigation();
+  const { createEscrowBid, confirmEscrowPayment, isProcessing } = useEscrow();
   const [activeCategory, setActiveCategory] = useState('All');
   const [biddingLot, setBiddingLot] = useState(null);
+  const [checkoutTxn, setCheckoutTxn] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -139,25 +142,38 @@ export default function MarketplacePage() {
     if (!bidAmount || !biddingLot) return;
 
     const numericBid = parseFloat(bidAmount);
+    const txn = createEscrowBid(biddingLot, numericBid, user?.name || 'ITC Agri-Business');
+    setCheckoutTxn(txn);
+    setBiddingLot(null);
+  };
+
+  const handleConfirmEscrowLock = async () => {
+    if (!checkoutTxn) return;
+    const completed = await confirmEscrowPayment(checkoutTxn.id);
+    
+    // Update local lot state
     setLots(
       lots.map((l) => {
-        if (l.id === biddingLot.id) {
+        if (l.id === checkoutTxn.lotId) {
           return {
             ...l,
-            topBid: `₹${numericBid.toLocaleString('en-IN')}/qtl`,
-            topBidder: user?.name || 'Verified Procurement Entity',
+            topBid: `₹${checkoutTxn.pricePerQtl.toLocaleString('en-IN')}/qtl`,
+            topBidder: checkoutTxn.buyer,
+            status: 'Matched',
+            badge: 'Escrow Locked',
+            badgeType: 'warning',
             bidderTrust: 'TRUSTED',
-            bidderTrustScore: 99
+            bidderTrustScore: 100
           };
         }
         return l;
       })
     );
 
-    setToastMessage(`✅ Verified Bid of ₹${numericBid}/qtl placed on ${biddingLot.commodity}! Escrow lock reserved.`);
-    setBiddingLot(null);
+    setToastMessage(`🎉 Smart Escrow Secured! ₹${checkoutTxn.totalAmount.toLocaleString('en-IN')} locked for ${checkoutTxn.commodity}.`);
+    setCheckoutTxn(null);
     setBidAmount('');
-    setTimeout(() => setToastMessage(null), 4000);
+    setTimeout(() => setToastMessage(null), 5000);
   };
 
   const filteredLots = activeCategory === 'All' ? lots : lots.filter((l) => l.category === activeCategory);
@@ -392,10 +408,90 @@ export default function MarketplacePage() {
                   type="submit"
                   className="flex-1 py-2 bg-[#14532d] hover:bg-[#052e16] text-white font-bold rounded-xl shadow-xs"
                 >
-                  Submit Bid
+                  Proceed to Escrow ➔
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Smart Escrow Payment Authorization Modal */}
+      {checkoutTxn && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-floating border border-[#e7e5e4] animate-in zoom-in-95 space-y-4">
+            <div className="flex justify-between items-start pb-3 border-b border-[#f5f2eb]">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#14532d] text-2xl">shield_lock</span>
+                <div>
+                  <h3 className="text-base font-extrabold text-[#1c1917] font-editorial">
+                    Smart Escrow Checkout
+                  </h3>
+                  <span className="text-[10px] font-mono text-[#78716c]">
+                    Order #{checkoutTxn.id} • RBI-Compliant Tripartite Vault
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setCheckoutTxn(null)}
+                className="w-7 h-7 rounded-full bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#78716c] flex items-center justify-center text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Clear Simulation Notice */}
+            <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-center">
+              <span className="text-[11px] font-extrabold text-amber-900 flex items-center justify-center gap-1">
+                <span>🛡️</span> Demo Payment — No Real Funds Transferred
+              </span>
+            </div>
+
+            {/* Order Summary */}
+            <div className="bg-[#faf8f5] p-3.5 rounded-2xl border border-[#f5f2eb] space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-[#78716c]">Commodity & Lot:</span>
+                <span className="font-extrabold text-[#1c1917]">{checkoutTxn.commodity} ({checkoutTxn.lotId})</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#78716c]">Farmer / Seller:</span>
+                <span className="font-bold text-[#1c1917]">{checkoutTxn.seller}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#78716c]">Procuring Entity:</span>
+                <span className="font-bold text-[#1c1917]">{checkoutTxn.buyer}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#78716c]">Volume:</span>
+                <span className="font-extrabold text-[#1c1917]">{checkoutTxn.quantity}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#78716c]">Agreed Rate:</span>
+                <span className="font-extrabold text-[#14532d]">₹{checkoutTxn.pricePerQtl.toLocaleString('en-IN')} / qtl</span>
+              </div>
+              <div className="pt-2 border-t border-[#e7e5e4] flex justify-between items-center text-sm font-extrabold">
+                <span className="text-[#1c1917]">Escrow Lock Amount:</span>
+                <span className="text-[#14532d] text-base">₹{checkoutTxn.totalAmount.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+
+            {/* Simulated Checkout Button */}
+            <div className="space-y-2 pt-1">
+              <button
+                onClick={handleConfirmEscrowLock}
+                disabled={isProcessing}
+                className="w-full py-3 bg-[#14532d] hover:bg-[#052e16] text-white font-extrabold rounded-xl shadow-xs transition btn-tap flex items-center justify-center gap-2 text-xs"
+              >
+                <span className="material-symbols-outlined text-[18px]">lock</span>
+                {isProcessing ? 'Securing Escrow Vault Funds...' : 'Authorize Demo Payment & Lock Escrow'}
+              </button>
+              <button
+                onClick={() => setCheckoutTxn(null)}
+                className="w-full py-2 bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#78716c] font-bold rounded-xl text-xs"
+              >
+                Cancel Order
+              </button>
+            </div>
           </div>
         </div>
       )}

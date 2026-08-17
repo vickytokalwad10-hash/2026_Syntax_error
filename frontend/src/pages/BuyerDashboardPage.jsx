@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useEscrow } from '../context/EscrowContext';
 
 export default function BuyerDashboardPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { transactions: escrowTxns, setActiveReceipt, releaseEscrowPayment, createEscrowBid, confirmEscrowPayment, isProcessing } = useEscrow();
   const [selectedLotForEscrow, setSelectedLotForEscrow] = useState(null);
-  const [lockedLots, setLockedLots] = useState([]);
   const [toast, setToast] = useState(null);
 
   const verifiedFPOLots = [
@@ -17,6 +18,7 @@ export default function BuyerDashboardPage() {
       location: 'Karnal, Haryana (WDRA Godown #2)',
       quantity: '1,200 Quintals (120 Tons)',
       price: '₹2,840',
+      priceRaw: 2840,
       totalValue: '₹34,08,000',
       assayReport: 'NABL Certified • Moisture 11.2% • Protein 13.4%',
       wdraStatus: 'WDRA Certified E-Receipt Available',
@@ -29,6 +31,7 @@ export default function BuyerDashboardPage() {
       location: 'Indore, MP (State Warehousing Corp)',
       quantity: '800 Quintals (80 Tons)',
       price: '₹4,890',
+      priceRaw: 4890,
       totalValue: '₹39,12,000',
       assayReport: 'APEDA Export Grade • Oil 19.8% • Moisture 10.1%',
       wdraStatus: 'WDRA Stored & Insured',
@@ -41,6 +44,7 @@ export default function BuyerDashboardPage() {
       location: 'Tarawadi, Haryana (Kisan Silos)',
       quantity: '1,500 Quintals (150 Tons)',
       price: '₹3,950',
+      priceRaw: 3950,
       totalValue: '₹59,25,000',
       assayReport: 'GI Tagged • Grain Length 8.4mm • 100% Purity',
       wdraStatus: 'Electronic Negotiable Warehouse Receipt (e-NWR)',
@@ -48,10 +52,21 @@ export default function BuyerDashboardPage() {
     }
   ];
 
-  const handleConfirmEscrow = () => {
+  const handleConfirmEscrow = async () => {
     if (!selectedLotForEscrow) return;
-    setLockedLots([...lockedLots, selectedLotForEscrow.id]);
-    setToast(`🔒 ₹${selectedLotForEscrow.totalValue} locked into tripartite Escrow for ${selectedLotForEscrow.commodity}!`);
+    const txn = createEscrowBid(
+      {
+        id: selectedLotForEscrow.id,
+        commodity: selectedLotForEscrow.commodity,
+        seller: selectedLotForEscrow.fpo,
+        quantity: selectedLotForEscrow.quantity,
+        priceRaw: selectedLotForEscrow.priceRaw
+      },
+      selectedLotForEscrow.priceRaw,
+      user?.company_name || 'ITC Agri-Business Division'
+    );
+    await confirmEscrowPayment(txn.id);
+    setToast(`🔒 ₹${selectedLotForEscrow.totalValue} secured in Smart Escrow for ${selectedLotForEscrow.commodity}!`);
     setSelectedLotForEscrow(null);
     setTimeout(() => setToast(null), 5000);
   };
@@ -101,9 +116,9 @@ export default function BuyerDashboardPage() {
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
             Active Escrow Contracts
           </span>
-          <div className="text-2xl font-bold text-emerald-800">{lockedLots.length + 2} Contracts</div>
+          <div className="text-2xl font-bold text-emerald-800">{escrowTxns.length} Active Contracts</div>
           <span className="text-xs text-slate-500 font-semibold mt-2 block">
-            ₹1.42 Cr total protected liquidity
+            ₹{escrowTxns.reduce((acc, t) => acc + t.totalAmount, 0).toLocaleString('en-IN')} protected liquidity
           </span>
         </div>
 
@@ -118,13 +133,71 @@ export default function BuyerDashboardPage() {
         </div>
       </div>
 
+      {/* Active Escrow Contracts Section */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <h3 className="text-base font-bold text-slate-900">Live Escrow Procurement Contracts</h3>
+          <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
+            🛡️ Demo Escrow Enabled
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3">
+          {escrowTxns.map((tx) => (
+            <div key={tx.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-slate-500">{tx.id}</span>
+                  <h4 className="font-extrabold text-slate-900 text-sm">{tx.commodity}</h4>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    tx.status === 'Secured' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                  }`}>
+                    {tx.status === 'Secured' ? '🔒 Funds Locked in Escrow' : '✅ Disbursed to Farmer'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">
+                  Seller: <strong>{tx.seller}</strong> • Volume: <strong>{tx.quantity}</strong> • Rate: ₹{tx.pricePerQtl.toLocaleString('en-IN')}/qtl
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0">
+                <div className="text-right">
+                  <span className="text-sm font-extrabold text-slate-900 block">₹{tx.totalAmount.toLocaleString('en-IN')}</span>
+                  <span className="text-[10px] text-slate-400 font-mono">{tx.vaultRef}</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveReceipt(tx)}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg transition"
+                  >
+                    Receipt
+                  </button>
+                  {tx.status === 'Secured' && (
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={() => releaseEscrowPayment(tx.id)}
+                      className="px-3 py-1.5 bg-[#14532d] hover:bg-[#052e16] text-white text-xs font-bold rounded-lg shadow-xs transition"
+                    >
+                      {isProcessing ? 'Releasing...' : 'Release Payment'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Verified FPO Lots List */}
       <div className="space-y-4">
         <h3 className="text-base font-bold text-slate-900">Available Verified FPO Bulk Lots</h3>
 
         <div className="grid grid-cols-1 gap-4">
           {verifiedFPOLots.map((lot) => {
-            const isLocked = lockedLots.includes(lot.id);
+            const isLocked = escrowTxns.some((t) => t.lotId === lot.id && t.status === 'Secured');
 
             return (
               <div

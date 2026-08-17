@@ -105,11 +105,11 @@ export default function CropPlanningPage() {
   const currentDistricts = states.find((s) => s.name === locationState)?.districts || [];
 
   const chartData = {
-    labels: result?.recommendations.map((r) => r.crop_name) || [],
+    labels: result?.recommendations.map((r) => r.name || r.crop_name) || [],
     datasets: [
       {
         label: 'Net Profit / Acre (₹)',
-        data: result?.recommendations.map((r) => r.estimated_net_profit_per_acre) || [],
+        data: result?.recommendations.map((r) => r.net_profit_per_acre || r.estimated_net_profit_per_acre || 0) || [],
         backgroundColor: '#14532d',
         borderColor: '#052e16',
         borderWidth: 1.5,
@@ -117,7 +117,7 @@ export default function CropPlanningPage() {
       },
       {
         label: 'Input Cost / Acre (₹)',
-        data: result?.recommendations.map((r) => r.input_cost_per_acre) || [],
+        data: result?.recommendations.map((r) => r.input_cost_per_acre || 0) || [],
         backgroundColor: '#b45309',
         borderColor: '#78350f',
         borderWidth: 1.5,
@@ -287,60 +287,71 @@ export default function CropPlanningPage() {
 
           {/* Top 3 Crop Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {result.recommendations.map((crop, idx) => (
-              <div
-                key={crop.crop_name}
-                className={`paper-card p-5 flex flex-col justify-between space-y-4 ${
-                  crop.is_top_choice
-                    ? 'border-2 border-[#14532d] bg-[#fbfdfb]'
-                    : ''
-                }`}
-              >
-                <div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#faf8f5] border border-[#e7e5e4] text-[#78716c]">
-                      Rank #{crop.rank}
-                    </span>
-                    {crop.is_top_choice && (
-                      <span className="text-[10px] font-bold bg-[#14532d] text-white px-2 py-0.5 rounded-full">
-                        ⭐ Top Choice
+            {result.recommendations.map((crop, idx) => {
+              const cropName = crop.name || crop.crop_name || 'Crop Recommendation';
+              const netProfit = crop.net_profit_per_acre || crop.estimated_net_profit_per_acre || 0;
+              const inputCost = crop.input_cost_per_acre || 0;
+              const projPrice = crop.projected_price || crop.projected_mandi_price || 0;
+              const roi = crop.roi_pct || crop.roi_percentage || 0;
+              const variety = crop.variety_recommendation || crop.variety_recommended || 'Standard High-Yield Cultivar';
+              const duration = crop.duration_days || crop.harvest_duration_days || 120;
+              const waterDemand = crop.water_demand_score || crop.water_need || 'Moderate';
+              const drivers = crop.key_drivers || crop.rationale || 'High market demand and optimal climate fit.';
+              const isTop = idx === 0 || crop.is_top_choice;
+
+              return (
+                <div
+                  key={cropName + idx}
+                  className={`paper-card p-5 flex flex-col justify-between space-y-4 ${
+                    isTop ? 'border-2 border-[#14532d] bg-[#fbfdfb]' : ''
+                  }`}
+                >
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#faf8f5] border border-[#e7e5e4] text-[#78716c]">
+                        Rank #{idx + 1}
                       </span>
-                    )}
+                      {isTop && (
+                        <span className="text-[10px] font-bold bg-[#14532d] text-white px-2 py-0.5 rounded-full">
+                          ⭐ Top Choice ({crop.overall_ai_score || 95} pts)
+                        </span>
+                      )}
+                    </div>
+
+                    <h4 className="text-lg font-extrabold text-[#1c1917] mt-2 font-editorial">{cropName}</h4>
+                    <p className="text-xs text-[#78716c] font-medium">{variety}</p>
+
+                    <div className="mt-3 p-3 rounded-xl bg-[#faf8f5] border border-[#f5f2eb] space-y-1.5 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-[#78716c]">{t('cropPlanning.expectedMargin')}</span>
+                        <span className="font-extrabold text-[#14532d]">₹{netProfit.toLocaleString('en-IN')}/acre</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#78716c]">{t('simulator.costOfCultivation')}</span>
+                        <span className="font-bold text-[#b45309]">₹{inputCost.toLocaleString('en-IN')}/acre</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#78716c]">{t('simulator.mandiPriceAssumption')}</span>
+                        <span className="font-bold text-[#1c1917]">₹{projPrice.toLocaleString('en-IN')}/qtl</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#78716c]">{t('simulator.roi')}</span>
+                        <span className="font-extrabold text-emerald-900">+{roi}%</span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-[#57534e] mt-3 font-medium leading-relaxed">
+                      💡 {drivers}
+                    </p>
                   </div>
 
-                  <h4 className="text-lg font-extrabold text-[#1c1917] mt-2 font-editorial">{crop.crop_name}</h4>
-                  <p className="text-xs text-[#78716c] font-medium">{crop.variety_recommended}</p>
-
-                  <div className="mt-3 p-3 rounded-xl bg-[#faf8f5] border border-[#f5f2eb] space-y-1.5 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-[#78716c]">{t('cropPlanning.expectedMargin')}</span>
-                      <span className="font-extrabold text-[#14532d]">₹{crop.estimated_net_profit_per_acre?.toLocaleString('en-IN') || 0}/acre</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#78716c]">{t('simulator.costOfCultivation')}</span>
-                      <span className="font-bold text-[#b45309]">₹{crop.input_cost_per_acre?.toLocaleString('en-IN') || 0}/acre</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#78716c]">{t('simulator.mandiPriceAssumption')}</span>
-                      <span className="font-bold text-[#1c1917]">₹{crop.projected_mandi_price}/qtl</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#78716c]">{t('simulator.roi')}</span>
-                      <span className="font-extrabold text-emerald-900">{crop.roi_percentage}%</span>
-                    </div>
+                  <div className="pt-3 border-t border-[#f5f2eb] flex items-center justify-between text-[11px] text-[#78716c]">
+                    <span>Cycle: {duration} Days</span>
+                    <span className="font-bold text-[#14532d]">Water: {waterDemand}</span>
                   </div>
-
-                  <p className="text-xs text-[#57534e] mt-3 font-medium leading-relaxed">
-                    💡 {crop.rationale}
-                  </p>
                 </div>
-
-                <div className="pt-3 border-t border-[#f5f2eb] flex items-center justify-between text-[11px] text-[#78716c]">
-                  <span>Cycle: {crop.harvest_duration_days} Days</span>
-                  <span className="font-bold text-[#14532d]">Water: {crop.water_need}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Profit vs Cost Comparison Bar Chart */}

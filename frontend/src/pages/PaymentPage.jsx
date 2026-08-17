@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useNetwork } from '../context/NetworkContext';
+import { useEscrow } from '../context/EscrowContext';
 
 export default function PaymentPage() {
   const { t } = useLanguage();
   const { user, role } = useAuth();
   const { isOnline } = useNetwork();
+  const { transactions: escrowTxns, setActiveReceipt, releaseEscrowPayment, isProcessing } = useEscrow();
 
   // Payment Checkout State
   const [amount, setAmount] = useState('284000'); // ₹2,84,000 default (100 Quintals Wheat)
   const [lotTitle, setLotTitle] = useState('100 Qtl Sharbati Wheat (Lot #LOT-9021)');
   const [sellerName, setSellerName] = useState('Ramesh Devidas Patil (Karnal West)');
-  const [paymentRail, setPaymentRail] = useState('razorpay'); // 'razorpay', 'upi', 'escrow'
+  const [paymentRail, setPaymentRail] = useState('escrow'); // 'razorpay', 'upi', 'escrow'
 
   // 2FA High-Value Modal State
   const [requires2FA, setRequires2FA] = useState(false);
@@ -22,44 +24,6 @@ export default function PaymentPage() {
   // Status & Transaction List
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
-  const [transactions, setTransactions] = useState([
-    {
-      id: 'TX-9901',
-      order_id: 'ord_rzp_884920',
-      lot: '800 Qtl Soybean (Non-GMO)',
-      seller: 'Latur Farmer Producer Co.',
-      buyer: 'Adani Wilmar Ltd',
-      amount: 3936000,
-      payment_method: 'Smart Escrow Lock',
-      status: 'Escrow Locked',
-      date: 'Today, 02:40 PM',
-      badge: 'Protected'
-    },
-    {
-      id: 'TX-9842',
-      order_id: 'ord_rzp_773912',
-      lot: 'Mahindra 575 DI Tractor Rental (3 Days)',
-      seller: 'Sukhwinder Singh',
-      buyer: 'Baldev Singh',
-      amount: 8400,
-      payment_method: 'Instant UPI (PhonePe)',
-      status: 'Settled to Farmer',
-      date: 'Yesterday, 05:15 PM',
-      badge: 'Completed'
-    },
-    {
-      id: 'TX-9721',
-      order_id: 'ord_rzp_661904',
-      lot: '250 Qtl Basmati Paddy (Pusa 1121)',
-      seller: 'Gurmeet Ram',
-      buyer: 'KRBL Basmati Ltd',
-      amount: 980000,
-      payment_method: 'Razorpay NetBanking',
-      status: 'Settled to Farmer',
-      date: '14 Feb 2026',
-      badge: 'Completed'
-    }
-  ]);
 
   const handleInitiatePayment = async (e) => {
     e.preventDefault();
@@ -268,20 +232,22 @@ export default function PaymentPage() {
             </div>
 
             <div className="space-y-3">
-              {transactions.map((tx) => (
-                <div key={tx.id} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 text-xs">
+              {escrowTxns.map((tx) => (
+                <div key={tx.id} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 text-xs">
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-slate-900 text-sm">{tx.lot}</span>
+                        <span className="font-extrabold text-slate-900 text-sm">{tx.commodity}</span>
                         <span
                           className={`text-[10px] font-bold px-2 py-0.2 rounded-full ${
-                            tx.status === 'Escrow Locked'
+                            tx.status === 'Secured'
                               ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                              : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                              : tx.status === 'Released'
+                              ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                              : 'bg-slate-100 text-slate-700'
                           }`}
                         >
-                          {tx.status}
+                          {tx.status === 'Secured' ? '🔒 Escrow Locked' : tx.status === 'Released' ? '✅ Disbursed' : '⏳ Pending'}
                         </span>
                       </div>
                       <span className="text-[11px] text-slate-500 block mt-0.5">
@@ -291,15 +257,33 @@ export default function PaymentPage() {
 
                     <div className="text-right">
                       <span className="text-base font-extrabold text-slate-900">
-                        ₹{tx.amount.toLocaleString('en-IN')}
+                        ₹{tx.totalAmount.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-[10px] text-slate-400 block">{tx.date}</span>
+                      <span className="text-[10px] text-slate-400 block">{tx.createdAt}</span>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-200/60 flex justify-between items-center text-[11px] text-slate-500">
-                    <span>💳 {tx.payment_method}</span>
-                    <span className="font-mono text-[10px] text-slate-400">Order ID: {tx.order_id}</span>
+                  <div className="pt-2 border-t border-slate-200/60 flex justify-between items-center text-[11px]">
+                    <span className="font-mono text-[10px] text-slate-500">Vault: {tx.vaultRef}</span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setActiveReceipt(tx)}
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-[10px] font-bold text-slate-800 transition"
+                      >
+                        📄 View Receipt
+                      </button>
+                      {tx.status === 'Secured' && (
+                        <button
+                          type="button"
+                          disabled={isProcessing}
+                          onClick={() => releaseEscrowPayment(tx.id)}
+                          className="px-2.5 py-1 bg-[#14532d] hover:bg-[#052e16] text-white rounded-lg text-[10px] font-bold transition shadow-xs"
+                        >
+                          {isProcessing ? 'Releasing...' : 'Release Funds ➔'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
