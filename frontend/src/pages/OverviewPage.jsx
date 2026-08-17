@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useBackNavigation } from '../context/BackNavigationContext';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -29,6 +30,7 @@ ChartJS.register(
 export default function OverviewPage() {
   const { user, role } = useAuth();
   const { t, formatCurrency, formatDate } = useLanguage();
+  const { registerOverlay, unregisterOverlay } = useBackNavigation();
   const navigate = useNavigate();
   const [selectedCrop, setSelectedCrop] = useState('wheat');
   const [activeTab, setActiveTab] = useState('1M');
@@ -42,6 +44,16 @@ export default function OverviewPage() {
   ]);
   const [newNoteText, setNewNoteText] = useState('');
   const [showNoteModal, setShowNoteModal] = useState(false);
+
+  // Register Note Modal with Back Navigation
+  useEffect(() => {
+    if (showNoteModal) {
+      registerOverlay('overviewNoteModal', () => setShowNoteModal(false));
+    } else {
+      unregisterOverlay('overviewNoteModal');
+    }
+    return () => unregisterOverlay('overviewNoteModal');
+  }, [showNoteModal, registerOverlay, unregisterOverlay]);
 
   useEffect(() => {
     fetchEnamPrices();

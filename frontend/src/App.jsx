@@ -4,6 +4,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { NetworkProvider } from './context/NetworkContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { BackNavigationProvider } from './context/BackNavigationContext';
 import AppLayout from './components/AppLayout';
 
 // Core Application Pages (Phase 1)
@@ -39,10 +40,11 @@ export default function App() {
         <NetworkProvider>
           <NotificationProvider>
             <HashRouter>
-              <Routes>
-                {/* Main Application Shell */}
-                <Route path="/" element={<AppLayout />}>
-                  <Route index element={<Navigate to="/overview" replace />} />
+              <BackNavigationProvider>
+                <Routes>
+                  {/* Main Application Shell */}
+                  <Route path="/" element={<AppLayout />}>
+                    <Route index element={<Navigate to="/overview" replace />} />
                   
                   {/* Core Routes */}
                   <Route path="overview" element={<OverviewPage />} />
@@ -86,7 +88,8 @@ export default function App() {
                   <Route path="*" element={<Navigate to="/overview" replace />} />
                 </Route>
               </Routes>
-            </HashRouter>
+            </BackNavigationProvider>
+          </HashRouter>
           </NotificationProvider>
         </NetworkProvider>
       </AuthProvider>

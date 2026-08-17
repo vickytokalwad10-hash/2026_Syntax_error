@@ -20,7 +20,8 @@
     "optimal": "Optimal",
     "highRisk": "High Risk",
     "hazard": "Hazard",
-    "verified": "Verified"
+    "verified": "Verified",
+    "pressBackToExit": "Press back again to exit"
   },
   "nav": {
     "overview": "Overview & Mandi",

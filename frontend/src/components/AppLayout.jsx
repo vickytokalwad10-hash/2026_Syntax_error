@@ -1,20 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNetwork } from '../context/NetworkContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useBackNavigation } from '../context/BackNavigationContext';
 import NotificationDrawer from './NotificationDrawer';
 import NotificationSettingsModal from './NotificationSettingsModal';
 
 export default function AppLayout() {
   const { user, role, logout } = useAuth();
   const { isOnline, pendingSyncCount, isSyncing, triggerSync } = useNetwork();
-  const { unreadCount, isDrawerOpen, setIsDrawerOpen, urgentToast, dismissToast, markAsRead } = useNotifications();
+  const { unreadCount, isDrawerOpen, setIsDrawerOpen, isSettingsOpen, setIsSettingsOpen, urgentToast, dismissToast, markAsRead } = useNotifications();
   const { language, setLanguage, languages, t } = useLanguage();
+  const { registerOverlay, unregisterOverlay } = useBackNavigation();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+  // Register overlays with Back Navigation stack
+  useEffect(() => {
+    if (mobileDrawerOpen) {
+      registerOverlay('mobileDrawer', () => setMobileDrawerOpen(false));
+    } else {
+      unregisterOverlay('mobileDrawer');
+    }
+    return () => unregisterOverlay('mobileDrawer');
+  }, [mobileDrawerOpen, registerOverlay, unregisterOverlay]);
+
+  useEffect(() => {
+    if (isDrawerOpen) {
+      registerOverlay('notificationDrawer', () => setIsDrawerOpen(false));
+    } else {
+      unregisterOverlay('notificationDrawer');
+    }
+    return () => unregisterOverlay('notificationDrawer');
+  }, [isDrawerOpen, registerOverlay, unregisterOverlay, setIsDrawerOpen]);
+
+  useEffect(() => {
+    if (isSettingsOpen) {
+      registerOverlay('notificationSettings', () => setIsSettingsOpen(false));
+    } else {
+      unregisterOverlay('notificationSettings');
+    }
+    return () => unregisterOverlay('notificationSettings');
+  }, [isSettingsOpen, registerOverlay, unregisterOverlay, setIsSettingsOpen]);
 
   const navSections = [
     {

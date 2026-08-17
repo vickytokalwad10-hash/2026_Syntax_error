@@ -35,7 +35,8 @@ EN_LOCALE = {
         "optimal": "Optimal",
         "highRisk": "High Risk",
         "hazard": "Hazard",
-        "verified": "Verified"
+        "verified": "Verified",
+        "pressBackToExit": "Press back again to exit"
     },
     "nav": {
         "overview": "Overview & Mandi",
@@ -237,7 +238,8 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "optimal": "उत्तम (Optimal)",
             "highRisk": "उच्च जोखिम",
             "hazard": "खतरा",
-            "verified": "सत्यापित"
+            "verified": "सत्यापित",
+            "pressBackToExit": "ऐप बंद करने के लिए दोबारा बैक दबाएं"
         },
         "nav": {
             "overview": "मुख्य डैशबोर्ड व मंडी",
@@ -436,7 +438,8 @@ TRANSLATIONS_MAP: Dict[str, Dict[str, Any]] = {
             "optimal": "उत्तम (Optimal)",
             "highRisk": "उच्च धोका",
             "hazard": "धोकादायक",
-            "verified": "सत्यापित"
+            "verified": "सत्यापित",
+            "pressBackToExit": "ॲप बंद करण्यासाठी पुन्हा बॅक दाबा"
         },
         "nav": {
             "overview": "डॅशबोर्ड व बाजारभाव",

@@ -64,23 +64,23 @@ def build_apk():
     info_content = f"""🌾 AgriPulse AI — Android Build Information
 ==================================================
 Version:        v{version} (Phase 2 Pro)
-Build Code:     4
+Build Code:     5
 Built On:       {build_time}
 File Size:      {size_mb:.2f} MB
 Standard APK:   AgriPulse_AI.apk
 Versioned APK:  AgriPulse_AI_v{version}.apk
 
 Key Features in v{version}:
-1. Unified Single Source of Truth Multilingual System (react-i18next)
-2. 100% Translation Key Parity Across All 11 Indian Regional Languages (en, hi, mr, pa, gu, te, ta, kn, bn, ml, or)
-3. Shared Backend Language Engine & Centralized build_language_instruction()
-4. Kisan Mitra Copilot with 3-Step Per-Message Script Detection & 1-Tap App Language Switching
-5. Dynamic SpeechRecognition.lang & SpeechSynthesisUtterance.lang Locale Assignment
-6. Persistent In-App Notification Center & Auto-Alert Engine (Weather & Price Volatility)
-7. Anti-Spam Deduplication Engine (4h Price Cooldown, 24h Weather Cooldown)
-8. Multi-Rail Smart Escrow Vault & Razorpay / UPI Integration
-9. Responsive Viewport Overhaul across all 8 Breakpoints (360px to 1920px)
-10. CONTRIBUTING.md Guidelines to Prevent Future Multilingual Regressions
+1. Android Hardware & Gesture Back Button Navigation Engine (@capacitor/app)
+2. Modal & Drawer Priority Close Stack (closes open overlays before route back navigation)
+3. Non-Root Route History Back Stepping (`navigate(-1)`)
+4. Home / Overview Double-Tap Exit Confirmation (2-Second Reset Cycle)
+5. Hand-Drawn Papercraft Exit Toast Notification (`t('common.pressBackToExit')`)
+6. Unified Single Source of Truth Multilingual System (react-i18next)
+7. 100% Translation Key Parity Across All 11 Indian Regional Languages (en, hi, mr, pa, gu, te, ta, kn, bn, ml, or)
+8. Shared Backend Language Engine & Centralized build_language_instruction()
+9. Kisan Mitra Copilot with 3-Step Per-Message Script Detection & 1-Tap App Language Switching
+10. Persistent In-App Notification Center & Auto-Alert Engine (Weather & Price Volatility)
 ==================================================
 """
     with open(info_file, "w", encoding="utf-8") as f:

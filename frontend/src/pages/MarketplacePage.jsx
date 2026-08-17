@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useBackNavigation } from '../context/BackNavigationContext';
 
 export default function MarketplacePage() {
   const { user, role } = useAuth();
   const { t, formatCurrency } = useLanguage();
+  const { registerOverlay, unregisterOverlay } = useBackNavigation();
   const [activeCategory, setActiveCategory] = useState('All');
   const [biddingLot, setBiddingLot] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
+
+  // Register Bidding Modal with Back Navigation stack
+  useEffect(() => {
+    if (biddingLot) {
+      registerOverlay('marketplaceBidModal', () => setBiddingLot(null));
+    } else {
+      unregisterOverlay('marketplaceBidModal');
+    }
+    return () => unregisterOverlay('marketplaceBidModal');
+  }, [biddingLot, registerOverlay, unregisterOverlay]);
 
   // New Lot Form State
   const [lotCommodity, setLotCommodity] = useState('Sharbati Wheat (Grade A)');
