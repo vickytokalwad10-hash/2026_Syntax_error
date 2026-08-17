@@ -7,10 +7,12 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
+import { useEscrow } from '../context/EscrowContext';
 
 export default function BuyerDashboard() {
   const navigate = useNavigate();
   const { user, token, role, logout, API_BASE } = useAuth();
+  const { createEscrowBid, confirmEscrowPayment } = useEscrow();
 
   const [listings, setListings] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -135,6 +137,18 @@ export default function BuyerDashboard() {
   };
 
   const handleCompleteGatewayPayment = async () => {
+    if (activeCheckoutLot) {
+      const mockLot = {
+        id: activeCheckoutLot._id || activeCheckoutLot.listing_id,
+        commodity: activeCheckoutLot.crop_name,
+        seller: activeCheckoutLot.farmer_name,
+        quantity: activeCheckoutLot.quantity_quintals,
+        priceRaw: activeCheckoutLot.price_per_quintal
+      };
+      const escrowTxn = createEscrowBid(mockLot, activeCheckoutLot.price_per_quintal, user?.name || 'Buyer');
+      await confirmEscrowPayment(escrowTxn.id);
+
+    }
     setIsProcessingPayment(true);
     try {
       const mockPaymentId = `pay_rzp_${Date.now()}`;

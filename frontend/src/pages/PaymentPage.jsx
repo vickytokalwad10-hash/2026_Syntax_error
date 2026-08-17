@@ -8,7 +8,7 @@ export default function PaymentPage() {
   const { t } = useLanguage();
   const { user, role } = useAuth();
   const { isOnline } = useNetwork();
-  const { transactions: escrowTxns, setActiveReceipt, releaseEscrowPayment, isProcessing } = useEscrow();
+  const { transactions: escrowTxns, setActiveReceipt, releaseEscrowPayment, isProcessing, createEscrowBid, confirmEscrowPayment } = useEscrow();
 
   // Payment Checkout State
   const [amount, setAmount] = useState('284000'); // ₹2,84,000 default (100 Quintals Wheat)
@@ -54,9 +54,9 @@ export default function PaymentPage() {
     finalizePayment(orderId);
   };
 
-  const finalizePayment = (targetOrderId) => {
+  const finalizePayment = async (targetOrderId) => {
     setLoading(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       const newTx = {
         id: `TX-${Math.floor(1000 + Math.random() * 9000)}`,
         order_id: targetOrderId,
@@ -70,7 +70,18 @@ export default function PaymentPage() {
         badge: paymentRail === 'escrow' ? 'Protected' : 'Completed'
       };
 
-      setTransactions([newTx, ...transactions]);
+      if (paymentRail === 'escrow') {
+        const mockLot = {
+          id: targetOrderId,
+          commodity: lotTitle,
+          seller: sellerName,
+          quantity: 100,
+          priceRaw: parseFloat(amount) / 100,
+        };
+        const escrowTxn = createEscrowBid(mockLot, parseFloat(amount) / 100, user?.name || 'Authorized Buyer');
+         // Remove unused local transactions array logic
+        await confirmEscrowPayment(escrowTxn.id);
+      }
       setLoading(false);
       setToast(`🎉 Payment of ₹${parseFloat(amount).toLocaleString('en-IN')} successfully verified! Gateway Ref: ${targetOrderId}`);
       setTimeout(() => setToast(null), 6000);

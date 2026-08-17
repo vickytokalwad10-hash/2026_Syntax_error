@@ -53,6 +53,7 @@ export default function BuyerDashboardPage() {
   ];
 
   const handleConfirmEscrow = async () => {
+    if (isProcessing) return;
     if (!selectedLotForEscrow) return;
     const txn = createEscrowBid(
       {
@@ -281,7 +282,7 @@ export default function BuyerDashboardPage() {
                 onClick={handleConfirmEscrow}
                 className="px-5 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-xs"
               >
-                Lock Escrow Funds
+                {isProcessing ? 'Securing...' : 'Lock Escrow Funds'}
               </button>
             </div>
           </div>
