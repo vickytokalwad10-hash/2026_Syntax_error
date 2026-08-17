@@ -4,10 +4,14 @@ import logging
 import urllib.request
 import urllib.error
 from typing import Dict, Any, Optional
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 # Ensure environment variables are loaded from backend/.env
-load_dotenv()
+
 
 logger = logging.getLogger("agripulse.gemini")
 
