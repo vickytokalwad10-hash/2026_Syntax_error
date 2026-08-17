@@ -1,3 +1,4 @@
+// AgriPulse AI v2.1 - Firebase Auth Build
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
