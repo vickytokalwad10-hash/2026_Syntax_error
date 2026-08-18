@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d dist --dotfiles",
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node -e \"import('fs').then(fs=>fs.copyFileSync('dist/index.html','dist/404.html'))\"",
     "build:apk": "python ../scripts/build_apk.py",
     "lint": "oxlint",
     "preview": "vite preview"
