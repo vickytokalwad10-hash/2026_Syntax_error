@@ -83,11 +83,61 @@ export default function OverviewPage() {
   };
 
   const commodities = [
-    { id: 'wheat', name: 'Sharbati Wheat', hindi: 'गेहूं (शरबती)', price: '₹2,840', change: '+2.4%', msp: '₹2,425', arrivals: '480 MT', moisture: '11.2%', status: 'Active Demand' },
-    { id: 'rice', name: 'Basmati Paddy', hindi: 'बासमती धान', price: '₹3,950', change: '-0.8%', msp: '₹2,320', arrivals: '620 MT', moisture: '12.5%', status: 'Export Buying' },
-    { id: 'mustard', name: 'Mustard (Black)', hindi: 'सरसों (काली)', price: '₹5,780', change: '+1.2%', msp: '₹5,950', arrivals: '340 MT', moisture: '8.4%', status: 'Oil Mill Inquiries' },
-    { id: 'soybean', name: 'Soybean (Yellow)', hindi: 'सोयाबीन', price: '₹4,890', change: '+1.7%', msp: '₹4,892', arrivals: '890 MT', moisture: '10.0%', status: 'Firm Processing' },
-    { id: 'cotton', name: 'Bt Cotton (Long)', hindi: 'कपास', price: '₹7,420', change: '+3.1%', msp: '₹7,121', arrivals: '210 MT', moisture: '9.0%', status: 'Spinning Mill Rush' }
+    {
+      id: 'wheat',
+      name: t('overview.cropWheat') || 'Sharbati Wheat',
+      sub: 'Triticum aestivum',
+      price: '₹2,840',
+      change: '+2.4%',
+      msp: '₹2,425',
+      arrivals: '480 MT',
+      moisture: '11.2%',
+      status: t('overview.statusActiveDemand') || 'Active Demand'
+    },
+    {
+      id: 'rice',
+      name: t('overview.cropRice') || 'Basmati Paddy',
+      sub: 'Oryza sativa (1121)',
+      price: '₹3,950',
+      change: '-0.8%',
+      msp: '₹2,320',
+      arrivals: '620 MT',
+      moisture: '12.5%',
+      status: t('overview.statusExportBuying') || 'Export Buying'
+    },
+    {
+      id: 'mustard',
+      name: t('overview.cropMustard') || 'Mustard (Black)',
+      sub: 'Brassica nigra',
+      price: '₹5,780',
+      change: '+1.2%',
+      msp: '₹5,950',
+      arrivals: '340 MT',
+      moisture: '8.4%',
+      status: t('overview.statusOilMill') || 'Oil Mill Inquiries'
+    },
+    {
+      id: 'soybean',
+      name: t('overview.cropSoybean') || 'Soybean (Yellow)',
+      sub: 'Glycine max',
+      price: '₹4,890',
+      change: '+1.7%',
+      msp: '₹4,892',
+      arrivals: '890 MT',
+      moisture: '10.0%',
+      status: t('overview.statusFirmProcessing') || 'Firm Processing'
+    },
+    {
+      id: 'cotton',
+      name: t('overview.cropCotton') || 'Bt Cotton (Long)',
+      sub: 'Gossypium hirsutum',
+      price: '₹7,420',
+      change: '+3.1%',
+      msp: '₹7,121',
+      arrivals: '210 MT',
+      moisture: '9.0%',
+      status: t('overview.statusSpinningMill') || 'Spinning Mill Rush'
+    }
   ];
 
   const currentCommodity = commodities.find((c) => c.id === selectedCrop) || commodities[0];
@@ -104,7 +154,7 @@ export default function OverviewPage() {
 
     if (activeTab === '7D') {
       return {
-        labels: ['12 Aug', '13 Aug', '14 Aug', '15 Aug', '16 Aug', '17 Aug', 'Today (18 Aug)'],
+        labels: ['12 Aug', '13 Aug', '14 Aug', '15 Aug', '16 Aug', '17 Aug', '18 Aug'],
         prices: [base - 45, base - 25, base - 60, base - 15, base + 10, base - 5, base]
       };
     } else if (activeTab === '1M') {
@@ -131,7 +181,7 @@ export default function OverviewPage() {
     labels: chartLabels,
     datasets: [
       {
-        label: `${currentCommodity.name} Spot Price`,
+        label: `${currentCommodity.name} ${t('overview.spotPrice') || 'Spot Price'}`,
         data: chartPrices,
         borderColor: '#14532d',
         backgroundColor: (context) => {
@@ -167,7 +217,7 @@ export default function OverviewPage() {
         cornerRadius: 10,
         displayColors: false,
         callbacks: {
-          label: (context) => `Spot Mandi Price: ₹${context.raw}/qtl`
+          label: (context) => `${t('overview.spotPrice') || 'Spot Price'}: ₹${context.raw}/qtl`
         }
       }
     },
@@ -207,15 +257,17 @@ export default function OverviewPage() {
           <div className="space-y-1.5 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-emerald-100 border border-white/20 uppercase tracking-wider">
-                🌾 Seasonal Realization Briefing
+                🌾 {t('overview.seasonalBriefingBadge') || 'मौसमी आय विश्लेषण'}
               </span>
-              <span className="text-xs text-emerald-200">Karnal APMC District Node #489</span>
+              <span className="text-xs text-emerald-200">
+                {t('overview.districtNodeLabel') || 'करनाल एपीएमसी जिला नोड #489'}
+              </span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight font-editorial leading-tight">
-              ₹12,45,800 <span className="text-sm sm:text-base font-sans font-normal text-emerald-200">Estimated Harvest Revenue</span>
+              ₹12,45,800 <span className="text-sm sm:text-base font-sans font-normal text-emerald-200">{t('overview.estimatedRevenue') || 'अनुमानित फसल आय'}</span>
             </h1>
             <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
-              Your direct-trade realization is trending <strong>+₹140/qtl (+5.2%) above local APMC mandi average</strong>, backed by verified institutional escrow bids from ITC & Adani Wilmar.
+              {t('overview.briefingDescription') || 'आपका सीधा व्यापार भाव स्थानीय एपीएमसी मंडी औसत से +₹140/क्विंटल (+5.2%) अधिक है, जो आईटीसी और अडानी विल्मर की सुरक्षित एस्क्रो बोलियों से समर्थित है।'}
             </p>
           </div>
 
@@ -225,14 +277,14 @@ export default function OverviewPage() {
               className="flex-1 md:flex-none px-3.5 sm:px-4 py-2.5 bg-[#ffffff] text-[#14532d] hover:bg-[#f5f2eb] text-xs font-bold rounded-xl shadow-xs transition btn-tap flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-[18px]">psychology</span>
-              Crop Planning AI
+              {t('overview.cropPlanningAi') || 'फसल योजना AI'}
             </button>
             <button
               onClick={() => navigate('/marketplace')}
               className="flex-1 md:flex-none px-3.5 sm:px-4 py-2.5 bg-[#b45309] hover:bg-[#92400e] text-white text-xs font-bold rounded-xl shadow-xs transition btn-tap flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-[18px]">storefront</span>
-              B2B Trading Floor
+              {t('overview.b2bTradingFloor') || 'सीधा व्यापार मंडी'}
             </button>
           </div>
         </div>
@@ -256,10 +308,10 @@ export default function OverviewPage() {
             </h2>
             <p className="text-[11px] text-[#78716c]">
               {priceSource === 'agripulse'
-                ? 'Real-time FPO & APMC direct trade intelligence across major North Indian agricultural nodes'
+                ? (t('overview.realTimeFeedSubtitle') || 'उत्तर भारत के प्रमुख कृषि केंद्रों पर एफपीओ व एपीएमसी का सीधा व्यापार')
                 : priceSource === 'enam'
-                ? 'Official electronic auction settlement rates from National Agriculture Market (e-NAM / SFAC)'
-                : 'Official daily modal spot rates from Ministry of Agriculture (Agmarknet via data.gov.in)'}
+                ? t('overview.enamAttribution')
+                : t('overview.govtAttribution')}
             </p>
           </div>
 
@@ -315,7 +367,7 @@ export default function OverviewPage() {
                 <div className="flex justify-between items-start mb-1">
                   <div className="min-w-0 pr-1">
                     <span className="text-xs font-extrabold text-[#1c1917] block truncate">{c.name}</span>
-                    <span className="text-[10px] text-[#78716c] truncate block">{c.hindi}</span>
+                    <span className="text-[10px] text-[#78716c] truncate block">{c.sub}</span>
                   </div>
                   <span
                     className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
@@ -329,7 +381,7 @@ export default function OverviewPage() {
                   {c.price} <span className="text-[10px] font-normal text-[#78716c]">/qtl</span>
                 </div>
                 <div className="pt-2 mt-2 border-t border-[#f5f2eb] flex justify-between items-center text-[10px] text-[#78716c]">
-                  <span className="truncate">MSP: {c.msp}</span>
+                  <span className="truncate">{t('overview.msp') || 'MSP'}: {c.msp}</span>
                   <span className="font-bold text-[#14532d] truncate ml-1">{c.status}</span>
                 </div>
               </div>
@@ -358,52 +410,22 @@ export default function OverviewPage() {
                       {item.source === 'enam' ? 'e-NAM Traded' : 'Agmarknet Spot'}
                     </span>
                   </div>
-
-                  <div className="flex justify-between items-end pt-2 border-t border-[#f5f2eb]">
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#f5f2eb] text-xs">
                     <div>
-                      <span className="text-[10px] text-[#78716c] block font-bold uppercase">
-                        {item.source === 'enam' ? 'e-NAM Clearing Rate' : t('overview.modalPrice')}
-                      </span>
-                      <span className="text-lg font-black text-[#14532d]">₹{item.modal_price}</span>
-                      <span className="text-[10px] text-[#78716c] font-normal block">Range: ₹{item.min_price} – ₹{item.max_price}/qtl</span>
-                      {item.arrivals_tonnes && (
-                        <span className="text-[10px] text-[#57534e] font-medium block mt-0.5">
-                          📦 Traded: {item.arrivals_tonnes} MT
-                        </span>
-                      )}
+                      <span className="text-[10px] text-[#78716c] block">{t('overview.modalPrice')}</span>
+                      <span className="font-extrabold text-sm text-[#14532d]">₹{item.modal_price.toLocaleString('en-IN')}<span className="text-[10px] font-normal text-[#78716c]">/qtl</span></span>
                     </div>
-
-                    <div className="text-right space-y-0.5">
-                      {item.msp_benchmark ? (
-                        <div>
-                          <span className="text-[10px] text-[#78716c] block">MSP: ₹{item.msp_benchmark}</span>
-                          {item.msp_spread !== null && item.msp_spread !== undefined && (
-                            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md inline-block ${
-                              item.msp_spread >= 0 ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'
-                            }`}>
-                              {item.msp_spread >= 0 ? `+₹${item.msp_spread} over MSP` : `-₹${Math.abs(item.msp_spread)} below MSP`}
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-[10px] text-[#a8a29e] block">Commercial Crop</span>
-                      )}
-                      <span className="text-[10px] text-[#78716c] block">📅 {item.arrival_date}</span>
+                    <div>
+                      <span className="text-[10px] text-[#78716c] block">{t('overview.minMaxPrice')}</span>
+                      <span className="font-semibold text-[#44403c]">₹{item.min_price} - ₹{item.max_price}</span>
                     </div>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] text-[#a8a29e] pt-1">
+                    <span>{t('overview.arrivalDate')}: {item.arrival_date}</span>
+                    <span className="font-bold text-[#14532d] uppercase">Grade FAQ</span>
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Official NDSAP & e-NAM Mandatory Attribution Banner */}
-            <div className="p-3 bg-[#faf8f5] border border-[#e7e5e4] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-[#57534e]">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#14532d] text-[18px]">verified</span>
-                <span>{govtAttribution}</span>
-              </div>
-              <span className="text-[10px] font-bold text-[#78716c] shrink-0 bg-white px-2 py-1 rounded-lg border border-[#e7e5e4]">
-                NDSAP Open Data • Updated Daily
-              </span>
             </div>
           </div>
         )}
@@ -413,21 +435,69 @@ export default function OverviewPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <span className="font-extrabold text-[#1c1917] uppercase tracking-wider font-editorial text-xs sm:text-sm">
-            कृषि सुविधाएं • Farmer Operations & Tools
+            {t('overview.farmerToolsTitle') || 'कृषि सुविधाएं व उपयोगी साधन'}
           </span>
-          <span className="text-[11px] text-[#78716c] hidden sm:inline">8 Practical Agronomy Modules</span>
+          <span className="text-[11px] text-[#78716c] hidden sm:inline">{t('overview.modulesCount') || '8 प्रमुख कृषि मॉड्यूल'}</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
           {[
-            { title: 'Govt Schemes', sub: 'PM-KISAN & फसल बीमा', icon: 'account_balance', route: '/schemes', tag: 'DBT Active' },
-            { title: 'KCC Loans', sub: '4% ब्याज दर पर ऋण', icon: 'credit_score', route: '/finance', tag: 'NABARD Scale' },
-            { title: 'Payment Vault', sub: 'सुरक्षित एस्क्रो भुगतान', icon: 'payments', route: '/payment', tag: 'RBI Compliant' },
-            { title: 'Crop Doctor', sub: 'फोटो खींचकर रोग पहचान', icon: 'photo_camera', route: '/diagnose', tag: 'ICAR Dosage' },
-            { title: 'Smart Irrigation', sub: 'सिंचाई समय व IoT सेंसर', icon: 'water_drop', route: '/irrigation', tag: 'Water Saver' },
-            { title: 'Farm Rentals', sub: 'ट्रैक्टर, कंबाइन व मजदूर', icon: 'agriculture', route: '/rentals', tag: 'Sharing Hub' },
-            { title: 'Crop Almanac', sub: 'बुवाई से कटाई पंचांग', icon: 'calendar_month', route: '/calendar', tag: 'Push Alerts' },
-            { title: 'Farmer Forum', sub: 'किसान चौपाल व अनुभव', icon: 'groups', route: '/community', tag: 'Peer Advice' }
+            {
+              title: t('overview.tileGovtSchemes') || 'Govt Schemes',
+              sub: t('overview.tileGovtSchemesSub') || 'PM-KISAN & फसल बीमा',
+              icon: 'account_balance',
+              route: '/schemes',
+              tag: t('overview.tileGovtSchemesTag') || 'DBT Active'
+            },
+            {
+              title: t('overview.tileKccLoans') || 'KCC Loans',
+              sub: t('overview.tileKccLoansSub') || '4% ब्याज दर पर ऋण',
+              icon: 'credit_score',
+              route: '/finance',
+              tag: t('overview.tileKccLoansTag') || 'NABARD Scale'
+            },
+            {
+              title: t('overview.tilePaymentVault') || 'Payment Vault',
+              sub: t('overview.tilePaymentVaultSub') || 'सुरक्षित एस्क्रो भुगतान',
+              icon: 'payments',
+              route: '/payment',
+              tag: t('overview.tilePaymentVaultTag') || 'RBI Compliant'
+            },
+            {
+              title: t('overview.tileCropDoctor') || 'Crop Doctor',
+              sub: t('overview.tileCropDoctorSub') || 'फोटो खींचकर रोग पहचान',
+              icon: 'photo_camera',
+              route: '/diagnose',
+              tag: t('overview.tileCropDoctorTag') || 'ICAR Dosage'
+            },
+            {
+              title: t('overview.tileSmartIrrigation') || 'Smart Irrigation',
+              sub: t('overview.tileSmartIrrigationSub') || 'सिंचाई समय व IoT सेंसर',
+              icon: 'water_drop',
+              route: '/irrigation',
+              tag: t('overview.tileSmartIrrigationTag') || 'Water Saver'
+            },
+            {
+              title: t('overview.tileFarmRentals') || 'Farm Rentals',
+              sub: t('overview.tileFarmRentalsSub') || 'ट्रैक्टर, कंबाइन व मजदूर',
+              icon: 'agriculture',
+              route: '/rentals',
+              tag: t('overview.tileFarmRentalsTag') || 'Sharing Hub'
+            },
+            {
+              title: t('overview.tileCropAlmanac') || 'Crop Almanac',
+              sub: t('overview.tileCropAlmanacSub') || 'बुवाई से कटाई पंचांग',
+              icon: 'calendar_month',
+              route: '/calendar',
+              tag: t('overview.tileCropAlmanacTag') || 'Push Alerts'
+            },
+            {
+              title: t('overview.tileFarmerForum') || 'Farmer Forum',
+              sub: t('overview.tileFarmerForumSub') || 'किसान चौपाल व अनुभव',
+              icon: 'groups',
+              route: '/community',
+              tag: t('overview.tileFarmerForumTag') || 'Peer Advice'
+            }
           ].map((tile, idx) => (
             <button
               key={idx}
@@ -458,31 +528,33 @@ export default function OverviewPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[#f5f2eb]">
             <div>
               <h3 className="font-extrabold text-[#1c1917] flex items-center gap-2 font-editorial text-sm sm:text-base">
-                <span>{currentCommodity.name} • 30-Day Spot Price</span>
+                <span>{currentCommodity.name} • {t('overview.spotPrice') || 'Spot Price'}</span>
                 <span className="text-xs font-bold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded-full font-sans">
                   {currentCommodity.change}
                 </span>
               </h3>
-              <p className="text-[11px] text-[#78716c]">Weighted average realized spot prices across North India APMCs</p>
+              <p className="text-[11px] text-[#78716c]">
+                {t('overview.chartSubtitle') || 'उत्तर भारत की मंडियों में वास्तविक भारित औसत हाजिर भाव'}
+              </p>
             </div>
 
             <div className="flex gap-1 bg-[#f5f2eb] p-1 rounded-xl text-xs font-bold self-end sm:self-auto">
-              {['7D', '1M', '3M', '1Y'].map((t) => (
+              {['7D', '1M', '3M', '1Y'].map((timeTab) => (
                 <button
-                  key={t}
-                  onClick={() => setActiveTab(t)}
+                  key={timeTab}
+                  onClick={() => setActiveTab(timeTab)}
                   className={`px-2.5 py-1 rounded-lg transition ${
-                    activeTab === t ? 'bg-white text-[#1c1917] shadow-2xs' : 'text-[#78716c] hover:text-[#1c1917]'
+                    activeTab === timeTab ? 'bg-white text-[#1c1917] shadow-2xs font-extrabold' : 'text-[#78716c] hover:text-[#1c1917]'
                   }`}
                 >
-                  {t}
+                  {timeTab}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="h-60 sm:h-72 lg:h-80 w-full">
-            <Line data={chartData} options={chartOptions} />
+            <Line key={`${selectedCrop}-${activeTab}`} data={chartData} options={chartOptions} />
           </div>
         </div>
 
@@ -492,13 +564,13 @@ export default function OverviewPage() {
             <div className="flex justify-between items-center pb-2 border-b border-[#f5f2eb]">
               <h3 className="font-extrabold text-[#1c1917] flex items-center gap-1.5 font-editorial text-sm sm:text-base">
                 <span className="material-symbols-outlined text-[#14532d] text-[18px]">checklist</span>
-                खेत डायरी • Field Tasks
+                {t('overview.fieldDiary') || 'खेत डायरी व कार्य'}
               </h3>
               <button
                 onClick={() => setShowNoteModal(true)}
                 className="text-[11px] font-bold text-[#b45309] hover:text-[#92400e]"
               >
-                + Add Note
+                {t('overview.addNote') || '+ नोट जोड़ें'}
               </button>
             </div>
 
@@ -530,7 +602,7 @@ export default function OverviewPage() {
             onClick={() => navigate('/calendar')}
             className="w-full py-2.5 bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#1c1917] text-xs font-bold rounded-xl transition mt-3"
           >
-            Open Complete Sowing Almanac ➔
+            {t('overview.openAlmanac') || 'संपूर्ण बुवाई पंचांग खोलें ➔'}
           </button>
         </div>
       </div>
@@ -539,7 +611,9 @@ export default function OverviewPage() {
       {showNoteModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-floating border border-[#e7e5e4] animate-in zoom-in-95">
-            <h4 className="text-sm font-extrabold text-[#1c1917] mb-2 font-editorial">Add Field Task Note</h4>
+            <h4 className="text-sm font-extrabold text-[#1c1917] mb-2 font-editorial">
+              {t('overview.addNoteTitle') || 'खेत कार्य नोट जोड़ें'}
+            </h4>
             <form onSubmit={addNote} className="space-y-3 text-xs">
               <textarea
                 value={newNoteText}
@@ -555,13 +629,13 @@ export default function OverviewPage() {
                   onClick={() => setShowNoteModal(false)}
                   className="px-3 py-1.5 font-bold text-[#78716c] hover:bg-[#f5f2eb] rounded-xl"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-1.5 font-bold text-white bg-[#14532d] hover:bg-[#052e16] rounded-xl shadow-xs"
                 >
-                  Save Note
+                  {t('common.save')}
                 </button>
               </div>
             </form>

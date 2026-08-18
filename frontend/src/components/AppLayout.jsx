@@ -12,7 +12,7 @@ export default function AppLayout() {
   const { user, role, logout } = useAuth();
   const { isOnline, pendingSyncCount, isSyncing, triggerSync } = useNetwork();
   const { unreadCount, isDrawerOpen, setIsDrawerOpen, isSettingsOpen, setIsSettingsOpen, urgentToast, dismissToast, markAsRead } = useNotifications();
-  const { language, setLanguage, languages, t } = useLanguage();
+  const { language, setLanguage, languages, t, formatDate } = useLanguage();
   const { registerOverlay, unregisterOverlay } = useBackNavigation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,45 +50,45 @@ export default function AppLayout() {
     {
       title: t('nav.overview'),
       links: [
-        { to: '/overview', label: t('nav.overview'), subLabel: 'दैनिक मंडी भाव', icon: 'grid_view' },
-        { to: '/marketplace', label: t('nav.marketplace'), subLabel: 'सीधा व्यापार', icon: 'storefront' },
-        { to: '/copilot', label: t('nav.copilot'), subLabel: 'आवाज सहायक', icon: 'mic' }
+        { to: '/overview', label: t('nav.overview'), subLabel: t('overview.liveMandiPrices'), icon: 'grid_view' },
+        { to: '/marketplace', label: t('nav.marketplace'), subLabel: t('marketplace.title'), icon: 'storefront' },
+        { to: '/copilot', label: t('nav.copilot'), subLabel: t('copilot.title'), icon: 'mic' }
       ]
     },
     {
       title: t('nav.weather'),
       links: [
-        { to: '/satellite', label: t('nav.satellite'), subLabel: 'उपग्रह फसल निगरानी', icon: 'satellite_alt' },
-        { to: '/weather', label: t('nav.weather'), subLabel: 'मौसम व स्प्रे एडवाइजरी', icon: 'cloud' },
-        { to: '/simulator', label: t('nav.simulator'), subLabel: 'मुनाफा सिम्युलेटर', icon: 'calculate' },
-        { to: '/arbitrage', label: t('nav.arbitrage'), subLabel: 'मंडी अंतर', icon: 'compare_arrows' }
+        { to: '/satellite', label: t('nav.satellite'), subLabel: t('satellite.title'), icon: 'satellite_alt' },
+        { to: '/weather', label: t('nav.weather'), subLabel: t('weather.title'), icon: 'cloud' },
+        { to: '/simulator', label: t('nav.simulator'), subLabel: t('simulator.title'), icon: 'calculate' },
+        { to: '/arbitrage', label: t('nav.arbitrage'), subLabel: t('arbitrage.title'), icon: 'compare_arrows' }
       ]
     },
     {
       title: t('nav.schemes'),
       links: [
-        { to: '/schemes', label: t('nav.schemes'), subLabel: 'PM-KISAN व फसल बीमा', icon: 'account_balance' },
-        { to: '/finance', label: t('nav.finance'), subLabel: '4% किसान क्रेडिट कार्ड', icon: 'credit_score' },
-        { to: '/payment', label: 'Payment & Escrow Vault', subLabel: 'सुरक्षित भुगतान', icon: 'payments' }
+        { to: '/schemes', label: t('nav.schemes'), subLabel: t('schemes.title'), icon: 'account_balance' },
+        { to: '/finance', label: t('nav.finance'), subLabel: t('finance.title'), icon: 'credit_score' },
+        { to: '/payment', label: t('nav.payment'), subLabel: t('payment.title'), icon: 'payments' }
       ]
     },
     {
       title: t('nav.community'),
       links: [
-        { to: '/diagnose', label: t('nav.diagnose'), subLabel: 'कीट व रोग पहचान', icon: 'photo_camera' },
-        { to: '/calendar', label: t('nav.calendar'), subLabel: 'कृषि पंचांग', icon: 'calendar_month' },
-        { to: '/community', label: t('nav.community'), subLabel: 'किसान चौपाल', icon: 'groups' },
-        { to: '/livestock', label: t('nav.livestock'), subLabel: 'पशु चिकित्सा व दूध भाव', icon: 'pets' }
+        { to: '/diagnose', label: t('nav.diagnose'), subLabel: t('diagnose.title'), icon: 'photo_camera' },
+        { to: '/calendar', label: t('nav.calendar'), subLabel: t('calendar.title'), icon: 'calendar_month' },
+        { to: '/community', label: t('nav.community'), subLabel: t('community.title'), icon: 'groups' },
+        { to: '/livestock', label: t('nav.livestock'), subLabel: t('livestock.title'), icon: 'pets' }
       ]
     }
   ];
 
   const quickMobileTabs = [
-    { to: '/overview', label: 'Mandi', icon: 'grid_view' },
-    { to: '/schemes', label: 'Schemes', icon: 'account_balance' },
-    { to: '/copilot', label: 'Voice AI', icon: 'mic', isCenterFab: true },
-    { to: '/diagnose', label: 'Doctor', icon: 'photo_camera' },
-    { to: '/payment', label: 'Escrow', icon: 'payments' }
+    { to: '/overview', label: t('nav.overview'), icon: 'grid_view' },
+    { to: '/schemes', label: t('nav.schemes'), icon: 'account_balance' },
+    { to: '/copilot', label: t('nav.copilot'), icon: 'mic', isCenterFab: true },
+    { to: '/diagnose', label: t('nav.diagnose'), icon: 'photo_camera' },
+    { to: '/payment', label: t('nav.payment'), icon: 'payments' }
   ];
 
   const handleToastAction = (toast) => {
@@ -143,7 +143,7 @@ export default function AppLayout() {
                     onClick={() => handleToastAction(urgentToast)}
                     className="text-[11px] font-extrabold text-[#14532d] hover:underline"
                   >
-                    {urgentToast.action_label || 'View Details'} ➔
+                    {urgentToast.action_label || t('common.details')} ➔
                   </button>
                 </div>
               )}
@@ -152,7 +152,7 @@ export default function AppLayout() {
             <button
               onClick={dismissToast}
               className="text-[#a8a29e] hover:text-[#1c1917] p-1 shrink-0"
-              title="Dismiss"
+              title={t('common.close')}
             >
               ✕
             </button>
@@ -173,10 +173,10 @@ export default function AppLayout() {
             <div>
               <h1 className="font-extrabold text-base tracking-tight text-[#1c1917] leading-none font-editorial flex items-center gap-1.5">
                 AgriPulse <span className="font-sans text-[10px] font-bold text-[#b45309] bg-[#fef3c7] px-1.5 py-0.2 rounded-md">भारत</span>
-                <span className="font-sans text-[9px] font-bold text-[#14532d] bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-md">v2.2.0</span>
+                <span className="font-sans text-[9px] font-bold text-[#14532d] bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-md">v2.7.0</span>
               </h1>
               <span className="text-[11px] text-[#78716c] font-medium block mt-1">
-                {role === 'buyer' ? '🏢 Institutional Buyer Terminal' : '🌾 Farmer & FPO Network'}
+                {role === 'buyer' ? (t('common.buyerTerminal') || '🏢 संस्थागत क्रेता टर्मिनल') : (t('common.farmerNetwork') || '🌾 किसान व एफपीओ नेटवर्क')}
               </span>
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function AppLayout() {
               </div>
               <div className="truncate">
                 <p className="font-bold text-[#1c1917] truncate leading-tight">{user?.name || 'Ramesh Devidas Patil'}</p>
-                <span className="text-[10px] text-[#78716c]">📍 Karnal West (12.5 Ac)</span>
+                <span className="text-[10px] text-[#78716c]">📍 {t('common.karnalNode') || 'करनाल (12.5 एकड़)'}</span>
               </div>
             </div>
             <button
@@ -241,7 +241,7 @@ export default function AppLayout() {
                 logout();
                 navigate('/login');
               }}
-              title="Sign Out"
+              title={t('common.signOut')}
               className="p-1 text-[#a8a29e] hover:text-rose-700 transition"
             >
               <span className="material-symbols-outlined text-[18px]">logout</span>
@@ -269,11 +269,11 @@ export default function AppLayout() {
             <div className="truncate">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
-                <span className="text-[11px] font-bold text-[#57534e] truncate">Karnal APMC District Node</span>
+                <span className="text-[11px] font-bold text-[#57534e] truncate">{t('common.karnalNode') || 'करनाल एपीएमसी जिला नोड'}</span>
                 <span className="text-[10px] text-[#a8a29e] hidden sm:inline">{t('common.liveFeed')}</span>
               </div>
               <p className="text-xs sm:text-sm font-extrabold text-[#1c1917] truncate">
-                Today: Tuesday, 18 August 2026
+                {t('common.today')}: {formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             </div>
           </div>
@@ -309,7 +309,7 @@ export default function AppLayout() {
                 {isOnline ? (isSyncing ? 'sync' : 'wifi') : 'wifi_off'}
               </span>
               <span className="hidden sm:inline">
-                {isOnline ? (isSyncing ? 'Syncing...' : 'Online') : `Offline (${pendingSyncCount})`}
+                {isOnline ? (isSyncing ? (t('common.syncing') || 'सिंक हो रहा है...') : (t('common.online') || 'ऑनलाइन')) : `${t('common.offline') || 'ऑफ़लाइन'} (${pendingSyncCount})`}
               </span>
             </button>
 
@@ -318,7 +318,7 @@ export default function AppLayout() {
               onClick={() => setIsDrawerOpen(true)}
               className="p-1.5 sm:p-2 rounded-xl bg-[#f5f2eb] hover:bg-[#e7e5e4] text-[#44403c] transition relative active:scale-95"
               aria-label="Open Notification Center"
-              title="Alerts & Advisories"
+              title={t('nav.notifications')}
             >
               <span className="material-symbols-outlined text-[20px] text-[#14532d]">notifications</span>
               {unreadCount > 0 && (
@@ -351,7 +351,7 @@ export default function AppLayout() {
                 <div className="w-11 h-11 rounded-full bg-[#14532d] text-white flex items-center justify-center shadow-md border-2 border-white active:scale-95 transition">
                   <span className="material-symbols-outlined text-[22px]">mic</span>
                 </div>
-                <span className="text-[10px] font-extrabold text-[#14532d] mt-0.5">Kisan Mitra</span>
+                <span className="text-[10px] font-extrabold text-[#14532d] mt-0.5">{t('nav.copilot')}</span>
               </NavLink>
             );
           }
@@ -392,7 +392,7 @@ export default function AppLayout() {
             <div className="flex justify-between items-center pb-3 border-b border-[#f5f2eb] mb-3">
               <div className="flex items-center gap-2">
                 <span className="text-xl">🌱</span>
-                <span className="font-extrabold text-sm text-[#1c1917] font-editorial">AgriPulse Menu</span>
+                <span className="font-extrabold text-sm text-[#1c1917] font-editorial">{t('common.appName')}</span>
               </div>
               <button
                 onClick={() => setMobileDrawerOpen(false)}
